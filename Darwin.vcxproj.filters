@@ -40,6 +40,12 @@
     <ClCompile Include="Src\Renderer\Mesh.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Renderer\VertexGroup.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Renderer\MaterialGroup.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Renderer\Camera.h">
@@ -69,6 +75,15 @@
       <Filter>IO</Filter>
     </ClInclude>
     <ClInclude Include="Src\Renderer\Mesh.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Renderer\Model.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Renderer\MaterialGroup.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Renderer\VertexGroup.h">
       <Filter>Renderer</Filter>
     </ClInclude>
   </ItemGroup>

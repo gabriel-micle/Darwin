@@ -86,8 +86,10 @@
     <ClCompile Include="Src\Math\Vector4.cpp" />
     <ClCompile Include="Src\Renderer\Camera.cpp" />
     <ClCompile Include="Src\Renderer\Material.cpp" />
+    <ClCompile Include="Src\Renderer\MaterialGroup.cpp" />
     <ClCompile Include="Src\Renderer\Mesh.cpp" />
     <ClCompile Include="Src\Renderer\Texture.cpp" />
+    <ClCompile Include="Src\Renderer\VertexGroup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\IO\FileReader.h" />
@@ -98,8 +100,11 @@
     <ClInclude Include="Src\Headers.h" />
     <ClInclude Include="Src\Renderer\Camera.h" />
     <ClInclude Include="Src\Renderer\Material.h" />
+    <ClInclude Include="Src\Renderer\MaterialGroup.h" />
     <ClInclude Include="Src\Renderer\Mesh.h" />
+    <ClInclude Include="Src\Renderer\Model.h" />
     <ClInclude Include="Src\Renderer\Texture.h" />
+    <ClInclude Include="Src\Renderer\VertexGroup.h" />
     <ClInclude Include="Src\Types.h" />
   </ItemGroup>
   <ItemGroup>
