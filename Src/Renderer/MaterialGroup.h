@@ -14,13 +14,10 @@ public:
 
 	int		cIndices;
 	int		nIndices;
-	int *	vIndices[3];
+	int *	vIndices;
 
-	void	addIndexPTN (int & ip, int & it, int & in);
-	void	addIndexP	(int & ip);
-	void	addIndexPT	(int & ip, int & it);
-	void	addIndexPN	(int & ip, int & in);
-	void	finalize	();
+	void	addIndex (int & idx);
+	void	finalize ();
 
 };
 

@@ -2,9 +2,12 @@
 
 precision highp float;
 
-out vec4 outFragColor;
+in	vec3 Normal;
+in	vec2 TexCoord;
+
+out vec4 FragColor;
 
 void main() {
 
-	outFragColor = vec4(0.0, 1.0, 0.0, 1.0);
+	FragColor = vec4(Normal, TexCoord.x);
 }

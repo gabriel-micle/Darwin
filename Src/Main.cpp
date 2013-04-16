@@ -4,10 +4,12 @@
 // Handle to a program object
 GLuint programObject;
 
-GLuint posVBO;
-GLuint posVAO;
+GLuint pVBO;
+GLuint tVBO;
+GLuint nVBO;
+GLuint iVBO;
+GLuint VAO;
 
-GLuint idxVBO;
 
 
 VertexGroup	  * pVG;
@@ -29,36 +31,64 @@ void Init (ESContext * esContext) {
 	programObject = esLoadProgram(vShaderStr, fShaderStr);
 
 	// Read OBJ file.
-	ReadWavefrontOBJ("./Data/Models/test.obj", pVG, pMG);
+	ReadWavefrontOBJ("./Data/Models/Woman1.obj", pVG, pMG);
 
-	// Create vertex buffer.
-	glGenBuffers(1, &posVBO);
-	glGenBuffers(1, &idxVBO);	// Buffer for indices.
 
 	// Load vertex position data into buffer.
-	glBindBuffer(GL_ARRAY_BUFFER, posVBO);
+	glGenBuffers(1, &pVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, pVBO);
 	glBufferData(GL_ARRAY_BUFFER, pVG->nPositions * sizeof(Vector3), pVG->vPositions, GL_STATIC_DRAW);
+
+	// Load vertex texCoord data into buffer.
+	glGenBuffers(1, &tVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, tVBO);
+	glBufferData(GL_ARRAY_BUFFER, pVG->nTexCoords * sizeof(Vector2), pVG->vTexCoords, GL_STATIC_DRAW);
+
+	// Load vertex texCoord data into buffer.
+	glGenBuffers(1, &nVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, nVBO);
+	glBufferData(GL_ARRAY_BUFFER, pVG->nNormals * sizeof(Vector3), pVG->vNormals, GL_STATIC_DRAW);
+
+	// Reset binding.
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Load index data into buffer.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxVBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, pMG->nIndices * sizeof(int), pMG->vIndices[0], GL_STATIC_DRAW);
+	glGenBuffers(1, &iVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iVBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, pMG->nIndices * sizeof(int), pMG->vIndices, GL_STATIC_DRAW);
+
+	// Reset binding.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 
 	// Get position location.
-	GLuint loc = glGetAttribLocation(programObject, "inPosition");
+	GLint loc;
 
 	// Create vertex array.
-	glGenVertexArrays(1, &posVAO);
-	glBindVertexArray(posVAO);
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
 
-	glBindBuffer(GL_ARRAY_BUFFER, posVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, pVBO);
+	loc = glGetAttribLocation(programObject, "inPosition");
 	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(loc);
 
+	
+	glBindBuffer(GL_ARRAY_BUFFER, tVBO);
+	loc = glGetAttribLocation(programObject, "inTexCoord");
+	glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(loc);
+	
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, nVBO);
+	loc = glGetAttribLocation(programObject, "inNormal");
+	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(loc);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iVBO);
 
 	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
 }
@@ -69,16 +99,16 @@ void Init (ESContext * esContext) {
 void Draw (ESContext * esContext) {
 
 	// Set the viewport
-	glViewport (0, 0, esContext->width, esContext->height);
+	glViewport(0, 0, esContext->width, esContext->height);
 
 	// Clear the color buffer
-	glClear (GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Use the program object
-	glUseProgram (programObject);
+	glUseProgram(programObject);
 
-	glBindVertexArray(posVAO);
-	glDrawElements (GL_TRIANGLES, pMG->nIndices, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(VAO);
+	glDrawElementsInstanced (GL_TRIANGLES, pMG->nIndices, GL_UNSIGNED_INT, 0, 2);
 
 	eglSwapBuffers (esContext->eglDisplay, esContext->eglSurface);
 }

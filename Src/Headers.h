@@ -9,8 +9,8 @@
 #include "esUtil.h"
 
 #include "Math\Math.h"
-#include "Renderer\Camera.h"
 
+#include "Renderer\Camera.h"
 #include "Renderer\Model.h"
 
 #include "IO\FileReader.h"

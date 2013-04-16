@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "esUtil.h"
+
 #include "..\Math\Math.h"
 
 #include "VertexGroup.h"

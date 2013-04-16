@@ -5,6 +5,32 @@
 
 #define MAX_BUFFER_SIZE	1024
 
+#include <vector>
+#include <map>
+
+class tuple {
+public:
+	int x;
+	int y;
+	int z;
+
+	tuple(int _x, int  _y, int _z) : x(_x), y(_y), z(_z) {}
+	bool operator < (const tuple & t) const {
+		if (x == t.x) {
+			if (y == t.y) {
+				return z < t.z;
+			} else {
+				return y < t.y;
+			}
+		} else {
+			return x < t.x;
+		}
+	}
+	bool operator == (const tuple & t) const {
+		return x == t.x && y == t.y && z == t.z;
+	}
+};
+
 
 void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup *& pMG) {
 
@@ -17,12 +43,20 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 	char buffer[MAX_BUFFER_SIZE];
 	memset(buffer, 0, MAX_BUFFER_SIZE);
 
+	std::vector<Vector3> vPositions;
+	std::vector<Vector2> vTexCoords;
+	std::vector<Vector3> vNormals;
 
-	pVG = new VertexGroup();
+	std::map<tuple, int> indexMap;
+	int currentIdx = 0;
+
+	pVG	= new VertexGroup();
 	pMG = new MaterialGroup();
 
-	float	x, y, z;
-	int		p, t, n;
+	float x, y, z;
+	int	p = 0;
+	int t = 0;
+	int n = 0;
 
 	while (fgets(buffer, MAX_BUFFER_SIZE, pFile)) {
 
@@ -54,20 +88,19 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 
 			// Positions.
 			sscanf(buffer + 2, "%f %f %f", &x, &y, &z);
-
-			pVG->addPosition(x, y, z);
+			vPositions.push_back(Vector3(x, y, z));
 
 		} else if (strncmp (buffer, "vt", 2) == 0) {
 
 			// Texture coordinates.
 			sscanf(buffer + 3, "%f %f", &x, &y);
-			pVG->addTexCoord(x, y);
+			vTexCoords.push_back(Vector2(x, y));
 
 		} else if (strncmp (buffer, "vn", 2) == 0) {
 
 			// Normals.
 			sscanf(buffer + 3, "%f %f %f", &x, &y, &z);
-			pVG->addNormal(x, y, z);
+			vNormals.push_back(Vector3(x, y, z));
 
 		} else if (strncmp (buffer, "usemtl", 6) == 0) {
 			//TODO
@@ -78,15 +111,12 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 			// Indices.
 			char * pch = buffer + 2;
 
-			char indexType = 0;
-
 			for (int i = 0 ; i < 3; i++) {
 
 				char * end = strchr(pch, ' ');
 
 				// Position index.
 				sscanf(pch, "%d", &p);
-				indexType |= 1;
 
 				pch = (char *) memchr(pch + 1, '/', end - pch - 1);
 
@@ -96,7 +126,6 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 
 						// Texture coordinate index.
 						sscanf(pch + 1, "%d", &t);
-						indexType |= 2;
 					}
 
 					pch = (char *) memchr(pch + 1, '/', end - pch - 1);
@@ -105,28 +134,39 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 
 						// Normal index.
 						sscanf(pch + 1, "%d", &n);
-						indexType |= 4;
 					}
 
 				}
 
-				switch (indexType) {
-				case 1:
-					pMG->addIndexP(p);
-					break;
-				case 3:
-					pMG->addIndexPT(p, t);
-					break;
-				case 5:
-					pMG->addIndexPN(p, n);
-					break;
-				case 7:
-					pMG->addIndexPTN(p, t, n);
-					break;
+				std::map<tuple, int>::iterator found;
+				found = indexMap.find(tuple(p, t, n));
+				if (found == indexMap.end()) {
+					pMG->addIndex(currentIdx);
+					indexMap[tuple(p, t, n)] = currentIdx++;
+					if (p != 0) {
+						pVG->addPosition(
+							vPositions[p - 1].x, 
+							vPositions[p - 1].y, 
+							vPositions[p - 1].z);
+					}
+					if (t != 0) {
+						pVG->addTexCoord(
+							vTexCoords[t - 1].x,
+							vTexCoords[t - 1].y);
+					}
+					if (n != 0) {
+						pVG->addNormal(
+							vNormals[n - 1].x,
+							vNormals[n - 1].y,
+							vNormals[n - 1].z);
+					}
+				} else {
+					pMG->addIndex(found->second);
 				}
 
 				pch = end + 1;
 
+				p = t = n = 0;
 			}
 			
 		} // if.
@@ -136,6 +176,12 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 	} // while.
 
 	fclose(pFile);
+
+	std::vector<Vector3>().swap(vPositions);
+	std::vector<Vector2>().swap(vTexCoords);
+	std::vector<Vector3>().swap(vNormals);
+
+	std::map<tuple, int>().swap(indexMap);
 
 	pVG->finalize();
 	pMG->finalize();
