@@ -3,7 +3,7 @@
 #define _MODEL_H_
 
 
-#define INIT_ARRAY_SIZE	1500
+#define INIT_ARRAY_SIZE	10000
 
 #include <cstdio>
 #include <cstdlib>

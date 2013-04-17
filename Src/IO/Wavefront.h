@@ -11,12 +11,12 @@
 #include "..\Tuple.h"
 
 
-void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup *& pMG) {
+Mesh * ReadWavefrontOBJ (const char * fileName) {
 
 	FILE * pFile = fopen(fileName, "rb");
 	if (pFile == NULL) {
 		perror(fileName);
-		return;
+		return NULL;
 	}
 
 	char buffer[MAX_BUFFER_SIZE];
@@ -29,8 +29,10 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 	std::map<Tuple<int>, int> indexMap;
 	int currentIdx = 0;
 
-	pVG	= new VertexGroup();
-	pMG = new MaterialGroup();
+
+	Mesh * pMesh = new Mesh();
+	pMesh->pVG = new VertexGroup();
+	pMesh->pMG = new MaterialGroup();
 
 	float x, y, z;
 	int	p = 0;
@@ -120,27 +122,26 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 
 				auto found = indexMap.find(Tuple<int>(p, t, n));
 				if (found == indexMap.end()) {
-					pMG->addIndex(currentIdx);
+
+					pMesh->pMG->addIndex(currentIdx);
 					indexMap[Tuple<int>(p, t, n)] = currentIdx++;
+
+					Tuple<Vector3> ptn;
+
 					if (p != 0) {
-						pVG->addPosition(
-							vPositions[p - 1].x, 
-							vPositions[p - 1].y, 
-							vPositions[p - 1].z);
+						ptn.x = vPositions[p - 1];
 					}
 					if (t != 0) {
-						pVG->addTexCoord(
-							vTexCoords[t - 1].x,
-							vTexCoords[t - 1].y);
+						ptn.y = vTexCoords[t - 1];
 					}
 					if (n != 0) {
-						pVG->addNormal(
-							vNormals[n - 1].x,
-							vNormals[n - 1].y,
-							vNormals[n - 1].z);
+						ptn.z = vNormals[n - 1];
 					}
+
+					pMesh->pVG->addVertex(ptn);
+
 				} else {
-					pMG->addIndex(found->second);
+					pMesh->pMG->addIndex(found->second);
 				}
 
 				pch = end + 1;
@@ -162,9 +163,11 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 
 	std::map<Tuple<int>, int>().swap(indexMap);
 
-	pVG->finalize();
-	pMG->finalize();
+	pMesh->pVG->finalize();
+	pMesh->pMG->finalize();
 	
+
+	return pMesh;
 }
 
 #endif

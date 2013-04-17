@@ -4,17 +4,18 @@
 // Handle to a program object.
 GLuint programObject;
 
-GLuint pVBO;
-GLuint tVBO;
-GLuint nVBO;
+GLuint VBO;
 GLuint iVBO;
 GLuint VAO;
 
+Mesh   * pMesh;
+Camera * pCamera;
 
+GLint loc;
 
-VertexGroup	  * pVG;
-MaterialGroup * pMG;
-
+float tx = 0.0f;
+float ty = -1.0f;
+float tz = -2.0f;
 
 // Initialize the shader and program object.
 void Init (ESContext * esContext) {
@@ -23,6 +24,16 @@ void Init (ESContext * esContext) {
 	const GLubyte * version = glGetString(GL_VERSION);
 	printf("%s\n", version);
 
+
+	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
+	glEnable(GL_DEPTH_TEST);
+
+
+	// Set up camera.
+	pCamera = new Camera();
+	pCamera->setFrustum(-0.1f, 0.1f, -0.057735f, 0.057735f, 0.1f, 1000.0f);
+
+
 	char * vShaderStr = ReadFile("./Shaders/Hello.vert.glsl");
 	char * fShaderStr = ReadFile("./Shaders/Hello.frag.glsl");
 
@@ -30,66 +41,52 @@ void Init (ESContext * esContext) {
 	programObject = esLoadProgram(vShaderStr, fShaderStr);
 
 	// Read OBJ file.
-	ReadWavefrontOBJ("./Data/Models/Woman1.obj", pVG, pMG);
+	pMesh = ReadWavefrontOBJ("./Data/Models/Woman1.obj");
 
 
-	// Load vertex position data into buffer.
-	glGenBuffers(1, &pVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, pVBO);
-	glBufferData(GL_ARRAY_BUFFER, pVG->nPositions * sizeof(Vector3), pVG->vPositions, GL_STATIC_DRAW);
 
-	// Load vertex texCoord data into buffer.
-	glGenBuffers(1, &tVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, tVBO);
-	glBufferData(GL_ARRAY_BUFFER, pVG->nTexCoords * sizeof(Vector2), pVG->vTexCoords, GL_STATIC_DRAW);
-
-	// Load vertex texCoord data into buffer.
-	glGenBuffers(1, &nVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, nVBO);
-	glBufferData(GL_ARRAY_BUFFER, pVG->nNormals * sizeof(Vector3), pVG->vNormals, GL_STATIC_DRAW);
-
-	// Reset binding.
+	// Load vertex data into buffer.
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, pMesh->pVG->nVertices * sizeof(Tuple<Vector3>), pMesh->pVG->vVertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Load index data into buffer.
 	glGenBuffers(1, &iVBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iVBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, pMG->nIndices * sizeof(int), pMG->vIndices, GL_STATIC_DRAW);
-
-	// Reset binding.
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, pMesh->pMG->nIndices * sizeof(int), pMesh->pMG->vIndices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-
-	// Get position location.
-	GLint loc;
 
 	// Create vertex array.
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
-	glBindBuffer(GL_ARRAY_BUFFER, pVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
 	loc = glGetAttribLocation(programObject, "inPosition");
-	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(loc);
+	if (loc != -1) {
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(Tuple<Vector3>), (void *) offsetof(Tuple<Vector3>, x));
+		glEnableVertexAttribArray(loc);
+	}
 
-	
-	glBindBuffer(GL_ARRAY_BUFFER, tVBO);
 	loc = glGetAttribLocation(programObject, "inTexCoord");
-	glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(loc);
-	
+	if (loc != -1) {
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(Tuple<Vector3>), (void *) offsetof(Tuple<Vector3>, y));
+		glEnableVertexAttribArray(loc);
+	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, nVBO);
 	loc = glGetAttribLocation(programObject, "inNormal");
-	glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(loc);
+	if (loc != -1) {
+		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(Tuple<Vector3>), (void *) offsetof(Tuple<Vector3>, z));
+		glEnableVertexAttribArray(loc);
+	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
+
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iVBO);
 
-	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 ///
@@ -106,12 +103,58 @@ void Draw (ESContext * esContext) {
 	// Use the program object
 	glUseProgram(programObject);
 
+	Matrix4 M = Matrix4::identity();
+	M[3][0] = tx; M[3][1] = ty; M[3][2] = tz;
+
+	M = M * pCamera->viewMatrix();
+	M = M * pCamera->projectionMatrix();
+
+	loc = glGetUniformLocation(programObject, "ModelViewProjectionMatrix");
+	glUniformMatrix4fv(loc, 1, GL_FALSE, M);
+
+
 	glBindVertexArray(VAO);
-	glDrawElementsInstanced (GL_TRIANGLES, pMG->nIndices, GL_UNSIGNED_INT, 0, 2);
+	glDrawElementsInstanced(GL_TRIANGLES, pMesh->pMG->nIndices, GL_UNSIGNED_INT, 0, 2);
 
 	esContext->esSwapBuffers();
 }
 
+void KeyboardFunc (ESContext * esContext, unsigned char c, int x, int y) {
+
+	switch (c) {
+	case 'W': case 'w':
+		pCamera->translateForward(0.1f);
+		//tz += 0.1f;
+		break;
+	case 'S': case 's':
+		pCamera->translateForward(-0.1f);
+		//tz -= 0.1f;
+		break;
+	case 'D': case 'd':
+		pCamera->translateRight(0.1f);
+		//tx += 0.1f;
+		break;
+	case 'A': case 'a':
+		pCamera->translateRight(-0.1f);
+		//tx -= 0.1f;
+		break;
+	case ' ':
+		pCamera->translateUp(0.1f);
+		//ty += 0.1f;
+		break;
+	case 'C': case 'c':
+		pCamera->translateUp(-0.1f);
+		//ty -= 0.1f;
+		break;
+	default:
+		break;
+	}
+
+}
+
+void KeyboardUpFunc (ESContext * esContext, unsigned char c, int x, int y) {
+
+}
 
 int main (int argc, char * argv[]) {
 
@@ -126,6 +169,8 @@ int main (int argc, char * argv[]) {
 	Init(esContext);
 
 	esContext->esDisplayFunc(Draw);
+	esContext->esKeyboardFunc(KeyboardFunc);
+	esContext->esKeyboardUpFunc(KeyboardUpFunc);
 
 	esContext->esMainLoop();
 }
