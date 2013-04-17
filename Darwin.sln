@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Darwin", "Darwin.vcxproj", "{1BAD5365-5912-47D7-8B19-6CD3A9EF77D0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{47C93F52-AB4E-4FF9-8D4F-B38CD60A183F} = {47C93F52-AB4E-4FF9-8D4F-B38CD60A183F}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esUtil", "Common\esUtil.vcxproj", "{47C93F52-AB4E-4FF9-8D4F-B38CD60A183F}"
 EndProject

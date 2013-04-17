@@ -70,6 +70,7 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 		- vn for normals
 		- usemtl for material name from material library
 		- f for face indices
+		- s for smoothing groups
 		*/
 
 		if (strncmp(buffer, "#", 2) == 0) {

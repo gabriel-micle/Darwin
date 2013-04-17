@@ -80,11 +80,10 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Win32\esUtil_TGA.c" />
-    <ClCompile Include="Source\Win32\esUtil_win32.c" />
-    <ClCompile Include="Source\esShader.c" />
-    <ClCompile Include="Source\esShapes.c" />
-    <ClCompile Include="Source\esUtil.c" />
+    <ClCompile Include="Source\Win32\esUtil_TGA.cpp" />
+    <ClCompile Include="Source\Win32\esUtil_win32.cpp" />
+    <ClCompile Include="Source\esShader.cpp" />
+    <ClCompile Include="Source\esUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\esUtil_win.h" />

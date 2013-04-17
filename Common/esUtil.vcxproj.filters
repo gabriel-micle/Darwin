@@ -9,19 +9,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Win32\esUtil_TGA.c">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Win32\esUtil_win32.c">
-      <Filter>Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\esShader.c">
+    <ClCompile Include="Source\esUtil.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Source\esShapes.c">
-      <Filter>Common</Filter>
+    <ClCompile Include="Source\Win32\esUtil_win32.cpp">
+      <Filter>Win32</Filter>
     </ClCompile>
-    <ClCompile Include="Source\esUtil.c">
+    <ClCompile Include="Source\Win32\esUtil_TGA.cpp">
+      <Filter>Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\esShader.cpp">
       <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>

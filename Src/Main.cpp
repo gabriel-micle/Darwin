@@ -1,7 +1,7 @@
 
 #include "Headers.h"
 
-// Handle to a program object
+// Handle to a program object.
 GLuint programObject;
 
 GLuint pVBO;
@@ -15,9 +15,8 @@ GLuint VAO;
 VertexGroup	  * pVG;
 MaterialGroup * pMG;
 
-///
-// Initialize the shader and program object
-//
+
+// Initialize the shader and program object.
 void Init (ESContext * esContext) {
 
 	// Display OpenGL version.
@@ -110,21 +109,23 @@ void Draw (ESContext * esContext) {
 	glBindVertexArray(VAO);
 	glDrawElementsInstanced (GL_TRIANGLES, pMG->nIndices, GL_UNSIGNED_INT, 0, 2);
 
-	eglSwapBuffers (esContext->eglDisplay, esContext->eglSurface);
+	esContext->esSwapBuffers();
 }
 
 
 int main (int argc, char * argv[]) {
 
-	ESContext esContext;
+	ESContext * esContext = new ESContext();
 
-	esInitContext (&esContext);
+	esContext->esInitDisplayMode(ES_WINDOW_RGB | ES_WINDOW_DEPTH | ES_WINDOW_ALPHA);
+	esContext->esInitWindowPosition(300, 300);
+	esContext->esInitWindowSize(800, 480);
 
-	esCreateWindow (&esContext, "Hello Triangle", 300, 300, 800, 600, ES_WINDOW_RGB | ES_WINDOW_DEPTH | ES_WINDOW_ALPHA);
+	esContext->esCreateWindow("Darwin");
 
-	Init ( &esContext );
+	Init(esContext);
 
-	esDisplayFunc (&esContext, Draw);
+	esContext->esDisplayFunc(Draw);
 
-	esMainLoop (&esContext);
+	esContext->esMainLoop();
 }
