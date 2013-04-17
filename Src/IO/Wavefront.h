@@ -8,28 +8,7 @@
 #include <vector>
 #include <map>
 
-class tuple {
-public:
-	int x;
-	int y;
-	int z;
-
-	tuple(int _x, int  _y, int _z) : x(_x), y(_y), z(_z) {}
-	bool operator < (const tuple & t) const {
-		if (x == t.x) {
-			if (y == t.y) {
-				return z < t.z;
-			} else {
-				return y < t.y;
-			}
-		} else {
-			return x < t.x;
-		}
-	}
-	bool operator == (const tuple & t) const {
-		return x == t.x && y == t.y && z == t.z;
-	}
-};
+#include "..\Tuple.h"
 
 
 void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup *& pMG) {
@@ -44,10 +23,10 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 	memset(buffer, 0, MAX_BUFFER_SIZE);
 
 	std::vector<Vector3> vPositions;
-	std::vector<Vector2> vTexCoords;
+	std::vector<Vector3> vTexCoords;
 	std::vector<Vector3> vNormals;
 
-	std::map<tuple, int> indexMap;
+	std::map<Tuple<int>, int> indexMap;
 	int currentIdx = 0;
 
 	pVG	= new VertexGroup();
@@ -95,7 +74,7 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 
 			// Texture coordinates.
 			sscanf(buffer + 3, "%f %f", &x, &y);
-			vTexCoords.push_back(Vector2(x, y));
+			vTexCoords.push_back(Vector3(x, y, 0.0f));
 
 		} else if (strncmp (buffer, "vn", 2) == 0) {
 
@@ -139,11 +118,10 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 
 				}
 
-				std::map<tuple, int>::iterator found;
-				found = indexMap.find(tuple(p, t, n));
+				auto found = indexMap.find(Tuple<int>(p, t, n));
 				if (found == indexMap.end()) {
 					pMG->addIndex(currentIdx);
-					indexMap[tuple(p, t, n)] = currentIdx++;
+					indexMap[Tuple<int>(p, t, n)] = currentIdx++;
 					if (p != 0) {
 						pVG->addPosition(
 							vPositions[p - 1].x, 
@@ -179,10 +157,10 @@ void ReadWavefrontOBJ (const char * fileName, VertexGroup *& pVG, MaterialGroup 
 	fclose(pFile);
 
 	std::vector<Vector3>().swap(vPositions);
-	std::vector<Vector2>().swap(vTexCoords);
+	std::vector<Vector3>().swap(vTexCoords);
 	std::vector<Vector3>().swap(vNormals);
 
-	std::map<tuple, int>().swap(indexMap);
+	std::map<Tuple<int>, int>().swap(indexMap);
 
 	pVG->finalize();
 	pMG->finalize();

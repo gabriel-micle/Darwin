@@ -111,7 +111,7 @@
     <ClInclude Include="Src\Renderer\Model.h" />
     <ClInclude Include="Src\Renderer\Texture.h" />
     <ClInclude Include="Src\Renderer\VertexGroup.h" />
-    <ClInclude Include="Src\Types.h" />
+    <ClInclude Include="Src\Tuple.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Hello.frag.glsl" />
