@@ -21,13 +21,13 @@ void Camera::setFrustum (float l, float r,
 	float dy = t - b;
 	float dz = f - n;
 
-	Projection[0][0] = 2 * n / dx;
-	Projection[1][1] = 2 * n / dy;
+	Projection[0][0] = 2.0f * n / dx;
+	Projection[1][1] = 2.0f * n / dy;
 	Projection[2][0] = (r + l) / dx;
 	Projection[2][1] = (t + b) / dy;
 	Projection[2][2] = - (f + n) / dz;
 	Projection[2][3] = -1.0f;
-	Projection[3][2] = - 2 * f * n / dz;
+	Projection[3][2] = - 2.0f * f * n / dz;
 	
 }
 
@@ -41,13 +41,22 @@ void Camera::setOrthografic (float l, float r,
 	float dy = t - b;
 	float dz = f - n;
 
-	Projection[0][0] = 2 / dx;
-	Projection[1][1] = 2 / dy;
-	Projection[2][2] = - 2 / dz;
+	Projection[0][0] = 2.0f / dx;
+	Projection[1][1] = 2.0f / dy;
+	Projection[2][2] = - 2.0f / dz;
 	Projection[3][0] = - (r + l) / dx;
 	Projection[3][1] = - (t + b) / dy;
 	Projection[3][2] = - (f + n) / dz;
 	Projection[3][3] = 1.0f;
+}
+
+void Camera::setPerspective (float fovy, float aspect, float near, float far) {
+
+	float tangent = tan(fovy * M_PI_2 / 180.0f);
+	float height  = near * tangent;
+	float width   = height * aspect;
+
+	setFrustum(-width, width, -height, height, near, far);
 }
 
 void Camera::translateForward (float dist) {

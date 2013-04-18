@@ -94,10 +94,13 @@ ESContext::ESContext () {
 
 	flags = ES_WINDOW_RGB;
 
-	this->idleFunc  = NULL;
-	this->keyFunc   = NULL;
-	this->keyUpFunc = NULL;
-	this->drawFunc  = NULL;
+	this->idleFunc          = NULL;
+	this->displayFunc       = NULL;
+	this->keyboardFunc      = NULL;
+	this->keyboardUpFunc    = NULL;
+	this->mouseFunc         = NULL;
+	this->motionFunc        = NULL;
+	this->passiveMotionFunc = NULL;
 }
 
 
@@ -166,11 +169,10 @@ void ESUTIL_API ESContext::esInitDisplayMode (GLuint mode) {
 
 
 // Set display function.
-void ESUTIL_API ESContext::esDisplayFunc (void (ESCALLBACK * drawFunc) (ESContext *)) {
+void ESUTIL_API ESContext::esDisplayFunc (void (ESCALLBACK * displayFunc) (ESContext *)) {
 
-	this->drawFunc = drawFunc;
+	this->displayFunc = displayFunc;
 }
-
 
 // Set idle function.
 void ESUTIL_API ESContext::esIdleFunc (void (ESCALLBACK * idleFunc) (ESContext *, float)) {
@@ -178,18 +180,34 @@ void ESUTIL_API ESContext::esIdleFunc (void (ESCALLBACK * idleFunc) (ESContext *
 	this->idleFunc = idleFunc;
 }
 
-
 // Set keyboard function.
-void ESUTIL_API ESContext::esKeyboardFunc (void (ESCALLBACK * keyFunc) (ESContext *, unsigned char, int, int)) {
+void ESUTIL_API ESContext::esKeyboardFunc (void (ESCALLBACK * keyboardFunc) (ESContext *, unsigned char, int, int)) {
 
-	this->keyFunc = keyFunc;
+	this->keyboardFunc = keyboardFunc;
 }
 
-
 // Set keyboard up function.
-void ESUTIL_API ESContext::esKeyboardUpFunc (void (ESCALLBACK * keyUpFunc) (ESContext *, unsigned char, int, int)) {
+void ESUTIL_API ESContext::esKeyboardUpFunc (void (ESCALLBACK * keyboardUpFunc) (ESContext *, unsigned char, int, int)) {
 
-	this->keyUpFunc = keyUpFunc;
+	this->keyboardUpFunc = keyboardUpFunc;
+}
+
+// Set mouse button function.
+void ESUTIL_API ESContext::esMouseFunc (void (ESCALLBACK * mouseFunc) (ESContext *, int, int, int, int)) {
+
+	this->mouseFunc = mouseFunc;
+}
+
+// Set mouse movement when mouse button pressed function.
+void ESUTIL_API ESContext::esMotionFunc (void (ESCALLBACK * motionFunc) (ESContext *, int, int)) {
+
+	this->motionFunc = motionFunc;
+}
+
+// Set mouse movement function.
+void ESUTIL_API ESContext::esPassiveMotionFunc (void (ESCALLBACK * passiveMotionFunc) (ESContext *, int, int)) {
+
+	this->passiveMotionFunc = passiveMotionFunc;
 }
 
 

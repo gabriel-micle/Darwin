@@ -4,147 +4,119 @@
 // Handle to a program object.
 GLuint programObject;
 
-GLuint VBO;
-GLuint iVBO;
-GLuint VAO;
-
 Mesh   * pMesh;
 Camera * pCamera;
-
-GLint loc;
 
 float tx = 0.0f;
 float ty = -1.0f;
 float tz = -2.0f;
 
+
+bool keyPressed[6];
+
+enum keyID_t
+{
+	W,
+	A,
+	S,
+	D,
+	SPACE,
+	C,
+};
+
 // Initialize the shader and program object.
 void Init (ESContext * esContext) {
 
 	// Display OpenGL version.
-	const GLubyte * version = glGetString(GL_VERSION);
-	printf("%s\n", version);
+	printf("%s\n", glGetString(GL_VERSION));
 
-
+	// Specify buffer clear color.
 	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
+
+	// Enable depth test.
 	glEnable(GL_DEPTH_TEST);
 
+	// Set the viewport
+	glViewport(0, 0, esContext->width, esContext->height);
 
-	// Set up camera.
+	// Set up camera and frustum.
 	pCamera = new Camera();
-	pCamera->setFrustum(-0.1f, 0.1f, -0.057735f, 0.057735f, 0.1f, 1000.0f);
+	pCamera->setPerspective(60.0f, 1.0f * esContext->width / esContext->height, 0.1f, 1000.0f);
 
 
+	// Read GLSL shader files.
 	char * vShaderStr = ReadFile("./Shaders/Hello.vert.glsl");
 	char * fShaderStr = ReadFile("./Shaders/Hello.frag.glsl");
 
 	// Create the program object.
 	programObject = esLoadProgram(vShaderStr, fShaderStr);
 
-	// Read OBJ file.
-	pMesh = ReadWavefrontOBJ("./Data/Models/Woman1.obj");
-
-
-
-	// Load vertex data into buffer.
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, pMesh->pVG->nVertices * sizeof(Tuple<Vector3>), pMesh->pVG->vVertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// Load index data into buffer.
-	glGenBuffers(1, &iVBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iVBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, pMesh->pMG->nIndices * sizeof(int), pMesh->pMG->vIndices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
-	// Create vertex array.
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	loc = glGetAttribLocation(programObject, "inPosition");
-	if (loc != -1) {
-		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(Tuple<Vector3>), (void *) offsetof(Tuple<Vector3>, x));
-		glEnableVertexAttribArray(loc);
-	}
-
-	loc = glGetAttribLocation(programObject, "inTexCoord");
-	if (loc != -1) {
-		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(Tuple<Vector3>), (void *) offsetof(Tuple<Vector3>, y));
-		glEnableVertexAttribArray(loc);
-	}
-
-	loc = glGetAttribLocation(programObject, "inNormal");
-	if (loc != -1) {
-		glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(Tuple<Vector3>), (void *) offsetof(Tuple<Vector3>, z));
-		glEnableVertexAttribArray(loc);
-	}
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iVBO);
+	// Import mesh from Wavefront OBJ file.
+	pMesh = ReadWavefrontOBJ("./Data/Models/Woman2.obj");
 
 }
 
-///
-// Draw a triangle using the shader pair created in Init()
-//
-void Draw (ESContext * esContext) {
 
-	// Set the viewport
-	glViewport(0, 0, esContext->width, esContext->height);
+void DisplayFunc (ESContext * esContext) {
 
 	// Clear the color buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Use the program object
-	glUseProgram(programObject);
+	
+	pMesh->draw(programObject);
+
+	esContext->esSwapBuffers();
+}
+
+void IdleFunc (ESContext * esContext, float t) {
+
+	// Check key presses.
+	if (keyPressed[W]) {
+		pCamera->translateForward(0.1f);
+	}
+	if (keyPressed[S]) {
+		pCamera->translateForward(-0.1f);
+	}
+	if (keyPressed[D]) {
+		pCamera->translateRight(0.1f);
+	}
+	if (keyPressed[A]) {
+		pCamera->translateRight(-0.1f);
+	}
+	if (keyPressed[SPACE]) {
+		pCamera->translateUp(0.1f);
+	}
+	if (keyPressed[C]) {
+		pCamera->translateUp(-0.1f);
+	}
+
 
 	Matrix4 M = Matrix4::identity();
 	M[3][0] = tx; M[3][1] = ty; M[3][2] = tz;
 
-	M = M * pCamera->viewMatrix();
-	M = M * pCamera->projectionMatrix();
-
-	loc = glGetUniformLocation(programObject, "ModelViewProjectionMatrix");
-	glUniformMatrix4fv(loc, 1, GL_FALSE, M);
-
-
-	glBindVertexArray(VAO);
-	glDrawElementsInstanced(GL_TRIANGLES, pMesh->pMG->nIndices, GL_UNSIGNED_INT, 0, 2);
-
-	esContext->esSwapBuffers();
+	pMesh->MVP = M * pCamera->viewMatrix() * pCamera->projectionMatrix();
 }
 
 void KeyboardFunc (ESContext * esContext, unsigned char c, int x, int y) {
 
 	switch (c) {
 	case 'W': case 'w':
-		pCamera->translateForward(0.1f);
-		//tz += 0.1f;
+		keyPressed[W] = true;
 		break;
 	case 'S': case 's':
-		pCamera->translateForward(-0.1f);
-		//tz -= 0.1f;
+		keyPressed[S] = true;
 		break;
 	case 'D': case 'd':
-		pCamera->translateRight(0.1f);
-		//tx += 0.1f;
+		keyPressed[D] = true;
 		break;
 	case 'A': case 'a':
-		pCamera->translateRight(-0.1f);
-		//tx -= 0.1f;
+		keyPressed[A] = true;
 		break;
 	case ' ':
-		pCamera->translateUp(0.1f);
-		//ty += 0.1f;
+		keyPressed[SPACE] = true;
 		break;
 	case 'C': case 'c':
-		pCamera->translateUp(-0.1f);
-		//ty -= 0.1f;
+		keyPressed[C] = true;
 		break;
 	default:
 		break;
@@ -153,6 +125,43 @@ void KeyboardFunc (ESContext * esContext, unsigned char c, int x, int y) {
 }
 
 void KeyboardUpFunc (ESContext * esContext, unsigned char c, int x, int y) {
+	
+	switch (c) {
+	case 'W': case 'w':
+		keyPressed[W] = false;
+		break;
+	case 'S': case 's':
+		keyPressed[S] = false;
+		break;
+	case 'D': case 'd':
+		keyPressed[D] = false;
+		break;
+	case 'A': case 'a':
+		keyPressed[A] = false;
+		break;
+	case ' ':
+		keyPressed[SPACE] = false;
+		break;
+	case 'C': case 'c':
+		keyPressed[C] = false;
+		break;
+	default:
+		break;
+	}
+}
+
+void MouseFunc (ESContext * esContext, int button, int state, int x, int y) {
+
+	if (button == 700 && state == 800) {
+		printf("TOUCH");
+	}
+}
+
+void MotionFunc (ESContext * esContext, int x, int y) {
+
+}
+
+void PassiveMotionFunc (ESContext * esContext, int x, int y) {
 
 }
 
@@ -168,9 +177,13 @@ int main (int argc, char * argv[]) {
 
 	Init(esContext);
 
-	esContext->esDisplayFunc(Draw);
+	esContext->esDisplayFunc(DisplayFunc);
+	esContext->esIdleFunc(IdleFunc);
 	esContext->esKeyboardFunc(KeyboardFunc);
 	esContext->esKeyboardUpFunc(KeyboardUpFunc);
+	esContext->esMouseFunc(MouseFunc);
+	esContext->esMotionFunc(MotionFunc);
+	esContext->esPassiveMotionFunc(PassiveMotionFunc);
 
 	esContext->esMainLoop();
 }

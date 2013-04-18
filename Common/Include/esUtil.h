@@ -27,14 +27,20 @@
 #define ESCALLBACK  __cdecl
 
 
-
+// Buffer modes.
 #define ES_WINDOW_RGB			0
 #define ES_WINDOW_ALPHA			1 
 #define ES_WINDOW_DEPTH			2 
 #define ES_WINDOW_STENCIL		4
-#define ES_WINDOW_MULTISAMPLE	8
+#define	ES_WINDOW_MULTISAMPLE	8
 
-
+// Input.
+#define	ES_LEFT_BUTTON			0x0000
+#define ES_MIDDLE_BUTTON		0x0001
+#define ES_RIGHT_BUTTON			0x0002
+#define ES_DOWN					0x0000
+#define ES_UP					0x0001
+#define	ES_DOUBLE_CLICK			0x0002
 
 class ESContext {
 
@@ -68,10 +74,13 @@ public:
 	EGLSurface  eglSurface;
 
 	// Callbacks.
-	void (ESCALLBACK * drawFunc)	(ESContext *);
-	void (ESCALLBACK * keyFunc)		(ESContext *, unsigned char, int, int);
-	void (ESCALLBACK * keyUpFunc)	(ESContext *, unsigned char, int, int);
-	void (ESCALLBACK * idleFunc)	(ESContext *, float);
+	void (ESCALLBACK * displayFunc)			(ESContext *);
+	void (ESCALLBACK * idleFunc)			(ESContext *, float);
+	void (ESCALLBACK * keyboardFunc)		(ESContext *, unsigned char, int, int);
+	void (ESCALLBACK * keyboardUpFunc)		(ESContext *, unsigned char, int, int);
+	void (ESCALLBACK * mouseFunc)			(ESContext *, int, int, int, int);
+	void (ESCALLBACK * motionFunc)			(ESContext *, int, int);
+	void (ESCALLBACK * passiveMotionFunc)	(ESContext *, int, int);
 	
 	// ESContext constructor.
 	ESContext ();
@@ -92,8 +101,17 @@ public:
 	// Register an keyboard input processing callback function.
 	void ESUTIL_API esKeyboardFunc (void (ESCALLBACK * keyFunc) (ESContext *, unsigned char, int, int));
 
-	// Register a keyboard release processing callback function
+	// Register a keyboard release processing callback function.
 	void ESUTIL_API esKeyboardUpFunc (void (ESCALLBACK * keyUpFunc) (ESContext *, unsigned char, int, int));
+
+	// Register a mouse press callback function.
+	void ESUTIL_API esMouseFunc (void (ESCALLBACK * mouseFunc) (ESContext *, int, int, int, int));
+
+	// Register a mouse movement when mouse button pressed callback function.
+	void ESUTIL_API esMotionFunc (void (ESCALLBACK * motionFunc) (ESContext *, int, int));
+
+	// Register a mouse movement callback function.
+	void ESUTIL_API esPassiveMotionFunc (void (ESCALLBACK * passiveMotionFunc) (ESContext *, int, int));
 
 	// Swaps buffers.
 	void ESUTIL_API esSwapBuffers ();

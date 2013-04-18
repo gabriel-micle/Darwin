@@ -1,15 +1,15 @@
 
 /*
- * Adapted from:
- * ------------
- * Book:      OpenGL(R) ES 2.0 Programming Guide
- * Authors:   Aaftab Munshi, Dan Ginsburg, Dave Shreiner
- * ISBN-10:   0321502795
- * ISBN-13:   9780321502797
- * Publisher: Addison-Wesley Professional
- * URLs:      http://safari.informit.com/9780321563835
- *            http://www.opengles-book.com
- */ 
+* Adapted from:
+* ------------
+* Book:      OpenGL(R) ES 2.0 Programming Guide
+* Authors:   Aaftab Munshi, Dan Ginsburg, Dave Shreiner
+* ISBN-10:   0321502795
+* ISBN-13:   9780321502797
+* Publisher: Addison-Wesley Professional
+* URLs:      http://safari.informit.com/9780321563835
+*            http://www.opengles-book.com
+*/ 
 
 
 #define WIN32_LEAN_AND_MEAN
@@ -17,11 +17,17 @@
 #include <windows.h>
 #include "esUtil.h"
 
-
 // Main window procedure.
 LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
-	LRESULT  lRet = 1; 
+	ESContext * esContext = (ESContext *) (LONG_PTR) GetWindowLongPtr(hWnd, GWL_USERDATA);
+	POINT		p;
+
+	LRESULT lRet = 1;
+
+	if (esContext == NULL) {
+		return lRet;
+	}
 
 	switch (uMsg) {
 
@@ -29,15 +35,10 @@ LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_PAINT:
-		{
-			ESContext * esContext = (ESContext *) (LONG_PTR) GetWindowLongPtr(hWnd, GWL_USERDATA);
-
-			if (esContext && esContext->drawFunc) {
-				esContext->drawFunc(esContext);
-			}
-
-			ValidateRect(esContext->hWnd, NULL);
+		if (esContext->displayFunc) {
+			esContext->displayFunc(esContext);
 		}
+		ValidateRect(esContext->hWnd, NULL);
 		break;
 
 	case WM_DESTROY:
@@ -45,32 +46,107 @@ LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break; 
 
 	case WM_KEYDOWN:
-		{
-			POINT		p;
-			ESContext * esContext = (ESContext *) (LONG_PTR) GetWindowLongPtr(hWnd, GWL_USERDATA);
-
-			GetCursorPos(&p);
-
-			if (esContext && esContext->keyFunc)
-				esContext->keyFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
+		GetCursorPos(&p);
+		if (esContext->keyboardFunc) {
+			esContext->keyboardFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
 		}
 		break;
 
 	case WM_KEYUP:
-		{
-			POINT		p;
-			ESContext * esContext = (ESContext*) (LONG_PTR) GetWindowLongPtr(hWnd, GWL_USERDATA);
-
-			GetCursorPos(&p);
-
-			if (esContext && esContext->keyUpFunc)
-				esContext->keyUpFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
+		GetCursorPos(&p);
+		if (esContext->keyboardUpFunc) {
+			esContext->keyboardUpFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
 		}
 		break;
 
-	default: 
-		lRet = DefWindowProc(hWnd, uMsg, wParam, lParam); 
-		break; 
+	case WM_LBUTTONDOWN:
+		GetCursorPos(&p);
+		if (esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_LEFT_BUTTON, ES_DOWN, (int) p.x, (int) p.y);
+		}
+		break;
+
+	case WM_LBUTTONUP:
+		GetCursorPos(&p);
+		if (esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_LEFT_BUTTON, ES_UP, (int) p.x, (int) p.y);
+		}
+		break;
+
+	case WM_LBUTTONDBLCLK:
+		GetCursorPos(&p);
+		if (esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_LEFT_BUTTON, ES_DOUBLE_CLICK, (int) p.x, (int) p.y);
+		}
+		break;
+
+	case WM_RBUTTONDOWN:
+		GetCursorPos(&p);
+		if (esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_RIGHT_BUTTON, ES_DOWN, (int) p.x, (int) p.y);
+		}
+		break;
+
+	case WM_RBUTTONUP:
+		GetCursorPos(&p);
+		if (esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_RIGHT_BUTTON, ES_UP, (int) p.x, (int) p.y);
+		}
+		break;
+
+	case WM_RBUTTONDBLCLK:
+		GetCursorPos(&p);
+		if (esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_RIGHT_BUTTON, ES_DOUBLE_CLICK, (int) p.x, (int) p.y);
+		}
+		break;
+
+	case WM_MBUTTONDOWN:
+		GetCursorPos(&p);
+		if (esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_MIDDLE_BUTTON, ES_DOWN, (int) p.x, (int) p.y);
+		}
+		break;
+
+	case WM_MBUTTONUP:
+		GetCursorPos(&p);
+		if (esContext && esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_MIDDLE_BUTTON, ES_UP, (int) p.x, (int) p.y);
+		}
+		break;
+
+	case WM_MBUTTONDBLCLK:
+		GetCursorPos(&p);
+		if (esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_MIDDLE_BUTTON, ES_DOUBLE_CLICK, (int) p.x, (int) p.y);
+		}
+		break;
+
+
+	case WM_MOUSEMOVE:
+		GetCursorPos(&p);
+		if (wParam == 0) {
+			if (esContext->passiveMotionFunc) {
+				esContext->passiveMotionFunc(esContext, (int) p.x, (int) p.x);
+			} 
+		} else {
+			if (esContext->motionFunc) {
+				esContext->motionFunc(esContext, (int) p.x, (int) p.y);
+			}
+
+		}
+		break;
+
+	case WM_TOUCH:
+		GetCursorPos(&p);
+		if (esContext && esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, 700, 800, (int) p.x, (int) p.y);
+		}
+		break;
+
+	default:
+		lRet = DefWindowProc(hWnd, uMsg, wParam, lParam);
+		break;
 	} 
 
 	return lRet; 
@@ -155,8 +231,8 @@ void WinLoop (ESContext * esContext) {
 				done = true;
 
 			} else {
-				TranslateMessage(&msg); 
-				DispatchMessage(&msg); 
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
 			}
 
 		} else {

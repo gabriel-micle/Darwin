@@ -25,6 +25,7 @@ public:
 
 	void		setOrthografic	 (float l, float r, float b, float t, float n, float f);
 	void		setFrustum		 (float l, float r, float b, float t, float n, float f);
+	void		setPerspective	 (float fovY, float aspect, float zNear, float zFar);
 
 	void		translateForward (float dist);
 	void		translateRight   (float dist);

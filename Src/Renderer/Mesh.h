@@ -9,6 +9,14 @@ public:
 	VertexGroup   *	pVG;
 	MaterialGroup *	pMG;
 
+	GLuint			vertexVBO;
+	GLuint			vertexVAO;
+	GLuint			indexVBO;
+
+	Matrix4			MVP;
+
+	void			draw (GLuint programObject);
+
 };
 
 #endif

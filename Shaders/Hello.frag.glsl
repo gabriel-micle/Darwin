@@ -1,4 +1,5 @@
 #version 300 es
+// Note: Version must be on first line!
 
 precision highp float;
 
