@@ -3,12 +3,12 @@
 #define _MATERIAL_GROUP_H_
 
 // Container for polygons that have the same material ID.
-class MaterialGroup {
+class PolygonGroup {
 
 public:
 
-			MaterialGroup ();
-			MaterialGroup (const char * name);
+			PolygonGroup ();
+			PolygonGroup (const char * name);
 
 	char	materialName[255];
 

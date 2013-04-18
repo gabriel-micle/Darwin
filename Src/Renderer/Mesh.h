@@ -7,7 +7,7 @@ class Mesh {
 public:
 
 	VertexGroup   *	pVG;
-	MaterialGroup *	pMG;
+	PolygonGroup *	pMG;
 
 	GLuint			vertexVBO;
 	GLuint			vertexVAO;

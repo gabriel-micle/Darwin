@@ -32,7 +32,7 @@ Mesh * ReadWavefrontOBJ (const char * fileName) {
 
 	Mesh * pMesh = new Mesh();
 	pMesh->pVG = new VertexGroup();
-	pMesh->pMG = new MaterialGroup();
+	pMesh->pMG = new PolygonGroup();
 
 	float x, y, z;
 	int	p = 0;
@@ -120,14 +120,19 @@ Mesh * ReadWavefrontOBJ (const char * fileName) {
 
 				}
 
+				// Search for vp/vt/vn index tuple.
 				auto found = indexMap.find(Tuple<int>(p, t, n));
+
 				if (found == indexMap.end()) {
 
+					// If index tuple was NOT encountered before, create a new unified index in the index buffer.
 					pMesh->pMG->addIndex(currentIdx);
+
+					// Map tuple to the new index.
 					indexMap[Tuple<int>(p, t, n)] = currentIdx++;
 
+					// Extract vertex data for the index tuple.
 					Tuple<Vector3> ptn;
-
 					if (p != 0) {
 						ptn.x = vPositions[p - 1];
 					}
@@ -138,9 +143,12 @@ Mesh * ReadWavefrontOBJ (const char * fileName) {
 						ptn.z = vNormals[n - 1];
 					}
 
+					// Add the vertex as a new mesh vertex.
 					pMesh->pVG->addVertex(ptn);
 
 				} else {
+
+					// If index tuple was encountered before, add its unified mapping to the index buffer.
 					pMesh->pMG->addIndex(found->second);
 				}
 

@@ -14,8 +14,9 @@
 
 #include "..\Math\Math.h"
 
+#include "Vertex.h"
 #include "VertexGroup.h"
-#include "MaterialGroup.h"
+#include "PolygonGroup.h"
 #include "Mesh.h"
 
 

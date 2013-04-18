@@ -154,14 +154,10 @@ void MouseFunc (ESContext * esContext, int button, int state, int x, int y) {
 
 }
 
-void MotionFunc (ESContext * esContext, int x, int y) {
-
-	//printf("Press: %d %d\n", x, y);
-}
 
 GLint prevX = 0;
 GLint prevY = 0;
-void PassiveMotionFunc (ESContext * esContext, int x, int y) {
+void MotionFunc (ESContext * esContext, int x, int y) {
 
 	float dX = (x - prevX) * M_PI / 180.0f;
 	float dY = (y - prevY) * M_PI / 180.0f;
@@ -181,6 +177,12 @@ void PassiveMotionFunc (ESContext * esContext, int x, int y) {
 
 	pCamera->rotateUp(dY);
 	pCamera->rotateRight(dX);
+
+	prevX = x;
+	prevY = y;
+}
+
+void PassiveMotionFunc (ESContext * esContext, int x, int y) {
 
 	prevX = x;
 	prevY = y;

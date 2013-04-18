@@ -2,7 +2,7 @@
 #include "Model.h"
 
 // Create a new material group with default name.
-MaterialGroup::MaterialGroup () {
+PolygonGroup::PolygonGroup () {
 
 	memcpy(materialName, "default", 7);
 
@@ -13,7 +13,7 @@ MaterialGroup::MaterialGroup () {
 
 }
 
-MaterialGroup::MaterialGroup (const char * name) {
+PolygonGroup::PolygonGroup (const char * name) {
 
 	memcpy(materialName, name, sizeof(name));
 
@@ -24,7 +24,7 @@ MaterialGroup::MaterialGroup (const char * name) {
 
 }
 
-void MaterialGroup::addIndex (int & idx) {
+void PolygonGroup::addIndex (int & idx) {
 
 	if (nIndices == 0) {
 
@@ -44,7 +44,7 @@ void MaterialGroup::addIndex (int & idx) {
 }
 
 
-void MaterialGroup::finalize () {
+void PolygonGroup::finalize () {
 
 	if (!vIndices) {
 		vIndices = (int *) realloc(vIndices, nIndices * sizeof(int));
