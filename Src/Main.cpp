@@ -36,8 +36,6 @@ void Init (ESContext * esContext) {
 	// Enable depth test.
 	glEnable(GL_DEPTH_TEST);
 
-	// Set the viewport
-	glViewport(0, 0, esContext->width, esContext->height);
 
 	// Set up camera and frustum.
 	pCamera = new Camera();
@@ -62,7 +60,15 @@ void DisplayFunc (ESContext * esContext) {
 	// Clear the color buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	
+
+	Matrix4 M = Matrix4::identity();
+	M[3][0] = tx; M[3][1] = ty; M[3][2] = tz;
+
+	// Set the viewport
+	glViewport(0, 0, esContext->width, esContext->height);
+
+
+	pMesh->MVP = M * pCamera->viewMatrix() * pCamera->projectionMatrix();
 	pMesh->draw(programObject);
 
 	esContext->esSwapBuffers();
@@ -72,29 +78,23 @@ void IdleFunc (ESContext * esContext, float t) {
 
 	// Check key presses.
 	if (keyPressed[W]) {
-		pCamera->translateForward(0.1f);
+		pCamera->translateForward(0.05f);
 	}
 	if (keyPressed[S]) {
-		pCamera->translateForward(-0.1f);
+		pCamera->translateForward(-0.05f);
 	}
 	if (keyPressed[D]) {
-		pCamera->translateRight(0.1f);
+		pCamera->translateRight(0.05f);
 	}
 	if (keyPressed[A]) {
-		pCamera->translateRight(-0.1f);
+		pCamera->translateRight(-0.05f);
 	}
 	if (keyPressed[SPACE]) {
-		pCamera->translateUp(0.1f);
+		pCamera->translateUp(0.05f);
 	}
 	if (keyPressed[C]) {
-		pCamera->translateUp(-0.1f);
+		pCamera->translateUp(-0.05f);
 	}
-
-
-	Matrix4 M = Matrix4::identity();
-	M[3][0] = tx; M[3][1] = ty; M[3][2] = tz;
-
-	pMesh->MVP = M * pCamera->viewMatrix() * pCamera->projectionMatrix();
 }
 
 void KeyboardFunc (ESContext * esContext, unsigned char c, int x, int y) {
@@ -152,17 +152,38 @@ void KeyboardUpFunc (ESContext * esContext, unsigned char c, int x, int y) {
 
 void MouseFunc (ESContext * esContext, int button, int state, int x, int y) {
 
-	if (button == 700 && state == 800) {
-		printf("TOUCH");
-	}
 }
 
 void MotionFunc (ESContext * esContext, int x, int y) {
 
+	//printf("Press: %d %d\n", x, y);
 }
 
+GLint prevX = 0;
+GLint prevY = 0;
 void PassiveMotionFunc (ESContext * esContext, int x, int y) {
 
+	float dX = (x - prevX) * M_PI / 180.0f;
+	float dY = (y - prevY) * M_PI / 180.0f;
+
+	if (dX > 0.05f) {
+		dX = 0.05f;
+	}
+	if (dX < -0.05f) {
+		dX = -0.05f;
+	}
+	if (dY > 0.05f) {
+		dY = 0.05f;
+	}
+	if (dY < -0.05f) {
+		dY = -0.05f;
+	}
+
+	pCamera->rotateUp(dY);
+	pCamera->rotateRight(dX);
+
+	prevX = x;
+	prevY = y;
 }
 
 int main (int argc, char * argv[]) {

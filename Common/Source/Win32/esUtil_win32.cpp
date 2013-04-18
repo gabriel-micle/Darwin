@@ -15,7 +15,10 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
+#include <Windowsx.h>
+
 #include "esUtil.h"
+#include <cstdio>
 
 // Main window procedure.
 LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -23,11 +26,6 @@ LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	ESContext * esContext = (ESContext *) (LONG_PTR) GetWindowLongPtr(hWnd, GWL_USERDATA);
 	POINT		p;
 
-	LRESULT lRet = 1;
-
-	if (esContext == NULL) {
-		return lRet;
-	}
 
 	switch (uMsg) {
 
@@ -35,7 +33,7 @@ LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_PAINT:
-		if (esContext->displayFunc) {
+		if (esContext && esContext->displayFunc) {
 			esContext->displayFunc(esContext);
 		}
 		ValidateRect(esContext->hWnd, NULL);
@@ -47,91 +45,62 @@ LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_KEYDOWN:
 		GetCursorPos(&p);
-		if (esContext->keyboardFunc) {
+		if (esContext && esContext->keyboardFunc) {
 			esContext->keyboardFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
 		}
 		break;
 
 	case WM_KEYUP:
 		GetCursorPos(&p);
-		if (esContext->keyboardUpFunc) {
+		if (esContext && esContext->keyboardUpFunc) {
 			esContext->keyboardUpFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
 		}
 		break;
 
 	case WM_LBUTTONDOWN:
-		GetCursorPos(&p);
-		if (esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_LEFT_BUTTON, ES_DOWN, (int) p.x, (int) p.y);
+		if (esContext && esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_LEFT_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
 
 	case WM_LBUTTONUP:
-		GetCursorPos(&p);
-		if (esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_LEFT_BUTTON, ES_UP, (int) p.x, (int) p.y);
-		}
-		break;
-
-	case WM_LBUTTONDBLCLK:
-		GetCursorPos(&p);
-		if (esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_LEFT_BUTTON, ES_DOUBLE_CLICK, (int) p.x, (int) p.y);
+		if (esContext && esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_LEFT_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
 
 	case WM_RBUTTONDOWN:
-		GetCursorPos(&p);
-		if (esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_RIGHT_BUTTON, ES_DOWN, (int) p.x, (int) p.y);
+		if (esContext && esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_RIGHT_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
 
 	case WM_RBUTTONUP:
-		GetCursorPos(&p);
-		if (esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_RIGHT_BUTTON, ES_UP, (int) p.x, (int) p.y);
-		}
-		break;
-
-	case WM_RBUTTONDBLCLK:
-		GetCursorPos(&p);
-		if (esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_RIGHT_BUTTON, ES_DOUBLE_CLICK, (int) p.x, (int) p.y);
+		if (esContext && esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_RIGHT_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
 
 	case WM_MBUTTONDOWN:
-		GetCursorPos(&p);
-		if (esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_MIDDLE_BUTTON, ES_DOWN, (int) p.x, (int) p.y);
+		if (esContext && esContext->mouseFunc) {
+			esContext->mouseFunc(esContext, ES_MIDDLE_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
 
 	case WM_MBUTTONUP:
-		GetCursorPos(&p);
 		if (esContext && esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_MIDDLE_BUTTON, ES_UP, (int) p.x, (int) p.y);
+			esContext->mouseFunc(esContext, ES_MIDDLE_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
-
-	case WM_MBUTTONDBLCLK:
-		GetCursorPos(&p);
-		if (esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_MIDDLE_BUTTON, ES_DOUBLE_CLICK, (int) p.x, (int) p.y);
-		}
-		break;
-
 
 	case WM_MOUSEMOVE:
-		GetCursorPos(&p);
 		if (wParam == 0) {
-			if (esContext->passiveMotionFunc) {
-				esContext->passiveMotionFunc(esContext, (int) p.x, (int) p.x);
+			if (esContext && esContext->passiveMotionFunc) {
+				esContext->passiveMotionFunc(esContext, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			} 
 		} else {
-			if (esContext->motionFunc) {
-				esContext->motionFunc(esContext, (int) p.x, (int) p.y);
+			if (esContext && esContext->motionFunc) {
+				esContext->motionFunc(esContext, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			}
 
 		}
@@ -145,11 +114,10 @@ LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	default:
-		lRet = DefWindowProc(hWnd, uMsg, wParam, lParam);
 		break;
 	} 
 
-	return lRet; 
+	return DefWindowProc(hWnd, uMsg, wParam, lParam); 
 }
 
 

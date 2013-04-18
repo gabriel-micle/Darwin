@@ -21,12 +21,13 @@ void main() {
 	
 	gl_Position = ModelViewProjectionMatrix * inPosition;
 
-
+	/*
 	if (gl_InstanceID == 1) {
 		gl_Position.x -= 1.0;
 	} else {
 		gl_Position.x += 1.0;
 	}
+	*/
 	
 }
 

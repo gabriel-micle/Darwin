@@ -40,7 +40,6 @@
 #define ES_RIGHT_BUTTON			0x0002
 #define ES_DOWN					0x0000
 #define ES_UP					0x0001
-#define	ES_DOUBLE_CLICK			0x0002
 
 class ESContext {
 

@@ -53,6 +53,7 @@ void Mesh::draw (GLuint programObject) {
 	}
 
 
+	// Enable vertex arrays.
 	glBindVertexArray(vertexVAO);
 	loc = glGetAttribLocation(programObject, "inPosition");
 	if (loc != -1) {
@@ -69,14 +70,22 @@ void Mesh::draw (GLuint programObject) {
 		glEnableVertexAttribArray(loc);
 	}
 
+
+	// Bind program.
 	glUseProgram(programObject);
 
+
+	// Set uniforms.
 	loc = glGetUniformLocation(programObject, "ModelViewProjectionMatrix");
 	glUniformMatrix4fv(loc, 1, GL_FALSE, MVP);
 	
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);
-	glDrawElementsInstanced(GL_TRIANGLES, pMG->nIndices, GL_UNSIGNED_INT, 0, 2);
 
+	// Draw indexed.
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);
+	glDrawElementsInstanced(GL_TRIANGLES, pMG->nIndices, GL_UNSIGNED_INT, 0, 1);
+
+
+	// Disable vertex arrays.
 	loc = glGetAttribLocation(programObject, "inPosition");
 	if (loc != -1) {
 		glDisableVertexAttribArray(loc);
@@ -92,6 +101,9 @@ void Mesh::draw (GLuint programObject) {
 		glDisableVertexAttribArray(loc);
 	}
 
+	// Restore vertex array binding.
 	glBindVertexArray(0);
+
+	// Restore program binding.
 	glUseProgram(0);
 }
