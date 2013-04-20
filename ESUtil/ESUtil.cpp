@@ -27,7 +27,7 @@
 // Creates an EGL rendering context and all associated elements.
 EGLBoolean CreateEGLContext (EGLNativeWindowType hWnd, EGLDisplay * eglDisplay,
 							 EGLContext * eglContext, EGLSurface * eglSurface,
-							 EGLint attribList[])
+							 EGLConfig * eglConfig, EGLint attribList[])
 {
 	EGLint numConfigs;
 	EGLint majorVersion;
@@ -81,6 +81,7 @@ EGLBoolean CreateEGLContext (EGLNativeWindowType hWnd, EGLDisplay * eglDisplay,
 	* eglDisplay = display;
 	* eglSurface = surface;
 	* eglContext = context;
+	* eglConfig  = config;
 
 	return EGL_TRUE;
 } 
@@ -94,7 +95,7 @@ ESContext::ESContext () {
 	width  = 640;
 	height = 480;
 
-	flags = ES_WINDOW_RGB;
+	flags = ES_RGB;
 
 	this->idleFunc          = NULL;
 	this->displayFunc       = NULL;
@@ -109,14 +110,31 @@ ESContext::ESContext () {
 // Create a window.
 GLboolean ESUTIL_API ESContext::esCreateWindow (const char * title) {
 
+	// Check multisampling.
+	EGLint sampleBuffers = 0;
+	EGLint numSamples = 0;
+	if (flags & ES_MULTISAMPLE) {
+		sampleBuffers = 1;
+		if (flags & ES_SAMPLES_16) {
+			numSamples = 16;
+		} else if (flags & ES_SAMPLES_8) {
+			numSamples = 8;
+		} else if (flags & ES_SAMPLES_4) {
+			numSamples = 4;
+		} else if (flags & ES_SAMPLES_2) {
+			numSamples = 2;
+		}
+	}
+
 	EGLint attribList[] = {
-		EGL_RED_SIZE,       5,
-		EGL_GREEN_SIZE,     6,
-		EGL_BLUE_SIZE,      5,
-		EGL_ALPHA_SIZE,     (flags & ES_WINDOW_ALPHA) ? 8 : EGL_DONT_CARE,
-		EGL_DEPTH_SIZE,     (flags & ES_WINDOW_DEPTH) ? 8 : EGL_DONT_CARE,
-		EGL_STENCIL_SIZE,   (flags & ES_WINDOW_STENCIL) ? 8 : EGL_DONT_CARE,
-		EGL_SAMPLE_BUFFERS, (flags & ES_WINDOW_MULTISAMPLE) ? 1 : 0,
+		EGL_RED_SIZE,       8,
+		EGL_GREEN_SIZE,     8,
+		EGL_BLUE_SIZE,      8,
+		EGL_ALPHA_SIZE,     (flags & ES_ALPHA) ? 8 : EGL_DONT_CARE,
+		EGL_DEPTH_SIZE,     (flags & ES_DEPTH) ? 24 : EGL_DONT_CARE,
+		EGL_STENCIL_SIZE,   (flags & ES_STENCIL) ? 8 : EGL_DONT_CARE,
+		EGL_SAMPLE_BUFFERS, sampleBuffers,
+		EGL_SAMPLES,		numSamples,
 		EGL_NONE
 	};
 
@@ -124,7 +142,7 @@ GLboolean ESUTIL_API ESContext::esCreateWindow (const char * title) {
 		return GL_FALSE;
 	}
 
-	if (!CreateEGLContext(hWnd, &eglDisplay, &eglContext, &eglSurface, attribList)) {
+	if (!CreateEGLContext(hWnd, &eglDisplay, &eglContext, &eglSurface, &eglConfig, attribList)) {
 		return GL_FALSE;
 	}
 

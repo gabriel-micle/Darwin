@@ -14,8 +14,7 @@ float tz = -2.0f;
 
 bool keyPressed[6];
 
-enum keyID_t
-{
+enum keyID_t {
 	W,
 	A,
 	S,
@@ -36,21 +35,20 @@ void Init (ESContext * esContext) {
 	// Enable depth test.
 	glEnable(GL_DEPTH_TEST);
 
-
 	// Set up camera and frustum.
 	pCamera = new Camera();
 	pCamera->setPerspective(60.0f, 1.0f * esContext->width / esContext->height, 0.1f, 1000.0f);
 
 
 	// Read GLSL shader files.
-	char * vShaderStr = ReadFile("./Data/Shaders/Hello.vert.glsl");
-	char * fShaderStr = ReadFile("./Data/Shaders/Hello.frag.glsl");
+	char * vShaderStr = ReadFile("Data/Shaders/Hello.vert.glsl");
+	char * fShaderStr = ReadFile("Data/Shaders/Hello.frag.glsl");
 
 	// Create the program object.
 	programObject = esLoadProgram(vShaderStr, fShaderStr);
 
 	// Import mesh from Wavefront OBJ file.
-	pMesh = ReadWavefrontOBJ("./Data/Models/Woman2.obj");
+	pMesh = Wavefront::ImportOBJ("Data/Models/Woman1.obj");
 
 }
 
@@ -162,19 +160,6 @@ void MotionFunc (ESContext * esContext, int x, int y) {
 	float dX = (x - prevX) * M_PI / 180.0f;
 	float dY = (y - prevY) * M_PI / 180.0f;
 
-	if (dX > 0.05f) {
-		dX = 0.05f;
-	}
-	if (dX < -0.05f) {
-		dX = -0.05f;
-	}
-	if (dY > 0.05f) {
-		dY = 0.05f;
-	}
-	if (dY < -0.05f) {
-		dY = -0.05f;
-	}
-
 	pCamera->rotateUp(dY);
 	pCamera->rotateRight(dX);
 
@@ -192,7 +177,7 @@ int main (int argc, char * argv[]) {
 
 	ESContext * esContext = new ESContext();
 
-	esContext->esInitDisplayMode(ES_WINDOW_RGB | ES_WINDOW_DEPTH | ES_WINDOW_ALPHA);
+	esContext->esInitDisplayMode(ES_RGB | ES_ALPHA | ES_DEPTH | ES_MULTISAMPLE | ES_SAMPLES_16);
 	esContext->esInitWindowPosition(300, 300);
 	esContext->esInitWindowSize(800, 480);
 

@@ -28,18 +28,22 @@
 
 
 // Buffer modes.
-#define ES_WINDOW_RGB			0x0000
-#define ES_WINDOW_ALPHA			0x0001 
-#define ES_WINDOW_DEPTH			0x0002 
-#define ES_WINDOW_STENCIL		0x0004
-#define	ES_WINDOW_MULTISAMPLE	0x0008
+#define ES_RGB				0x0000
+#define ES_ALPHA			0x0001 
+#define ES_DEPTH			0x0002 
+#define ES_STENCIL			0x0004
+#define	ES_MULTISAMPLE		0x0008
+#define	ES_SAMPLES_2		0x0010
+#define ES_SAMPLES_4		0x0020
+#define	ES_SAMPLES_8		0x0040
+#define ES_SAMPLES_16		0x0080
 
 // Input.
-#define	ES_LEFT_BUTTON			0x0000
-#define ES_MIDDLE_BUTTON		0x0001
-#define ES_RIGHT_BUTTON			0x0002
-#define ES_DOWN					0x0000
-#define ES_UP					0x0001
+#define	ES_LEFT_BUTTON		0x0000
+#define ES_MIDDLE_BUTTON	0x0001
+#define ES_RIGHT_BUTTON		0x0002
+#define ES_DOWN				0x0000
+#define ES_UP				0x0001
 
 class ESContext {
 
@@ -71,6 +75,9 @@ public:
 
 	// EGL surface.
 	EGLSurface  eglSurface;
+
+	// EGL config.
+	EGLConfig	eglConfig;
 
 	// Callbacks.
 	void (ESCALLBACK * displayFunc)			(ESContext *);

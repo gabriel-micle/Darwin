@@ -3,15 +3,22 @@
 #define _WAVEFRONT_H_
 
 
-#define MAX_BUFFER_SIZE	1024
+#define WAVEFRONT_BUFSIZE	1024
 
 #include <vector>
 #include <map>
 
 #include "..\Tuple.h"
 
+class Wavefront {
 
-Mesh * ReadWavefrontOBJ (const char * fileName) {
+public:
+
+	static Mesh *	ImportOBJ (const char * fileName);
+};
+
+
+Mesh * Wavefront::ImportOBJ (const char * fileName) {
 
 	FILE * pFile = fopen(fileName, "rb");
 	if (pFile == NULL) {
@@ -19,8 +26,7 @@ Mesh * ReadWavefrontOBJ (const char * fileName) {
 		return NULL;
 	}
 
-	char buffer[MAX_BUFFER_SIZE];
-	memset(buffer, 0, MAX_BUFFER_SIZE);
+	char buffer[WAVEFRONT_BUFSIZE];
 
 	std::vector<Vector3> vPositions;
 	std::vector<Vector3> vTexCoords;
@@ -39,7 +45,7 @@ Mesh * ReadWavefrontOBJ (const char * fileName) {
 	int t = 0;
 	int n = 0;
 
-	while (fgets(buffer, MAX_BUFFER_SIZE, pFile)) {
+	while (fgets(buffer, WAVEFRONT_BUFSIZE, pFile)) {
 
 		/* Possible keywords are:
 		- # for comments
@@ -158,8 +164,6 @@ Mesh * ReadWavefrontOBJ (const char * fileName) {
 			}
 
 		} // if.
-
-		memset(buffer, 0, MAX_BUFFER_SIZE);
 
 	} // while.
 
