@@ -11,29 +11,24 @@ float tx = 0.0f;
 float ty = -1.0f;
 float tz = -2.0f;
 
+GLuint texID;
 
 bool keyPressed[6];
 
 enum keyID_t {
-	W,
-	A,
-	S,
-	D,
-	SPACE,
-	C,
+	W, A, S, D, SPACE, C,
 };
 
 // Initialize the shader and program object.
 void Init (ESContext * esContext) {
-
-	// Display OpenGL version.
-	printf("%s\n", glGetString(GL_VERSION));
 
 	// Specify buffer clear color.
 	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
 
 	// Enable depth test.
 	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Set up camera and frustum.
 	pCamera = new Camera();
@@ -48,7 +43,40 @@ void Init (ESContext * esContext) {
 	programObject = esLoadProgram(vShaderStr, fShaderStr);
 
 	// Import mesh from Wavefront OBJ file.
-	pMesh = Wavefront::ImportOBJ("Data/Models/Woman1.obj");
+	pMesh = Wavefront::ImportOBJ("Data/Models/Woman2.obj");
+
+	// Test texture.
+	char * pixels;
+	int width, height, ch;
+	pixels = Truevision::ImportTGA("Data/Textures/betty_color32.tga", &width, &height, &ch);
+	
+	glGenTextures(1, &texID);
+	glBindTexture(GL_TEXTURE_2D, texID);
+	
+	glTexStorage2D(
+		GL_TEXTURE_2D,
+		4,
+		GL_COMPRESSED_RGBA8_ETC2_EAC,
+		width, height
+		);
+
+	glTexSubImage2D(GL_TEXTURE_2D, 
+		0, 0, 0, 
+		width, height, 
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		pixels
+		);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 }
 
@@ -65,10 +93,28 @@ void DisplayFunc (ESContext * esContext) {
 	// Set the viewport
 	glViewport(0, 0, esContext->width, esContext->height);
 
+	// Bind a texture.
+	glUseProgram(programObject);
 
+	GLint loc = glGetUniformLocation(programObject, "uColor");
+	if (loc != -1) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texID);
+		glUniform1i(loc, 0);
+	}
+
+	// Set a model view projection matrix.
 	pMesh->MVP = M * pCamera->viewMatrix() * pCamera->projectionMatrix();
+
+	// Draw.
 	pMesh->draw(programObject);
 
+	// Unbind texture.
+	if (loc != -1) {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	// Swap buffers.
 	esContext->esSwapBuffers();
 }
 
@@ -123,7 +169,7 @@ void KeyboardFunc (ESContext * esContext, unsigned char c, int x, int y) {
 }
 
 void KeyboardUpFunc (ESContext * esContext, unsigned char c, int x, int y) {
-	
+
 	switch (c) {
 	case 'W': case 'w':
 		keyPressed[W] = false;
@@ -177,9 +223,16 @@ int main (int argc, char * argv[]) {
 
 	ESContext * esContext = new ESContext();
 
-	esContext->esInitDisplayMode(ES_RGB | ES_ALPHA | ES_DEPTH | ES_MULTISAMPLE | ES_SAMPLES_16);
-	esContext->esInitWindowPosition(300, 300);
-	esContext->esInitWindowSize(800, 480);
+	esContext->esInitDisplayMode(
+		ES_RGB | 
+		ES_ALPHA | 
+		ES_DEPTH | 
+		ES_MULTISAMPLE | 
+		ES_SAMPLES_16
+		);
+
+	esContext->esInitWindowPosition(100, 100);
+	esContext->esInitWindowSize(1024, 600);
 
 	esContext->esCreateWindow("Darwin");
 
@@ -187,8 +240,10 @@ int main (int argc, char * argv[]) {
 
 	esContext->esDisplayFunc(DisplayFunc);
 	esContext->esIdleFunc(IdleFunc);
+
 	esContext->esKeyboardFunc(KeyboardFunc);
 	esContext->esKeyboardUpFunc(KeyboardUpFunc);
+
 	esContext->esMouseFunc(MouseFunc);
 	esContext->esMotionFunc(MotionFunc);
 	esContext->esPassiveMotionFunc(PassiveMotionFunc);

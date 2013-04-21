@@ -7,6 +7,9 @@
     <Filter Include="Renderer">
       <UniqueIdentifier>{0517b7ee-e670-415c-9da6-565c6f8dbc37}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{4ae49b89-8102-47e6-a994-39e9c3d3c5da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DarwinBase\IO\FileReader.h">
@@ -41,6 +44,10 @@
     </ClInclude>
     <ClInclude Include="DarwinBase\Headers.h" />
     <ClInclude Include="DarwinBase\Tuple.h" />
+    <ClInclude Include="DarwinBase\IO\Truevision.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DarwinBase\Renderer\Camera.cpp">
@@ -62,5 +69,13 @@
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="DarwinBase\Main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Build\Data\Shaders\Hello.vert.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Build\Data\Shaders\Hello.frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

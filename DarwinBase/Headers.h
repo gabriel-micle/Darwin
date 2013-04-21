@@ -15,6 +15,7 @@
 
 #include "IO\FileReader.h"
 #include "IO\Wavefront.h"
+#include "IO\Truevision.h"
 
 
 #endif

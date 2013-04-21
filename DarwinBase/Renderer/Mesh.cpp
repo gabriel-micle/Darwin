@@ -71,11 +71,8 @@ void Mesh::draw (GLuint programObject) {
 	}
 
 
-	// Bind program.
-	glUseProgram(programObject);
 
-
-	// Set uniforms.
+	// Set uniforms (program must be bound before).
 	loc = glGetUniformLocation(programObject, "ModelViewProjectionMatrix");
 	glUniformMatrix4fv(loc, 1, GL_FALSE, MVP);
 	

@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Build\</OutDir>
-    <IntDir>Intermediate\$(Configuration)\</IntDir>
+    <IntDir>Intermediate\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName>Darwin</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,6 +97,7 @@
   <ItemGroup>
     <ClInclude Include="DarwinBase\Headers.h" />
     <ClInclude Include="DarwinBase\IO\FileReader.h" />
+    <ClInclude Include="DarwinBase\IO\Truevision.h" />
     <ClInclude Include="DarwinBase\IO\Wavefront.h" />
     <ClInclude Include="DarwinBase\Renderer\Camera.h" />
     <ClInclude Include="DarwinBase\Renderer\Material.h" />
@@ -107,6 +108,7 @@
     <ClInclude Include="DarwinBase\Renderer\Vertex.h" />
     <ClInclude Include="DarwinBase\Renderer\VertexGroup.h" />
     <ClInclude Include="DarwinBase\Tuple.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DarwinBase\Main.cpp" />
@@ -116,6 +118,28 @@
     <ClCompile Include="DarwinBase\Renderer\PolygonGroup.cpp" />
     <ClCompile Include="DarwinBase\Renderer\Texture.cpp" />
     <ClCompile Include="DarwinBase\Renderer\VertexGroup.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="DarwinLib.vcxproj">
+      <Project>{a0d68506-5da4-434b-9d1e-a80bdbab34b3}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="ESUtil.vcxproj">
+      <Project>{3e6dd95b-ba90-45f3-9b8b-f8b7b7d8823d}</Project>
+      <Private>false</Private>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Build\Data\Shaders\Hello.frag.glsl" />
+    <None Include="Build\Data\Shaders\Hello.vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

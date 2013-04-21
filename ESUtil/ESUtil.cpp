@@ -1,15 +1,15 @@
 
 /*
- * Adapted from:
- * ------------
- * Book:      OpenGL(R) ES 2.0 Programming Guide
- * Authors:   Aaftab Munshi, Dan Ginsburg, Dave Shreiner
- * ISBN-10:   0321502795
- * ISBN-13:   9780321502797
- * Publisher: Addison-Wesley Professional
- * URLs:      http://safari.informit.com/9780321563835
- *            http://www.opengles-book.com
- */
+* Adapted from:
+* ------------
+* Book:      OpenGL(R) ES 2.0 Programming Guide
+* Authors:   Aaftab Munshi, Dan Ginsburg, Dave Shreiner
+* ISBN-10:   0321502795
+* ISBN-13:   9780321502797
+* Publisher: Addison-Wesley Professional
+* URLs:      http://safari.informit.com/9780321563835
+*            http://www.opengles-book.com
+*/
 
 
 // Includes.
@@ -229,6 +229,7 @@ void ESUTIL_API ESContext::esPassiveMotionFunc (void (ESCALLBACK * passiveMotion
 
 	this->passiveMotionFunc = passiveMotionFunc;
 }
+
 
 
 // Log a message to the debug output for the platform.
