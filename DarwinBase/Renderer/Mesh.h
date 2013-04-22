@@ -4,14 +4,16 @@
 
 class Mesh {
 
-public:
-
-	VertexGroup   *	pVG;
-	PolygonGroup *	pMG;
+private:
 
 	GLuint			vertexVBO;
 	GLuint			vertexVAO;
 	GLuint			indexVBO;
+
+public:
+
+	VertexGroup  *	pVG;
+	PolygonGroup *	pMG;
 
 	Matrix4			MVP;
 

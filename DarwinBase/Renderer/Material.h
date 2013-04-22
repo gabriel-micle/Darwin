@@ -2,8 +2,7 @@
 #ifndef _MATERIAL_H_
 #define _MATERIAL_H_
 
-#include "..\Math\Math.h"
-#include "..\Types.h"
+#include "Math\Math.h"
 
 class Material {
 
@@ -23,12 +22,12 @@ private:
 
 	float		Ns;			/* Specular shininess. */
 
-	uint_t		illum;		/* Illumination mode. */
+	int			illum;		/* Illumination mode. */
 
 	char *		mapKa;		/* Name of the ambient map. */
 	char *		mapKd;		/* Name of the diffuse map. */
 	char *		mapKs;		/* Name of the specular map. */
-	char *		mapBump;	/* Name of the normal map. */
+	char *		mapBump;	/* Name of the normal map.	*/
 
 };
 

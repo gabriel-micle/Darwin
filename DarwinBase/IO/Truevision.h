@@ -9,8 +9,8 @@ public:
 };
 
 
-#pragma pack(push, n)	// Push the current alignment.
-#pragma pack(1)			// Set new alignment.
+#pragma pack (push, n)	// Push the current alignment.
+#pragma pack (1)			// Set new alignment.
 struct TGAHeader {
 
 	unsigned char	idSize;
@@ -31,13 +31,12 @@ struct TGAHeader {
 	unsigned char	descriptor;
 
 };
-#pragma pack(pop, n)	// Restore alignment.
+#pragma pack (pop, n)	// Restore alignment.
 
 
 char * Truevision::ImportTGA (const char * fileName,
 							  int * width, int * height,
-							  int * imageChannels) 
-{
+							  int * imageChannels) {
 
 	FILE * pFile = fopen(fileName, "rb");
 	if (!pFile) {
@@ -86,7 +85,7 @@ char * Truevision::ImportTGA (const char * fileName,
 
 			int k = (x1 * (* width) + y1) * (* imageChannels);
 	
-			// Image is stored in BGRA format.
+			// Image is stored in BGRA format, we need RGBA.
 			imageData[idx++] = buffer[k + 2];
 			imageData[idx++] = buffer[k + 1];
 			imageData[idx++] = buffer[k];

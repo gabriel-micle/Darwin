@@ -49,35 +49,21 @@ void Init (ESContext * esContext) {
 	char * pixels;
 	int width, height, ch;
 	pixels = Truevision::ImportTGA("Data/Textures/betty_color32.tga", &width, &height, &ch);
-	
-	glGenTextures(1, &texID);
-	glBindTexture(GL_TEXTURE_2D, texID);
-	
-	glTexStorage2D(
-		GL_TEXTURE_2D,
-		4,
-		GL_COMPRESSED_RGBA8_ETC2_EAC,
-		width, height
-		);
 
-	glTexSubImage2D(GL_TEXTURE_2D, 
-		0, 0, 0, 
-		width, height, 
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		pixels
-		);
+	TextureOpts opts;
+	opts.format     = DW_RGBA8;
+	opts.filter     = DW_TRILINEAR;
+	opts.wrap       = DW_REPEAT;
+	opts.usage      = DW_DIFFUSE;
+	opts.mipmaps    = 4;
+	opts.compressed = true;
 
-	glGenerateMipmap(GL_TEXTURE_2D);
+	Texture * tex = new Texture("");
+	tex->generate2D(pixels, width, height, opts);
 
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	texID = tex->handle;
 
 	glBindTexture(GL_TEXTURE_2D, 0);
-
 }
 
 
