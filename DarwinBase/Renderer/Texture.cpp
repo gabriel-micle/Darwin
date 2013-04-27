@@ -1,11 +1,12 @@
 
 #include "ESUtil.h"
 #include "Texture.h"
+
 #include <cstdio>
 #include <cassert>
 
 
-Texture::Texture (const char * name) {
+Texture::Texture (const char * _name) : name(_name) {
 
 
 
@@ -124,6 +125,8 @@ void Texture::allocImage () {
 
 void Texture::uploadSubData (int x, int y, int s, const char * imageData, int width, int height) {
 
+	assert(x >= 0 && x < width && y >= 0 && y < height);
+
 	// Set upload target type.
 	int uploadTarget;
 	switch (type) {
@@ -138,9 +141,13 @@ void Texture::uploadSubData (int x, int y, int s, const char * imageData, int wi
 		break;
 	}
 
+	glBindTexture(target, handle);
+
 	// Upload data.
 	if (opts.compressed) {
-		glCompressedTexSubImage2D(uploadTarget, 0, x, y, width, height, dataFormat, channels * width * height, imageData);
+		// TODO
+		// glCompressedTexSubImage2D(uploadTarget, 0, x, y, width, height, dataFormat, channels * width * height, imageData);
+		glTexSubImage2D(uploadTarget, 0, x, y, width, height, dataFormat, dataType, imageData);
 	} else {
 		glTexSubImage2D(uploadTarget, 0, x, y, width, height, dataFormat, dataType, imageData);
 	}

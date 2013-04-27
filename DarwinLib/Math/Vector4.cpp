@@ -22,10 +22,12 @@ Vector4::Vector4 (Vector3 _xyz, float _w) :
  *	Accessors.
  */
 float & Vector4::operator [] (const int i) {
+	assert(i >= 0 && i < 4);
 	return (&x)[i];
 }
 
 float Vector4::operator [] (const int i) const {
+	assert(i >= 0 && i < 4);
 	return (&x)[i];
 }
 

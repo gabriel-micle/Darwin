@@ -11,14 +11,12 @@
 #include "..\Tuple.h"
 
 class Wavefront {
-
 public:
-
-	static Mesh *	ImportOBJ (const char * fileName);
+	static Model *	ImportOBJ (const char * fileName);
 };
 
 
-Mesh * Wavefront::ImportOBJ (const char * fileName) {
+Model * Wavefront::ImportOBJ (const char * fileName) {
 
 	FILE * pFile = fopen(fileName, "rb");
 	if (pFile == NULL) {
@@ -29,16 +27,13 @@ Mesh * Wavefront::ImportOBJ (const char * fileName) {
 	char buffer[WAVEFRONT_BUFSIZE];
 
 	std::vector<Vector3> vPositions;
-	std::vector<Vector3> vTexCoords;
-	std::vector<Vector3> vNormals;
+	std::vector<Vector2> vTexCoords;
 
-	std::map<Tuple<int>, int> indexMap;
-	int currentIdx = 0;
+	std::vector<std::pair<int, int> > vIndices;
 
 
-	Mesh * pMesh = new Mesh();
-	pMesh->pVG = new VertexGroup();
-	pMesh->pMG = new PolygonGroup();
+
+	Model * pModel = new Model();
 
 	float x, y, z;
 	int	p = 0;
@@ -82,13 +77,14 @@ Mesh * Wavefront::ImportOBJ (const char * fileName) {
 
 			// Texture coordinates.
 			sscanf(buffer + 3, "%f %f", &x, &y);
-			vTexCoords.push_back(Vector3(x, y, 0.0f));
+			vTexCoords.push_back(Vector2(x, y));
 
 		} else if (strncmp (buffer, "vn", 2) == 0) {
 
 			// Normals.
-			sscanf(buffer + 3, "%f %f %f", &x, &y, &z);
-			vNormals.push_back(Vector3(x, y, z));
+			// Ignore normals, as they will be generated.
+			// sscanf(buffer + 2, "%f %f %f", &x, &y, &z);
+			// vNormals.push_back(Vector3(x, y, z));
 
 		} else if (strncmp (buffer, "usemtl", 6) == 0) {
 			//TODO
@@ -126,37 +122,8 @@ Mesh * Wavefront::ImportOBJ (const char * fileName) {
 
 				}
 
-				// Search for vp/vt/vn index tuple.
-				auto found = indexMap.find(Tuple<int>(p, t, n));
-
-				if (found == indexMap.end()) {
-
-					// If index tuple was NOT encountered before, create a new unified index in the index buffer.
-					pMesh->pMG->addIndex(currentIdx);
-
-					// Map tuple to the new index.
-					indexMap[Tuple<int>(p, t, n)] = currentIdx++;
-
-					// Extract vertex data for the index tuple.
-					Tuple<Vector3> ptn;
-					if (p != 0) {
-						ptn.x = vPositions[p - 1];
-					}
-					if (t != 0) {
-						ptn.y = vTexCoords[t - 1];
-					}
-					if (n != 0) {
-						ptn.z = vNormals[n - 1];
-					}
-
-					// Add the vertex as a new mesh vertex.
-					pMesh->pVG->addVertex(ptn);
-
-				} else {
-
-					// If index tuple was encountered before, add its unified mapping to the index buffer.
-					pMesh->pMG->addIndex(found->second);
-				}
+				// Save position and texCoord indices. Discard normal index.
+				vIndices.push_back(std::make_pair(p, t));
 
 				pch = end + 1;
 
@@ -169,17 +136,68 @@ Mesh * Wavefront::ImportOBJ (const char * fileName) {
 
 	fclose(pFile);
 
+
+	// Unindex positions and texture coordinates.
+	Vertex * vVertices = (Vertex *) malloc(vIndices.size() * sizeof(Vertex));
+
+	for (int i = 0; i < vIndices.size(); i += 3) {
+
+		for (int k = i; k < i + 3; k++) {
+			vVertices[k].Position = vPositions[vIndices[k].first  - 1];
+			vVertices[k].TexCoord = vTexCoords[vIndices[k].second - 1];
+		}
+
+		Model::computeTangentBitangent(vVertices[i], vVertices[i + 1], vVertices[i + 2]);
+	}
+
+	
+	// Create unified index for both position and texcoord.
+	int currentIdx = 0;
+	std::map<std::pair<int, int>, int> indexMap;
+
+	for (int i = 0; i < vIndices.size(); i++) {
+
+		// Search for vp/vt index pair.
+		auto found = indexMap.find(vIndices[i]);
+
+		// Extract vertex data for the index tuple.
+		Vertex v = vVertices[i];
+
+		if (found == indexMap.end()) {
+
+			// If index tuple was NOT encountered before, create a new unified index in the index buffer.
+			pModel->addIndex(currentIdx);
+
+			// Map tuple to the new index.
+			indexMap[vIndices[i]] = currentIdx++;
+
+			// Add the vertex as a new mesh vertex.
+			pModel->addVertex(v);
+
+		} else {
+			
+			// If index tuple was encountered before, add its unified mapping to the index buffer.
+			pModel->addIndex(found->second);
+
+			// Also interpolate the tangent and bitangent.
+			pModel->vVertices[found->second].Binormal += v.Binormal;
+			pModel->vVertices[found->second].Tangent  += v.Tangent;
+		}
+
+	}
+
+
+	// Cleanup.
 	std::vector<Vector3>().swap(vPositions);
-	std::vector<Vector3>().swap(vTexCoords);
-	std::vector<Vector3>().swap(vNormals);
+	std::vector<Vector2>().swap(vTexCoords);
+	std::vector<std::pair<int, int> >().swap(vIndices);
+	std::map<std::pair<int, int>, int>().swap(indexMap);
+	free(vVertices);
 
-	std::map<Tuple<int>, int>().swap(indexMap);
+	// Optimize storage.
+	pModel->finalize();
 
-	pMesh->pVG->finalize();
-	pMesh->pMG->finalize();
-
-
-	return pMesh;
+	return pModel;
 }
 
 #endif

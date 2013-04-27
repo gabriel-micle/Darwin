@@ -4,6 +4,7 @@
 
 
 #include <cmath>
+#include <cassert>
 
 #include "Vector.h"
 #include "Matrix.h"

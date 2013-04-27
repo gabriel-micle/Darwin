@@ -9,26 +9,17 @@ public:
 };
 
 
-#pragma pack (push, n)	// Push the current alignment.
+#pragma pack (push, n)		// Push the current alignment.
 #pragma pack (1)			// Set new alignment.
 struct TGAHeader {
 
-	unsigned char	idSize;
+	unsigned char	idSize, mapType, imageType;
 
-	unsigned char	mapType;
-
-	unsigned char	imageType;
-
-	unsigned short	paletteStart;
-	unsigned short	paletteSize;
+	unsigned short	paletteStart, paletteSize;
 	unsigned char	paletteEntryDepth;
 
-	unsigned short	xOrigin;
-	unsigned short	yOrigin;
-	unsigned short	width;
-	unsigned short	height;
-	unsigned char	colorDepth;
-	unsigned char	descriptor;
+	unsigned short	xOrigin, yOrigin, width, height;
+	unsigned char	colorDepth, descriptor;
 
 };
 #pragma pack (pop, n)	// Restore alignment.
@@ -36,7 +27,8 @@ struct TGAHeader {
 
 char * Truevision::ImportTGA (const char * fileName,
 							  int * width, int * height,
-							  int * imageChannels) {
+							  int * imageChannels) 
+{
 
 	FILE * pFile = fopen(fileName, "rb");
 	if (!pFile) {
@@ -70,17 +62,17 @@ char * Truevision::ImportTGA (const char * fileName,
 	char * imageData = (char *) malloc(bufferSize);
 	int idx = 0;
 
-	for (int x = 0; x < (* height); x++) {
-		for (int y = 0; y < (* width); y++) {
+	for (int x0 = 0; x0 < (* height); x0++) {
+		for (int y0 = 0; y0 < (* width); y0++) {
 
-			int y1 = y;
-			int x1 = x;
+			int y1 = y0;
+			int x1 = x0;
 
 			if (imageHeader.descriptor & (1 << 4)) {
-				y1 = (* width) - 1 - y;
+				y1 = (* width) - 1 - y0;
 			}
 			if (!(imageHeader.descriptor & (1 << 5))) {
-				x1 = (* height) - 1 - x;
+				x1 = (* height) - 1 - x0;
 			}
 
 			int k = (x1 * (* width) + y1) * (* imageChannels);

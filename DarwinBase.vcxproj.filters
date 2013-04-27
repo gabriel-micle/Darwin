@@ -24,22 +24,13 @@
     <ClInclude Include="DarwinBase\Renderer\Material.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="DarwinBase\Renderer\Mesh.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="DarwinBase\Renderer\Model.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="DarwinBase\Renderer\PolygonGroup.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="DarwinBase\Renderer\Texture.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="DarwinBase\Renderer\Vertex.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="DarwinBase\Renderer\VertexGroup.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="DarwinBase\Headers.h" />
@@ -56,19 +47,13 @@
     <ClCompile Include="DarwinBase\Renderer\Material.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="DarwinBase\Renderer\Mesh.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="DarwinBase\Renderer\PolygonGroup.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="DarwinBase\Renderer\Texture.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="DarwinBase\Renderer\VertexGroup.cpp">
+    <ClCompile Include="DarwinBase\Main.cpp" />
+    <ClCompile Include="DarwinBase\Renderer\Model.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="DarwinBase\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Build\Data\Shaders\Hello.vert.glsl">

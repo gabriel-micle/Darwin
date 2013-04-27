@@ -53,7 +53,7 @@ private:
 	TextureOpts		opts;
 
 	int				channels;
-	char *			name;
+	const char *	name;
 
 	GLuint			internalFormat;
 	GLuint			dataFormat;

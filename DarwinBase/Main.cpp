@@ -4,14 +4,31 @@
 // Handle to a program object.
 GLuint programObject;
 
-Mesh   * pMesh;
+Model  * pMesh;
 Camera * pCamera;
+
+GLint loc;
 
 float tx = 0.0f;
 float ty = -1.0f;
 float tz = -2.0f;
 
-GLuint texID;
+float t = 0.0f;
+
+Texture * DiffuseTex;
+Texture * NormalTex;
+
+Vector4 GlobalAmbient(0.2f, 0.2f, 0.2f, 1.0f);
+
+Vector4 LightAmbient(0.2f, 0.2f, 0.2f, 1.0f);
+Vector4 LightDiffuse(0.6f, 0.6f, 0.6f, 1.0f);
+Vector4 LightSpecular(1.4f, 0.8f, 0.6f, 1.0f);
+Vector4 LightPosition(0.0f, 5.0f, -0.2f, 1.0f);
+
+Vector4 MaterialAmbient(0.3f, 0.3f, 0.3f, 1.0f);
+Vector4 MaterialDiffuse(1.0f, 0.8f, 1.0f, 1.0f);
+Vector4 MaterialSpecular(0.8f, 0.8f, 0.8f, 1.0f);
+float	MaterialShininess(2.0f);
 
 bool keyPressed[6];
 
@@ -43,27 +60,40 @@ void Init (ESContext * esContext) {
 	programObject = esLoadProgram(vShaderStr, fShaderStr);
 
 	// Import mesh from Wavefront OBJ file.
-	pMesh = Wavefront::ImportOBJ("Data/Models/Woman2.obj");
+	pMesh = Wavefront::ImportOBJ("Data/Models/Woman1.obj");
 
 	// Test texture.
 	char * pixels;
 	int width, height, ch;
-	pixels = Truevision::ImportTGA("Data/Textures/betty_color32.tga", &width, &height, &ch);
-
 	TextureOpts opts;
-	opts.format     = DW_RGBA8;
+
+	// Diffuse texture.
+	pixels = Truevision::ImportTGA("Data/Textures/sarah_color.tga", &width, &height, &ch);
+
+	opts.format     = DW_RGB8;
 	opts.filter     = DW_TRILINEAR;
 	opts.wrap       = DW_REPEAT;
 	opts.usage      = DW_DIFFUSE;
-	opts.mipmaps    = 4;
-	opts.compressed = true;
+	opts.mipmaps    = 10;
+	opts.compressed = false;
 
-	Texture * tex = new Texture("");
-	tex->generate2D(pixels, width, height, opts);
+	DiffuseTex = new Texture("");
+	DiffuseTex->generate2D(pixels, width, height, opts);
 
-	texID = tex->handle;
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	// Normal map.
+	pixels = Truevision::ImportTGA("Data/Textures/sarah_normal.tga", &width, &height, &ch);
+
+	opts.format     = DW_RGB8;
+	opts.filter     = DW_TRILINEAR;
+	opts.wrap       = DW_REPEAT;
+	opts.usage      = DW_BUMP;
+	opts.mipmaps    = 10;
+	opts.compressed = false;
+
+	NormalTex = new Texture("");
+	NormalTex->generate2D(pixels, width, height, opts);
+
 }
 
 
@@ -73,32 +103,84 @@ void DisplayFunc (ESContext * esContext) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	Matrix4 M = Matrix4::identity();
-	M[3][0] = tx; M[3][1] = ty; M[3][2] = tz;
-
 	// Set the viewport
 	glViewport(0, 0, esContext->width, esContext->height);
 
 	// Bind a texture.
 	glUseProgram(programObject);
 
-	GLint loc = glGetUniformLocation(programObject, "uColor");
-	if (loc != -1) {
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texID);
-		glUniform1i(loc, 0);
+	{
+		loc = glGetUniformLocation(programObject, "uColorMap");
+		if (loc != -1) {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, DiffuseTex->handle);
+			glUniform1i(loc, 0);
+		}
+
+		loc = glGetUniformLocation(programObject, "uNormalMap");
+		if (loc != -1) {
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, NormalTex->handle);
+			glUniform1i(loc, 1);
+		}
+
+		loc = glGetUniformLocation(programObject, "uGlobalAmbient");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, GlobalAmbient);
+		}
+
+		loc = glGetUniformLocation(programObject, "uLight.Ambient");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, LightAmbient);
+		}
+
+		loc = glGetUniformLocation(programObject, "uLight.Diffuse");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, LightDiffuse);
+		}
+
+		loc = glGetUniformLocation(programObject, "uLight.Specular");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, LightSpecular);
+		}
+
+		loc = glGetUniformLocation(programObject, "uLight.Position");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, LightPosition);
+		}
+
+		loc = glGetUniformLocation(programObject, "uMaterial.Diffuse");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, MaterialDiffuse);
+		}
+
+		loc = glGetUniformLocation(programObject, "uMaterial.Ambient");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, MaterialAmbient);
+		}
+
+		loc = glGetUniformLocation(programObject, "uMaterial.Specular");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, MaterialSpecular);
+		}
+
+		loc = glGetUniformLocation(programObject, "uMaterial.Shininess");
+		if (loc != -1) {
+			glUniform1f(loc, MaterialShininess);
+		}
 	}
 
+	
+
+	Matrix4 M = Matrix4::identity();
+	M[3][0] = tx; M[3][1] = ty; M[3][2] = tz;
+
 	// Set a model view projection matrix.
-	pMesh->MVP = M * pCamera->viewMatrix() * pCamera->projectionMatrix();
+	pMesh->MV = M * pCamera->viewMatrix();
+	pMesh->MVP = pMesh->MV * pCamera->projectionMatrix();
 
 	// Draw.
 	pMesh->draw(programObject);
-
-	// Unbind texture.
-	if (loc != -1) {
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
 
 	// Swap buffers.
 	esContext->esSwapBuffers();
@@ -125,6 +207,8 @@ void IdleFunc (ESContext * esContext, float t) {
 	if (keyPressed[C]) {
 		pCamera->translateUp(-0.05f);
 	}
+
+	t += 0.1f;
 }
 
 void KeyboardFunc (ESContext * esContext, unsigned char c, int x, int y) {

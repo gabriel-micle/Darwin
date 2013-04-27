@@ -19,10 +19,12 @@ Vector3::Vector3 (float _x, float _y, float _z) :
  *	Accessors.
  */
 float & Vector3::operator [] (const int i) {
+	assert(i >= 0 && i < 3);
 	return (&x)[i];
 }
 
 float Vector3::operator [] (const int i) const {
+	assert(i >= 0 && i < 3);
 	return (&x)[i];
 }
 

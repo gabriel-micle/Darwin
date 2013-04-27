@@ -8,9 +8,9 @@ public:
 
 	Vector3	Position;
 	Vector2 TexCoord;
-	Vector3 Normal;
-	Vector3 Binormal;
 	Vector3 Tangent;
+	Vector3 Binormal;
+
 };
 
 

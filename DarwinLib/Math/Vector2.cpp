@@ -19,10 +19,12 @@ Vector2::Vector2 (float _x, float _y) :
  *	Accessors.
  */
 float & Vector2::operator [] (const int i) {
+	assert(i >= 0 && i < 2);
 	return (&x)[i];
 }
 
 float Vector2::operator [] (const int i) const {
+	assert(i >= 0 && i < 2);
 	return (&x)[i];
 }
 

@@ -13,10 +13,12 @@ Matrix4::Matrix4 () {
  *	Accessors.
  */
 Vector4 & Matrix4::operator [] (const int i) {
+	assert(i >= 0 && i < 4);
 	return M[i];
 }
 
 Vector4 Matrix4::operator [] (const int i) const {
+	assert(i >= 0 && i < 4);
 	return M[i];
 }
 
