@@ -1,6 +1,5 @@
 
-#ifndef _MATRIX_H_
-#define _MATRIX_H_
+#pragma once
 
 
 /*
@@ -20,7 +19,7 @@
 class Matrix4 {
 
 private:
-	Vector4		M[4];
+	Vector4		m_M[4];
 
 public:
 	
@@ -50,14 +49,12 @@ public:
 	Matrix4		operator * (const Matrix4 & N) const;
 	void		operator *= (const Matrix4 & N);
 
-	Matrix4		transpose() const;
-	Matrix4		inverse () const;
+	Matrix4		Transpose () const;
+	Matrix4		Inverse () const;
 
 				operator float * ();
 
-	static Matrix4	identity ();
-	static Matrix4	zeroes ();
-	static Matrix4	diag (float d);
+	static Matrix4	Identity ();
+	static Matrix4	Zeroes ();
+	static Matrix4	Diag (float d);
 };
-
-#endif

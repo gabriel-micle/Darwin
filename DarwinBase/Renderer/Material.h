@@ -1,6 +1,5 @@
 
-#ifndef _MATERIAL_H_
-#define _MATERIAL_H_
+#pragma once
 
 #include "Math\Math.h"
 
@@ -30,5 +29,3 @@ private:
 	char *		mapBump;	/* Name of the normal map.	*/
 
 };
-
-#endif

@@ -1,6 +1,5 @@
 
-#ifndef _HEADERS_H_
-#define _HEADERS_H_
+#pragma once
 
 
 #include <cstdio>
@@ -17,6 +16,3 @@
 #include "IO\FileReader.h"
 #include "IO\Wavefront.h"
 #include "IO\Truevision.h"
-
-
-#endif

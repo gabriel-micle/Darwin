@@ -104,8 +104,6 @@
     <ClInclude Include="DarwinBase\Renderer\Model.h" />
     <ClInclude Include="DarwinBase\Renderer\Texture.h" />
     <ClInclude Include="DarwinBase\Renderer\Vertex.h" />
-    <ClInclude Include="DarwinBase\Tuple.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DarwinBase\Main.cpp" />

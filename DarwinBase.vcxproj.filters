@@ -34,11 +34,9 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="DarwinBase\Headers.h" />
-    <ClInclude Include="DarwinBase\Tuple.h" />
     <ClInclude Include="DarwinBase\IO\Truevision.h">
       <Filter>I/O</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DarwinBase\Renderer\Camera.cpp">

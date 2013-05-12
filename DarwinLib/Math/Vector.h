@@ -1,6 +1,5 @@
 
-#ifndef _VECTOR_H_
-#define _VECTOR_H_
+#pragma once
 
 
 /*
@@ -55,10 +54,10 @@ public:
 	Vector2		operator / (const Vector2 & u) const;
 	void		operator /= (const Vector2 & u);
 
-	float		length () const;
-	float		dotProduct (const Vector2 & u) const;
+	float		Length () const;
+	float		DotProduct (const Vector2 & u) const;
 
-	Vector2		normalize () const;
+	Vector2		Normalize () const;
 
 				operator Vector3 ();
 				operator Vector4 ();
@@ -111,11 +110,11 @@ public:
 	Vector3		operator / (const Vector3 & u) const;
 	void		operator /= (const Vector3 & u);
 
-	float		length () const;
-	float		dotProduct (const Vector3 & u) const;
-	Vector3		crossProduct (const Vector3 & u) const;
+	float		Length () const;
+	float		DotProduct (const Vector3 & u) const;
+	Vector3		CrossProduct (const Vector3 & u) const;
 
-	Vector3		normalize () const;
+	Vector3		Normalize () const;
 
 				operator Vector2 ();
 				operator Vector4 ();
@@ -179,15 +178,12 @@ public:
 	Vector4		operator / (const Vector4 & u) const;
 	void		operator /= (const Vector4 & u);
 
-	float		length () const;
-	float		dotProduct (const Vector4 & u) const;
+	float		Length () const;
+	float		DotProduct (const Vector4 & u) const;
 
-	Vector4		normalize () const;
+	Vector4		Normalize () const;
 
 				operator Vector2 ();
 				operator Vector3 ();
 				operator float * ();
 };
-
-
-#endif

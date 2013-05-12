@@ -13,8 +13,8 @@
 
 
 // Includes.
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include <GLES3/gl3.h>
 #include <EGL/egl.h>
@@ -89,39 +89,39 @@ EGLBoolean CreateEGLContext (EGLNativeWindowType hWnd, EGLDisplay * eglDisplay,
 
 ESContext::ESContext () {
 
-	positionX = 0;
-	positionY = 0;
+	m_positionX = 0;
+	m_positionY = 0;
 
-	width  = 640;
-	height = 480;
+	m_width  = 640;
+	m_height = 480;
 
-	flags = ES_RGB;
+	m_flags = ES_RGB;
 
-	this->idleFunc          = NULL;
-	this->displayFunc       = NULL;
-	this->keyboardFunc      = NULL;
-	this->keyboardUpFunc    = NULL;
-	this->mouseFunc         = NULL;
-	this->motionFunc        = NULL;
-	this->passiveMotionFunc = NULL;
+	this->m_pIdleFunc          = NULL;
+	this->m_pDisplayFunc       = NULL;
+	this->m_pKeyboardFunc      = NULL;
+	this->m_pKeyboardUpFunc    = NULL;
+	this->m_pMouseFunc         = NULL;
+	this->m_pMotionFunc        = NULL;
+	this->m_pPassiveMotionFunc = NULL;
 }
 
 
 // Create a window.
-GLboolean ESUTIL_API ESContext::esCreateWindow (const char * title) {
+GLboolean ESUTIL_API ESContext::CreateDisplay (const char * title) {
 
 	// Check multisampling.
 	EGLint sampleBuffers = 0;
 	EGLint numSamples = 0;
-	if (flags & ES_MULTISAMPLE) {
+	if (m_flags & ES_MULTISAMPLE) {
 		sampleBuffers = 1;
-		if (flags & ES_SAMPLES_16) {
+		if (m_flags & ES_SAMPLES_16) {
 			numSamples = 16;
-		} else if (flags & ES_SAMPLES_8) {
+		} else if (m_flags & ES_SAMPLES_8) {
 			numSamples = 8;
-		} else if (flags & ES_SAMPLES_4) {
+		} else if (m_flags & ES_SAMPLES_4) {
 			numSamples = 4;
-		} else if (flags & ES_SAMPLES_2) {
+		} else if (m_flags & ES_SAMPLES_2) {
 			numSamples = 2;
 		}
 	}
@@ -130,9 +130,9 @@ GLboolean ESUTIL_API ESContext::esCreateWindow (const char * title) {
 		EGL_RED_SIZE,       8,
 		EGL_GREEN_SIZE,     8,
 		EGL_BLUE_SIZE,      8,
-		EGL_ALPHA_SIZE,     (flags & ES_ALPHA) ? 8 : EGL_DONT_CARE,
-		EGL_DEPTH_SIZE,     (flags & ES_DEPTH) ? 24 : EGL_DONT_CARE,
-		EGL_STENCIL_SIZE,   (flags & ES_STENCIL) ? 8 : EGL_DONT_CARE,
+		EGL_ALPHA_SIZE,     (m_flags & ES_ALPHA) ? 8 : EGL_DONT_CARE,
+		EGL_DEPTH_SIZE,     (m_flags & ES_DEPTH) ? 24 : EGL_DONT_CARE,
+		EGL_STENCIL_SIZE,   (m_flags & ES_STENCIL) ? 8 : EGL_DONT_CARE,
 		EGL_SAMPLE_BUFFERS, sampleBuffers,
 		EGL_SAMPLES,		numSamples,
 		EGL_NONE
@@ -142,7 +142,7 @@ GLboolean ESUTIL_API ESContext::esCreateWindow (const char * title) {
 		return GL_FALSE;
 	}
 
-	if (!CreateEGLContext(hWnd, &eglDisplay, &eglContext, &eglSurface, &eglConfig, attribList)) {
+	if (!CreateEGLContext(m_hWnd, &m_eglDisplay, &m_eglContext, &m_eglSurface, &m_eglConfig, attribList)) {
 		return GL_FALSE;
 	}
 
@@ -151,29 +151,29 @@ GLboolean ESUTIL_API ESContext::esCreateWindow (const char * title) {
 
 
 // Start the main loop for the OpenGL ES application.
-void ESUTIL_API ESContext::esMainLoop () {
+void ESUTIL_API ESContext::MainLoop () {
 
 	WinLoop(this);
 }
 
 // Swap the buffers.
-void ESUTIL_API ESContext::esSwapBuffers () {
+void ESUTIL_API ESContext::SwapBuffers () {
 
-	eglSwapBuffers(eglDisplay, eglSurface);
+	eglSwapBuffers(m_eglDisplay, m_eglSurface);
 }
 
 // Set initial window position.
-void ESUTIL_API ESContext::esInitWindowPosition (GLint x, GLint y) {
+void ESUTIL_API ESContext::InitDisplayPosition (GLint x, GLint y) {
 
-	positionX = x;
-	positionY = y;
+	m_positionX = x;
+	m_positionY = y;
 }
 
 // Set initial window size.
-void ESUTIL_API ESContext::esInitWindowSize (GLint w, GLint h) {
+void ESUTIL_API ESContext::InitDisplaySize (GLint w, GLint h) {
 
-	width  = w;
-	height = h;
+	m_width  = w;
+	m_height = h;
 }
 
 // Specifies the buffer initialization mode: 
@@ -182,52 +182,52 @@ void ESUTIL_API ESContext::esInitWindowSize (GLint w, GLint h) {
 // - ES_WINDOW_DEPTH		- specifies that a depth buffer should be created.
 // - ES_WINDOW_STENCIL		- specifies that a stencil buffer should be created.
 // - ES_WINDOW_MULTISAMPLE	- specifies that a multi-sample buffer should be created.
-void ESUTIL_API ESContext::esInitDisplayMode (GLuint mode) {
+void ESUTIL_API ESContext::InitDisplayMode (GLuint mode) {
 
-	flags = mode;
+	m_flags = mode;
 }
 
 
 // Set display function.
-void ESUTIL_API ESContext::esDisplayFunc (void (ESCALLBACK * displayFunc) (ESContext *)) {
+void ESUTIL_API ESContext::DisplayFunc (void (ESCALLBACK * displayFunc) (ESContext *)) {
 
-	this->displayFunc = displayFunc;
+	this->m_pDisplayFunc = displayFunc;
 }
 
 // Set idle function.
-void ESUTIL_API ESContext::esIdleFunc (void (ESCALLBACK * idleFunc) (ESContext *, float)) {
+void ESUTIL_API ESContext::IdleFunc (void (ESCALLBACK * idleFunc) (ESContext *, float)) {
 
-	this->idleFunc = idleFunc;
+	this->m_pIdleFunc = idleFunc;
 }
 
 // Set keyboard function.
-void ESUTIL_API ESContext::esKeyboardFunc (void (ESCALLBACK * keyboardFunc) (ESContext *, unsigned char, int, int)) {
+void ESUTIL_API ESContext::KeyboardFunc (void (ESCALLBACK * keyboardFunc) (ESContext *, unsigned char, int, int)) {
 
-	this->keyboardFunc = keyboardFunc;
+	this->m_pKeyboardFunc = keyboardFunc;
 }
 
 // Set keyboard up function.
-void ESUTIL_API ESContext::esKeyboardUpFunc (void (ESCALLBACK * keyboardUpFunc) (ESContext *, unsigned char, int, int)) {
+void ESUTIL_API ESContext::KeyboardUpFunc (void (ESCALLBACK * keyboardUpFunc) (ESContext *, unsigned char, int, int)) {
 
-	this->keyboardUpFunc = keyboardUpFunc;
+	this->m_pKeyboardUpFunc = keyboardUpFunc;
 }
 
 // Set mouse button function.
-void ESUTIL_API ESContext::esMouseFunc (void (ESCALLBACK * mouseFunc) (ESContext *, int, int, int, int)) {
+void ESUTIL_API ESContext::MouseFunc (void (ESCALLBACK * mouseFunc) (ESContext *, int, int, int, int)) {
 
-	this->mouseFunc = mouseFunc;
+	this->m_pMouseFunc = mouseFunc;
 }
 
 // Set mouse movement when mouse button pressed function.
-void ESUTIL_API ESContext::esMotionFunc (void (ESCALLBACK * motionFunc) (ESContext *, int, int)) {
+void ESUTIL_API ESContext::MotionFunc (void (ESCALLBACK * motionFunc) (ESContext *, int, int)) {
 
-	this->motionFunc = motionFunc;
+	this->m_pMotionFunc = motionFunc;
 }
 
 // Set mouse movement function.
-void ESUTIL_API ESContext::esPassiveMotionFunc (void (ESCALLBACK * passiveMotionFunc) (ESContext *, int, int)) {
+void ESUTIL_API ESContext::PassiveMotionFunc (void (ESCALLBACK * passiveMotionFunc) (ESContext *, int, int)) {
 
-	this->passiveMotionFunc = passiveMotionFunc;
+	this->m_pPassiveMotionFunc = passiveMotionFunc;
 }
 
 
@@ -244,17 +244,4 @@ void ESUTIL_API esLogMessage (const char * formatStr, ...) {
 	printf("%s", buf);
 
 	va_end(params);
-}
-
-
-// Loads a 24-bit TGA image from a file.
-char * ESUTIL_API esLoadTGA (char * fileName, int * width, int * height) {
-
-	char * buffer;
-
-	if (WinTGALoad(fileName, &buffer, width, height)) {
-		return buffer;
-	}
-
-	return NULL;
 }

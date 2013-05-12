@@ -90,7 +90,7 @@ void Vector4::operator *= (const Vector4 & u) {
 Vector4 Vector4::operator * (const Matrix4 & M) const {
 	Vector4 u;
 	for (int i = 0; i < 4; i++) {
-		u[i] = M[i].dotProduct(* this);
+		u[i] = M[i].DotProduct(* this);
 	}
 	return u;
 }
@@ -98,7 +98,7 @@ Vector4 Vector4::operator * (const Matrix4 & M) const {
 void Vector4::operator *= (const Matrix4 & M) {
 	Vector4 u;
 	for (int i = 0; i < 4; i++) {
-		u[i] = M[i].dotProduct(* this);
+		u[i] = M[i].DotProduct(* this);
 	}
 	* this = u;
 }
@@ -131,16 +131,16 @@ void Vector4::operator /= (const Vector4 & u) {
 /*
  *	Misc.
  */
-float Vector4::dotProduct (const Vector4 & u) const {
+float Vector4::DotProduct (const Vector4 & u) const {
 	return x * u.x + y * u.y + z * u.z + w * u.w;
 }
 
-float Vector4::length () const {
+float Vector4::Length () const {
 	return sqrtf(x * x + y * y + z * z + w * w);
 }
 
-Vector4 Vector4::normalize () const {
-	return (* this) / length();
+Vector4 Vector4::Normalize () const {
+	return (* this) / Length();
 }
 
 

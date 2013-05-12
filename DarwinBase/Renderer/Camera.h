@@ -1,43 +1,41 @@
 
-#ifndef _CAMERA_H_
-#define _CAMERA_H_
+#pragma once
+
 
 #include "Math\Math.h"
+
 
 class Camera {
 
 private:
 
-	Matrix4		Transform;
-	Matrix4		Projection;
+	Matrix4		m_Transform;
+	Matrix4		m_Projection;
 
-	float		rotationX;
-	float		rotationY;
-	float		rotationZ;
+	float		m_rotationX;
+	float		m_rotationY;
+	float		m_rotationZ;
 
-	float		positionX;
-	float		positionY;
-	float		positionZ;
+	float		m_positionX;
+	float		m_positionY;
+	float		m_positionZ;
 
 public:
 
 				Camera ();
 
-	void		setOrthografic	 (float l, float r, float b, float t, float n, float f);
-	void		setFrustum		 (float l, float r, float b, float t, float n, float f);
-	void		setPerspective	 (float fovY, float aspect, float zNear, float zFar);
+	void		SetOrthografic	 (float l, float r, float b, float t, float n, float f);
+	void		SetFrustum		 (float l, float r, float b, float t, float n, float f);
+	void		SetPerspective	 (float fovY, float aspect, float zNear, float zFar);
 
-	void		translateForward (float dist);
-	void		translateRight   (float dist);
-	void		translateUp      (float dist);
+	void		TranslateForward (float dist);
+	void		TranslateRight   (float dist);
+	void		TranslateUp      (float dist);
 
-	void		rotateRight		 (float angle);
-	void		rotateUp		 (float angle);
+	void		RotateRight		 (float angle);
+	void		RotateUp		 (float angle);
 
-	Matrix4		viewMatrix		 ();
-	Matrix4		projectionMatrix ();
+	Matrix4		ViewMatrix		 ();
+	Matrix4		ProjectionMatrix ();
 
 };
-
-#endif
-

@@ -3,99 +3,99 @@
 
 Camera::Camera () {
 
-	Transform  = Matrix4::identity();
+	m_Transform  = Matrix4::Identity();
 
-	rotationX = rotationY = rotationZ = 0.0f;
+	m_rotationX = m_rotationY = m_rotationZ = 0.0f;
 
-	positionX = positionY = positionZ = 0.0f;
+	m_positionX = m_positionY = m_positionZ = 0.0f;
 
 }
 
-void Camera::setFrustum (float l, float r,
+void Camera::SetFrustum (float l, float r,
 						 float b, float t,
 						 float n, float f) {
 										 
-	Projection = Matrix4::zeroes();
+	m_Projection = Matrix4::Zeroes();
 
 	float dx = r - l;
 	float dy = t - b;
 	float dz = f - n;
 
-	Projection[0][0] = 2.0f * n / dx;
-	Projection[1][1] = 2.0f * n / dy;
-	Projection[2][0] = (r + l) / dx;
-	Projection[2][1] = (t + b) / dy;
-	Projection[2][2] = - (f + n) / dz;
-	Projection[2][3] = -1.0f;
-	Projection[3][2] = - 2.0f * f * n / dz;
+	m_Projection[0][0] = 2.0f * n / dx;
+	m_Projection[1][1] = 2.0f * n / dy;
+	m_Projection[2][0] = (r + l) / dx;
+	m_Projection[2][1] = (t + b) / dy;
+	m_Projection[2][2] = - (f + n) / dz;
+	m_Projection[2][3] = -1.0f;
+	m_Projection[3][2] = - 2.0f * f * n / dz;
 	
 }
 
-void Camera::setOrthografic (float l, float r,
+void Camera::SetOrthografic (float l, float r,
 							 float b, float t,
 							 float n, float f) {
 
-	Projection = Matrix4::zeroes();
+	m_Projection = Matrix4::Zeroes();
 	
 	float dx = r - l;
 	float dy = t - b;
 	float dz = f - n;
 
-	Projection[0][0] = 2.0f / dx;
-	Projection[1][1] = 2.0f / dy;
-	Projection[2][2] = - 2.0f / dz;
-	Projection[3][0] = - (r + l) / dx;
-	Projection[3][1] = - (t + b) / dy;
-	Projection[3][2] = - (f + n) / dz;
-	Projection[3][3] = 1.0f;
+	m_Projection[0][0] = 2.0f / dx;
+	m_Projection[1][1] = 2.0f / dy;
+	m_Projection[2][2] = - 2.0f / dz;
+	m_Projection[3][0] = - (r + l) / dx;
+	m_Projection[3][1] = - (t + b) / dy;
+	m_Projection[3][2] = - (f + n) / dz;
+	m_Projection[3][3] = 1.0f;
 }
 
-void Camera::setPerspective (float fovy, float aspect, float near, float far) {
+void Camera::SetPerspective (float fovy, float aspect, float near, float far) {
 
-	float tangent = tan(fovy * M_PI_2 / 180.0f);
+	float tangent = tan(fovy * float(M_PI_2) / 180.0f);
 	float height  = near * tangent;
 	float width   = height * aspect;
 
-	setFrustum(-width, width, -height, height, near, far);
+	SetFrustum(-width, width, -height, height, near, far);
 }
 
-void Camera::translateForward (float dist) {
+void Camera::TranslateForward (float dist) {
 
-	positionX += dist * sin(rotationY);
-	positionZ -= dist * cos(rotationY);
+	m_positionX += dist * sin(m_rotationY);
+	m_positionZ -= dist * cos(m_rotationY);
 }
 
-void Camera::translateRight (float dist) {
+void Camera::TranslateRight (float dist) {
 
-	positionX += dist * cos(rotationY);
-	positionZ += dist * sin(rotationY);
+	m_positionX += dist * cos(m_rotationY);
+	m_positionZ += dist * sin(m_rotationY);
 }
 
-void Camera::translateUp (float dist) {
+void Camera::TranslateUp (float dist) {
 
-	positionY += dist;
+	m_positionY += dist;
 }
 
-void Camera::rotateRight (float angle) {
+void Camera::RotateRight (float angle) {
 
-	rotationY += angle;
+	m_rotationY += angle;
 }
 
-void Camera::rotateUp (float angle) {
+void Camera::RotateUp (float angle) {
 
-	if (rotationX + angle < M_PI_2 &&
-		rotationX + angle > - M_PI_2) {
-		rotationX += angle;
+	if (m_rotationX + angle < M_PI_2 &&
+		m_rotationX + angle > - M_PI_2) {
+		m_rotationX += angle;
 	}
 }
 
-Matrix4 Camera::viewMatrix () {
+Matrix4 Camera::ViewMatrix () {
 
 	// Rotation on Ox axis.
-	float cos_x = cos(rotationX);
-	float sin_x = sin(rotationX);
+	float cos_x = cos(m_rotationX);
+	float sin_x = sin(m_rotationX);
 
-	Matrix4 RotationX = Matrix4::identity();
+	Matrix4 RotationX = Matrix4::Identity();
 	RotationX[1][1] =  cos_x;
 	RotationX[1][2] = -sin_x;
 	RotationX[2][1] =  sin_x;
@@ -103,10 +103,10 @@ Matrix4 Camera::viewMatrix () {
 
 
 	// Rotation on Oy axis.
-	float cos_y = cos(rotationY);
-	float sin_y = sin(rotationY);
+	float cos_y = cos(m_rotationY);
+	float sin_y = sin(m_rotationY);
 
-	Matrix4 RotationY = Matrix4::identity();
+	Matrix4 RotationY = Matrix4::Identity();
 	RotationY[0][0] =  cos_y;
 	RotationY[0][2] =  sin_y;
 	RotationY[2][0] = -sin_y;
@@ -114,10 +114,10 @@ Matrix4 Camera::viewMatrix () {
 
 
 	// Rotation on Oz axis.
-	float cos_z = cos(rotationZ);
-	float sin_z = sin(rotationZ);
+	float cos_z = cos(m_rotationZ);
+	float sin_z = sin(m_rotationZ);
 
-	Matrix4 RotationZ = Matrix4::identity();
+	Matrix4 RotationZ = Matrix4::Identity();
 	RotationZ[0][0] =  cos_z;
 	RotationZ[0][1] = -sin_z;
 	RotationZ[1][0] =  sin_z;
@@ -125,16 +125,16 @@ Matrix4 Camera::viewMatrix () {
 
 
 	// Calculate transformation matrix.
-	Transform = RotationX * RotationY * RotationZ;
+	m_Transform = RotationX * RotationY * RotationZ;
 
-	Transform[3][0] = positionX;
-	Transform[3][1] = positionY;
-	Transform[3][2] = positionZ;
+	m_Transform[3][0] = m_positionX;
+	m_Transform[3][1] = m_positionY;
+	m_Transform[3][2] = m_positionZ;
 
-	return Transform.inverse();
+	return m_Transform.Inverse();
 }
 
-Matrix4 Camera::projectionMatrix () {
+Matrix4 Camera::ProjectionMatrix () {
 
-	return Projection;
+	return m_Projection;
 }

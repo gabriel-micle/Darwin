@@ -33,10 +33,10 @@ LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_PAINT:
-		if (esContext && esContext->displayFunc) {
-			esContext->displayFunc(esContext);
+		if (esContext && esContext->m_pDisplayFunc) {
+			esContext->m_pDisplayFunc(esContext);
 		}
-		ValidateRect(esContext->hWnd, NULL);
+		ValidateRect(esContext->m_hWnd, NULL);
 		break;
 
 	case WM_DESTROY:
@@ -47,62 +47,62 @@ LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_KEYDOWN:
 		GetCursorPos(&p);
-		if (esContext && esContext->keyboardFunc) {
-			esContext->keyboardFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
+		if (esContext && esContext->m_pKeyboardFunc) {
+			esContext->m_pKeyboardFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
 		}
 		break;
 
 	case WM_KEYUP:
 		GetCursorPos(&p);
-		if (esContext && esContext->keyboardUpFunc) {
-			esContext->keyboardUpFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
+		if (esContext && esContext->m_pKeyboardUpFunc) {
+			esContext->m_pKeyboardUpFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
 		}
 		break;
 
 	case WM_LBUTTONDOWN:
-		if (esContext && esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_LEFT_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		if (esContext && esContext->m_pMouseFunc) {
+			esContext->m_pMouseFunc(esContext, ES_LEFT_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
 
 	case WM_LBUTTONUP:
-		if (esContext && esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_LEFT_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		if (esContext && esContext->m_pMouseFunc) {
+			esContext->m_pMouseFunc(esContext, ES_LEFT_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
 
 	case WM_RBUTTONDOWN:
-		if (esContext && esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_RIGHT_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		if (esContext && esContext->m_pMouseFunc) {
+			esContext->m_pMouseFunc(esContext, ES_RIGHT_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
 
 	case WM_RBUTTONUP:
-		if (esContext && esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_RIGHT_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		if (esContext && esContext->m_pMouseFunc) {
+			esContext->m_pMouseFunc(esContext, ES_RIGHT_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
 
 	case WM_MBUTTONDOWN:
-		if (esContext && esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_MIDDLE_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		if (esContext && esContext->m_pMouseFunc) {
+			esContext->m_pMouseFunc(esContext, ES_MIDDLE_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
 
 	case WM_MBUTTONUP:
-		if (esContext && esContext->mouseFunc) {
-			esContext->mouseFunc(esContext, ES_MIDDLE_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		if (esContext && esContext->m_pMouseFunc) {
+			esContext->m_pMouseFunc(esContext, ES_MIDDLE_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;
 
 	case WM_MOUSEMOVE:
 		if (wParam == 0) {
-			if (esContext && esContext->passiveMotionFunc) {
-				esContext->passiveMotionFunc(esContext, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			if (esContext && esContext->m_pPassiveMotionFunc) {
+				esContext->m_pPassiveMotionFunc(esContext, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			} 
 		} else {
-			if (esContext && esContext->motionFunc) {
-				esContext->motionFunc(esContext, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			if (esContext && esContext->m_pMotionFunc) {
+				esContext->m_pMotionFunc(esContext, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			}
 
 		}
@@ -139,21 +139,21 @@ GLboolean WinCreate (ESContext * esContext, const char * title) {
 	wStyle = WS_VISIBLE | WS_POPUP | WS_BORDER | WS_SYSMENU | WS_CAPTION;
 
 	// Adjust window rectangle so that the client area has the correct number of pixels.
-	windowRect.left   = esContext->positionX;
-	windowRect.top    = esContext->positionY;
-	windowRect.right  = esContext->positionX + esContext->width;
-	windowRect.bottom = esContext->positionY + esContext->height;
+	windowRect.left   = esContext->m_positionX;
+	windowRect.top    = esContext->m_positionY;
+	windowRect.right  = esContext->m_positionX + esContext->m_width;
+	windowRect.bottom = esContext->m_positionY + esContext->m_height;
 
 	AdjustWindowRect(&windowRect, wStyle, FALSE);
 
-	esContext->hWnd = CreateWindow(
+	esContext->m_hWnd = CreateWindow(
 		"opengles3.0",
 		title,
 		wStyle,
-		esContext->positionX,
-		esContext->positionY,
-		esContext->width,
-		esContext->height,
+		esContext->m_positionX,
+		esContext->m_positionY,
+		esContext->m_width,
+		esContext->m_height,
 		NULL,
 		NULL,
 		hInstance,
@@ -161,14 +161,14 @@ GLboolean WinCreate (ESContext * esContext, const char * title) {
 		);
 
 	// Set the ESContext* to the GWL_USERDATA so that it is available to the ESWindowProc.
-	SetWindowLongPtr(esContext->hWnd, GWL_USERDATA, (LONG) (LONG_PTR) esContext);
+	SetWindowLongPtr(esContext->m_hWnd, GWL_USERDATA, (LONG) (LONG_PTR) esContext);
 
 
-	if (esContext->hWnd == NULL) {
+	if (esContext->m_hWnd == NULL) {
 		return GL_FALSE;
 	}
 
-	ShowWindow(esContext->hWnd, TRUE);
+	ShowWindow(esContext->m_hWnd, TRUE);
 
 	return GL_TRUE;
 }
@@ -199,11 +199,11 @@ void WinLoop (ESContext * esContext) {
 			}
 
 		} else {
-			SendMessage(esContext->hWnd, WM_PAINT, 0, 0);
+			SendMessage(esContext->m_hWnd, WM_PAINT, 0, 0);
 		}
 
 		// Call update function if registered
-		if (esContext->idleFunc != NULL)
-			esContext->idleFunc(esContext, deltaTime);
+		if (esContext->m_pIdleFunc != NULL)
+			esContext->m_pIdleFunc(esContext, deltaTime);
 	}
 }

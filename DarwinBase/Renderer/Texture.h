@@ -1,6 +1,5 @@
 
-#ifndef _TEXTURE_H_
-#define _TEXTURE_H_
+#pragma once
 
 
 enum textureUsage_t {
@@ -18,6 +17,10 @@ enum textureType_t {
 enum textureFormat_t {
 	DW_RGBA8,
 	DW_RGB8,
+	DW_RGBA16,
+	DW_RGB16,
+	DW_RGBA32,
+	DW_RGB32,
 };
 
 enum textureFilter_t {
@@ -39,8 +42,24 @@ struct TextureOpts {
 	textureFilter_t	filter;
 	textureWrap_t	wrap;
 
-	int				mipmaps;
+	unsigned int	mipmaps;
 	bool			compressed;
+
+	TextureOpts () {};
+
+	TextureOpts (
+		textureUsage_t	_usage, 
+		textureFormat_t _format, 
+		textureFilter_t _filter, 
+		textureWrap_t	_wrap, 
+		unsigned int	_mipmaps,
+		bool			_compressed) :
+		usage			(_usage),
+		format			(_format),
+		filter			(_filter),
+		wrap			(_wrap),
+		mipmaps			(_mipmaps),
+		compressed		(_compressed) {};
 };
 
 
@@ -48,36 +67,33 @@ class Texture {
 
 private:
 
-	textureType_t	type;
+	textureType_t	m_type;
 
-	TextureOpts		opts;
+	TextureOpts		m_opts;
 
-	int				channels;
-	const char *	name;
+	int				m_channels;
+	const char *	m_name;
 
-	GLuint			internalFormat;
-	GLuint			dataFormat;
-	GLuint			dataType;
-	GLuint			target;
+	GLuint			m_internalFormat;
+	GLuint			m_dataFormat;
+	GLuint			m_dataType;
+	GLuint			m_target;
 
-	void			allocImage ();
-	void			uploadSubData (int x, int y, int z, const char * imageData, int width, int height);
+	void			AllocImage ();
+	void			UploadSubData (int x, int y, int z, const char * imageData, int width, int height);
 
 public:
 
-	GLuint			handle;
+	GLuint			m_hTexture;
 
-	int				width;
-	int				height;
+	int				m_width;
+	int				m_height;
 
 					Texture (const char * name);
 
-	void			bind (int unit);
+	void			Bind (int unit);
 
-	void			generate2D (const char * imageData, int width, int height, TextureOpts & opts);
-	void			generateCube (const char * imageData[6], int size, TextureOpts & opts);
-
+	void			Generate2D (const char * imageData, int width, int height, TextureOpts & opts);
+	void			GenerateCube (const char * imageData[6], int size, TextureOpts & opts);
 
 };
-
-#endif

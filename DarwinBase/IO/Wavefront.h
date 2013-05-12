@@ -1,203 +1,198 @@
 
-#ifndef _WAVEFRONT_H_
-#define _WAVEFRONT_H_
+#pragma once
 
-
-#define WAVEFRONT_BUFSIZE	1024
 
 #include <vector>
 #include <map>
 
-#include "..\Tuple.h"
 
-class Wavefront {
-public:
-	static Model *	ImportOBJ (const char * fileName);
-};
+namespace Wavefront {
 
 
-Model * Wavefront::ImportOBJ (const char * fileName) {
-
-	FILE * pFile = fopen(fileName, "rb");
-	if (pFile == NULL) {
-		perror(fileName);
-		return NULL;
-	}
-
-	char buffer[WAVEFRONT_BUFSIZE];
-
-	std::vector<Vector3> vPositions;
-	std::vector<Vector2> vTexCoords;
-
-	std::vector<std::pair<int, int> > vIndices;
+	const int WAVEFRONT_BUFSIZE = 1024;
 
 
+	Model * ImportOBJ (const char * fileName) {
 
-	Model * pModel = new Model();
+		FILE * pFile = fopen(fileName, "rb");
+		if (pFile == NULL) {
+			perror(fileName);
+			return NULL;
+		}
 
-	float x, y, z;
-	int	p = 0;
-	int t = 0;
-	int n = 0;
+		char buffer[WAVEFRONT_BUFSIZE];
 
-	while (fgets(buffer, WAVEFRONT_BUFSIZE, pFile)) {
+		std::vector<Vector3> vPositions;
+		std::vector<Vector2> vTexCoords;
 
-		/* Possible keywords are:
-		- # for comments
-		- mtllib for material library filename
-		- o for object name
-		- g for vertex group
-		- v for positions
-		- vt for texture coordinates
-		- vn for normals
-		- usemtl for material name from material library
-		- f for face indices
-		- s for smoothing groups
-		*/
-
-		if (strncmp(buffer, "#", 2) == 0) {
-			// Discard comment.
-
-		} else if (strncmp (buffer, "mtllib", 6) == 0) {
-			// TODO
-
-		} else if (strncmp (buffer, "o", 1) == 0) {
-			// TODO
-
-		} else if (strncmp (buffer, "g", 1) == 0) {
-			// TODO
-
-		} else if (strncmp (buffer, "v ", 2) == 0) {
-
-			// Positions.
-			sscanf(buffer + 2, "%f %f %f", &x, &y, &z);
-			vPositions.push_back(Vector3(x, y, z));
-
-		} else if (strncmp (buffer, "vt", 2) == 0) {
-
-			// Texture coordinates.
-			sscanf(buffer + 3, "%f %f", &x, &y);
-			vTexCoords.push_back(Vector2(x, y));
-
-		} else if (strncmp (buffer, "vn", 2) == 0) {
-
-			// Normals.
-			// Ignore normals, as they will be generated.
-			// sscanf(buffer + 2, "%f %f %f", &x, &y, &z);
-			// vNormals.push_back(Vector3(x, y, z));
-
-		} else if (strncmp (buffer, "usemtl", 6) == 0) {
-			//TODO
-
-		} else if (strncmp (buffer, "f", 1) == 0) {
+		std::vector<std::pair<int, int> > vIndices;
 
 
-			// Indices.
-			char * pch = buffer + 2;
+		Model * pModel = new Model();
 
-			for (int i = 0 ; i < 3; i++) {
+		float x, y, z;
+		int	p = 0;
+		int t = 0;
+		int n = 0;
 
-				char * end = strchr(pch, ' ');
+		while (fgets(buffer, WAVEFRONT_BUFSIZE, pFile)) {
 
-				// Position index.
-				sscanf(pch, "%d", &p);
+			/* Possible keywords are:
+			- # for comments
+			- mtllib for material library filename
+			- o for object name
+			- g for vertex group
+			- v for positions
+			- vt for texture coordinates
+			- vn for normals
+			- usemtl for material name from material library
+			- f for face indices
+			- s for smoothing groups
+			*/
 
-				pch = (char *) memchr(pch + 1, '/', end - pch - 1);
+			if (strncmp(buffer, "#", 2) == 0) {
+				// Discard comment.
 
-				if (pch) {
+			} else if (strncmp (buffer, "mtllib", 6) == 0) {
+				// TODO
 
-					if (pch[1] != '/') {
+			} else if (strncmp (buffer, "o", 1) == 0) {
+				// TODO
 
-						// Texture coordinate index.
-						sscanf(pch + 1, "%d", &t);
-					}
+			} else if (strncmp (buffer, "g", 1) == 0) {
+				// TODO
+
+			} else if (strncmp (buffer, "v ", 2) == 0) {
+
+				// Positions.
+				sscanf(buffer + 2, "%f %f %f", &x, &y, &z);
+				vPositions.push_back(Vector3(x, y, z));
+
+			} else if (strncmp (buffer, "vt", 2) == 0) {
+
+				// Texture coordinates.
+				sscanf(buffer + 3, "%f %f", &x, &y);
+				vTexCoords.push_back(Vector2(x, y));
+
+			} else if (strncmp (buffer, "vn", 2) == 0) {
+
+				// Normals.
+				// Ignore normals, as they will be generated.
+				// sscanf(buffer + 2, "%f %f %f", &x, &y, &z);
+				// vNormals.push_back(Vector3(x, y, z));
+
+			} else if (strncmp (buffer, "usemtl", 6) == 0) {
+				//TODO
+
+			} else if (strncmp (buffer, "f", 1) == 0) {
+
+
+				// Indices.
+				char * pch = buffer + 2;
+
+				for (int i = 0 ; i < 3; i++) {
+
+					char * end = strchr(pch, ' ');
+
+					// Position index.
+					sscanf(pch, "%d", &p);
 
 					pch = (char *) memchr(pch + 1, '/', end - pch - 1);
 
 					if (pch) {
 
-						// Normal index.
-						sscanf(pch + 1, "%d", &n);
+						if (pch[1] != '/') {
+
+							// Texture coordinate index.
+							sscanf(pch + 1, "%d", &t);
+						}
+
+						pch = (char *) memchr(pch + 1, '/', end - pch - 1);
+
+						if (pch) {
+
+							// Normal index.
+							sscanf(pch + 1, "%d", &n);
+						}
+
 					}
 
+					// Save position and texCoord indices. Discard normal index.
+					vIndices.push_back(std::make_pair(p, t));
+
+					pch = end + 1;
+
+					p = t = n = 0;
 				}
 
-				// Save position and texCoord indices. Discard normal index.
-				vIndices.push_back(std::make_pair(p, t));
+			} // if.
 
-				pch = end + 1;
+		} // while.
 
-				p = t = n = 0;
+		fclose(pFile);
+
+
+		// Unindex positions and texture coordinates.
+		Vertex * vVertices = (Vertex *) malloc(vIndices.size() * sizeof(Vertex));
+
+		for (unsigned int i = 0; i < vIndices.size(); i += 3) {
+
+			for (unsigned int k = i; k < i + 3; k++) {
+				vVertices[k].Position = vPositions[vIndices[k].first  - 1];
+				vVertices[k].TexCoord = vTexCoords[vIndices[k].second - 1];
 			}
 
-		} // if.
-
-	} // while.
-
-	fclose(pFile);
-
-
-	// Unindex positions and texture coordinates.
-	Vertex * vVertices = (Vertex *) malloc(vIndices.size() * sizeof(Vertex));
-
-	for (int i = 0; i < vIndices.size(); i += 3) {
-
-		for (int k = i; k < i + 3; k++) {
-			vVertices[k].Position = vPositions[vIndices[k].first  - 1];
-			vVertices[k].TexCoord = vTexCoords[vIndices[k].second - 1];
+			Model::ComputeTangentBitangent(vVertices[i], vVertices[i + 1], vVertices[i + 2]);
 		}
 
-		Model::computeTangentBitangent(vVertices[i], vVertices[i + 1], vVertices[i + 2]);
-	}
 
-	
-	// Create unified index for both position and texcoord.
-	int currentIdx = 0;
-	std::map<std::pair<int, int>, int> indexMap;
+		// Create unified index for both position and texcoord.
+		int currentIdx = 0;
+		std::map<std::pair<int, int>, int> indexMap;
 
-	for (int i = 0; i < vIndices.size(); i++) {
+		for (unsigned int i = 0; i < vIndices.size(); i++) {
 
-		// Search for vp/vt index pair.
-		auto found = indexMap.find(vIndices[i]);
+			// Search for vp/vt index pair.
+			auto found = indexMap.find(vIndices[i]);
 
-		// Extract vertex data for the index tuple.
-		Vertex v = vVertices[i];
+			// Extract vertex data for the index tuple.
+			Vertex v = vVertices[i];
 
-		if (found == indexMap.end()) {
+			if (found == indexMap.end()) {
 
-			// If index tuple was NOT encountered before, create a new unified index in the index buffer.
-			pModel->addIndex(currentIdx);
+				// If index tuple was NOT encountered before, create a new unified index in the index buffer.
+				pModel->AddIndex(currentIdx);
 
-			// Map tuple to the new index.
-			indexMap[vIndices[i]] = currentIdx++;
+				// Map tuple to the new index.
+				indexMap[vIndices[i]] = currentIdx++;
 
-			// Add the vertex as a new mesh vertex.
-			pModel->addVertex(v);
+				// Add the vertex as a new mesh vertex.
+				pModel->AddVertex(v);
 
-		} else {
-			
-			// If index tuple was encountered before, add its unified mapping to the index buffer.
-			pModel->addIndex(found->second);
+			} else {
 
-			// Also interpolate the tangent and bitangent.
-			pModel->vVertices[found->second].Binormal += v.Binormal;
-			pModel->vVertices[found->second].Tangent  += v.Tangent;
+				// If index tuple was encountered before, add its unified mapping to the index buffer.
+				pModel->AddIndex(found->second);
+
+				// Also interpolate the tangent and bitangent.
+				pModel->m_vVertices[found->second].Binormal += v.Binormal;
+				pModel->m_vVertices[found->second].Tangent  += v.Tangent;
+			}
+
 		}
 
+
+		// Cleanup.
+		std::vector<Vector3>().swap(vPositions);
+		std::vector<Vector2>().swap(vTexCoords);
+		std::vector<std::pair<int, int> >().swap(vIndices);
+		std::map<std::pair<int, int>, int>().swap(indexMap);
+		free(vVertices);
+
+		// Optimize storage.
+		pModel->Finalize();
+
+		return pModel;
 	}
 
-
-	// Cleanup.
-	std::vector<Vector3>().swap(vPositions);
-	std::vector<Vector2>().swap(vTexCoords);
-	std::vector<std::pair<int, int> >().swap(vIndices);
-	std::map<std::pair<int, int>, int>().swap(indexMap);
-	free(vVertices);
-
-	// Optimize storage.
-	pModel->finalize();
-
-	return pModel;
 }
-
-#endif

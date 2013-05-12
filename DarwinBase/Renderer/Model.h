@@ -1,6 +1,5 @@
 
-#ifndef _MODEL_H_
-#define _MODEL_H_
+#pragma once
 
 
 #define INIT_ARRAY_SIZE	10000
@@ -21,42 +20,39 @@ class Model {
 
 private:
 
-	GLuint			vertexVBO;
-	GLuint			vertexVAO;
-	GLuint			indexVBO;
+	GLuint			m_vertexVBO;
+	GLuint			m_vertexVAO;
+	GLuint			m_indexVBO;
 
-	void			computeTangentBitangent ();
+	void			ComputeTangentBitangent ();
 
 public:
 
 					Model ();			
 
-	Matrix4			MV;
-	Matrix4			MVP;
+	Matrix4			m_ModelView;
+	Matrix4			m_ModelViewProjection;
 
 	// Vertices.
-	int				cVertices;
-	int				nVertices;
-	Vertex *		vVertices;
+	int				m_cVertices;
+	int				m_nVertices;
+	Vertex *		m_vVertices;
 
-	void			addVertex (Vertex & vert);
+	void			AddVertex (Vertex & vert);
 
 	// Indices.
-	int				cIndices;
-	int				nIndices;
-	int *			vIndices;
+	int				m_cIndices;
+	int				m_nIndices;
+	int *			m_vIndices;
 
-	void			addIndex (int & idx);
+	void			AddIndex (int & idx);
 
 
-	void			finalize ();
+	void			Finalize ();
 
-	void			draw (GLuint programObject);
+	void			Draw (GLuint programObject);
 
 	
-	static void		computeTangentBitangent (Vertex &, Vertex &, Vertex &);
+	static void		ComputeTangentBitangent (Vertex &, Vertex &, Vertex &);
 
 };
-
-
-#endif

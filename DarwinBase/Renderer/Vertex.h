@@ -1,10 +1,8 @@
 
-#ifndef _VERTEX_H_
-#define _VERTEX_H_
+#pragma once
 
-class Vertex {
 
-public:
+struct Vertex {
 
 	Vector3	Position;
 	Vector2 TexCoord;
@@ -12,6 +10,3 @@ public:
 	Vector3 Binormal;
 
 };
-
-
-#endif

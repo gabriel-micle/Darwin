@@ -12,8 +12,7 @@
  */
 
 
-#ifndef _ESUTIL_H_
-#define _ESUTIL_H_
+#pragma once
 
 
 // Includes.
@@ -50,83 +49,83 @@ class ESContext {
 public:
 
 	// Window x position.
-	GLint		positionX;
+	GLint		m_positionX;
 
 	// Window y position.
-	GLint		positionY;
+	GLint		m_positionY;
 
 	// Window width.
-	GLint       width;
+	GLint       m_width;
 
 	// Window height.
-	GLint       height;
+	GLint       m_height;
 
 	// Buffer flags.
-	GLuint		flags;
+	GLuint		m_flags;
 
 	// Window handle.
-	EGLNativeWindowType  hWnd;
+	EGLNativeWindowType  m_hWnd;
 
 	// EGL display.
-	EGLDisplay  eglDisplay;
+	EGLDisplay  m_eglDisplay;
 
 	// EGL context.
-	EGLContext  eglContext;
+	EGLContext  m_eglContext;
 
 	// EGL surface.
-	EGLSurface  eglSurface;
+	EGLSurface  m_eglSurface;
 
 	// EGL config.
-	EGLConfig	eglConfig;
+	EGLConfig	m_eglConfig;
 
 	// Callbacks.
-	void (ESCALLBACK * displayFunc)			(ESContext *);
-	void (ESCALLBACK * idleFunc)			(ESContext *, float);
-	void (ESCALLBACK * keyboardFunc)		(ESContext *, unsigned char, int, int);
-	void (ESCALLBACK * keyboardUpFunc)		(ESContext *, unsigned char, int, int);
-	void (ESCALLBACK * mouseFunc)			(ESContext *, int, int, int, int);
-	void (ESCALLBACK * motionFunc)			(ESContext *, int, int);
-	void (ESCALLBACK * passiveMotionFunc)	(ESContext *, int, int);
+	void (ESCALLBACK * m_pDisplayFunc)			(ESContext *);
+	void (ESCALLBACK * m_pIdleFunc)			(ESContext *, float);
+	void (ESCALLBACK * m_pKeyboardFunc)		(ESContext *, unsigned char, int, int);
+	void (ESCALLBACK * m_pKeyboardUpFunc)		(ESContext *, unsigned char, int, int);
+	void (ESCALLBACK * m_pMouseFunc)			(ESContext *, int, int, int, int);
+	void (ESCALLBACK * m_pMotionFunc)			(ESContext *, int, int);
+	void (ESCALLBACK * m_pPassiveMotionFunc)	(ESContext *, int, int);
 	
 	// ESContext constructor.
 	ESContext ();
 
 	// Create a window with the specified title.
 	// Returns GL_TRUE if window creation is succesful, GL_FALSE otherwise.
-	GLboolean ESUTIL_API esCreateWindow (const char * title);
+	GLboolean ESUTIL_API CreateDisplay (const char *);
 
 	// Start the main loop for the OpenGL ES application.
-	void ESUTIL_API esMainLoop ();
+	void ESUTIL_API MainLoop ();
 
 	// Register a draw callback function to be used to render each frame.
-	void ESUTIL_API esDisplayFunc (void (ESCALLBACK * drawFunc) (ESContext *));
+	void ESUTIL_API DisplayFunc (void (ESCALLBACK * drawFunc) (ESContext *));
 
 	// Register an update callback function to be used to update on each time step.
-	void ESUTIL_API esIdleFunc (void (ESCALLBACK * updateFunc) (ESContext *, float));
+	void ESUTIL_API IdleFunc (void (ESCALLBACK * updateFunc) (ESContext *, float));
 
 	// Register an keyboard input processing callback function.
-	void ESUTIL_API esKeyboardFunc (void (ESCALLBACK * keyFunc) (ESContext *, unsigned char, int, int));
+	void ESUTIL_API KeyboardFunc (void (ESCALLBACK * keyFunc) (ESContext *, unsigned char, int, int));
 
 	// Register a keyboard release processing callback function.
-	void ESUTIL_API esKeyboardUpFunc (void (ESCALLBACK * keyUpFunc) (ESContext *, unsigned char, int, int));
+	void ESUTIL_API KeyboardUpFunc (void (ESCALLBACK * keyUpFunc) (ESContext *, unsigned char, int, int));
 
 	// Register a mouse press callback function.
-	void ESUTIL_API esMouseFunc (void (ESCALLBACK * mouseFunc) (ESContext *, int, int, int, int));
+	void ESUTIL_API MouseFunc (void (ESCALLBACK * mouseFunc) (ESContext *, int, int, int, int));
 
 	// Register a mouse movement when mouse button pressed callback function.
-	void ESUTIL_API esMotionFunc (void (ESCALLBACK * motionFunc) (ESContext *, int, int));
+	void ESUTIL_API MotionFunc (void (ESCALLBACK * motionFunc) (ESContext *, int, int));
 
 	// Register a mouse movement callback function.
-	void ESUTIL_API esPassiveMotionFunc (void (ESCALLBACK * passiveMotionFunc) (ESContext *, int, int));
+	void ESUTIL_API PassiveMotionFunc (void (ESCALLBACK * passiveMotionFunc) (ESContext *, int, int));
 
 	// Swaps buffers.
-	void ESUTIL_API esSwapBuffers ();
+	void ESUTIL_API SwapBuffers ();
 
 	// Set initial window size.
-	void ESUTIL_API esInitWindowSize (GLint width, GLint height);
+	void ESUTIL_API InitDisplaySize (GLint width, GLint height);
 
 	// Set initial window position.
-	void ESUTIL_API esInitWindowPosition (GLint x, GLint y);
+	void ESUTIL_API InitDisplayPosition (GLint x, GLint y);
 
 	// Specifies the buffer initialization mode:
 	// - ES_WINDOW_RGB			- specifies that the color buffer should have R, G, B channels.
@@ -134,7 +133,7 @@ public:
 	// - ES_WINDOW_DEPTH		- specifies that a depth buffer should be created.
 	// - ES_WINDOW_STENCIL		- specifies that a stencil buffer should be created.
 	// - ES_WINDOW_MULTISAMPLE	- specifies that a multi-sample buffer should be created.
-	void ESUTIL_API esInitDisplayMode (GLuint mode);
+	void ESUTIL_API InitDisplayMode (GLuint mode);
 
 }; // ESContext.
 
@@ -153,10 +152,3 @@ GLuint ESUTIL_API esLoadShader (GLenum type, const char * shaderSrc);
 // Errors output to log.
 // Return a new program object linked with the vertex/fragment shader pair, 0 on failure.
 GLuint ESUTIL_API esLoadProgram (const char * vertShaderSrc, const char * fragShaderSrc);
-
-
-// Loads a 24-bit TGA image from a file.
-char * ESUTIL_API esLoadTGA (char * fileName, int * width, int * height );
-
-
-#endif

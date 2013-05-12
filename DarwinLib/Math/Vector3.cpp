@@ -112,23 +112,23 @@ void Vector3::operator /= (const Vector3 & u) {
 /*
  *	Misc.
  */
-float Vector3::dotProduct (const Vector3 & u) const {
+float Vector3::DotProduct (const Vector3 & u) const {
 	return x * u.x + y * u.y + z * u.z;
 }
 
-Vector3 Vector3::crossProduct (const Vector3 & u) const {
+Vector3 Vector3::CrossProduct (const Vector3 & u) const {
 	return Vector3 (
 		y * u.z - z * u.y,
 		z * u.x - x * u.z,
 		x * u.y - y * u.x);
 }
 
-float Vector3::length () const {
+float Vector3::Length () const {
 	return sqrtf(x * x + y * y + z * z);
 }
 
-Vector3 Vector3::normalize () const {
-	return (* this) / length();
+Vector3 Vector3::Normalize () const {
+	return (* this) / Length();
 }
 
 

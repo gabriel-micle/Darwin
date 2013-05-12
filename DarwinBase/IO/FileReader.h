@@ -1,6 +1,5 @@
 
-#ifndef _FILEREADER_H_
-#define _FILEREADER_H_
+#pragma once
 
 
 char * ReadFile (const char * fileName) {
@@ -29,5 +28,3 @@ char * ReadFile (const char * fileName) {
 
 	return content;
 }
-
-#endif

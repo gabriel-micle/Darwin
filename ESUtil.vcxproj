@@ -13,7 +13,6 @@
   <ItemGroup>
     <ClCompile Include="ESUtil\ESUtil.cpp" />
     <ClCompile Include="ESUtil\ESUtil_shader.cpp" />
-    <ClCompile Include="ESUtil\ESUtil_TGA.cpp" />
     <ClCompile Include="ESUtil\Win32\ESUtil_Win32.cpp" />
   </ItemGroup>
   <ItemGroup>

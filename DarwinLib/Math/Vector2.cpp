@@ -112,17 +112,17 @@ void Vector2::operator /= (const Vector2 & u) {
 /*
  *	Misc.
  */
-float Vector2::dotProduct (const Vector2 & u) const {
+float Vector2::DotProduct (const Vector2 & u) const {
 	return x * u.x + y * u.y;
 }
 
 
-float Vector2::length () const {
+float Vector2::Length () const {
 	return sqrtf(x * x + y * y);
 }
 
-Vector2 Vector2::normalize () const {
-	return (* this) / length();
+Vector2 Vector2::Normalize () const {
+	return (* this) / Length();
 }
 
 

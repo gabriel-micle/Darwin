@@ -49,7 +49,8 @@ void Init (ESContext * esContext) {
 
 	// Set up camera and frustum.
 	pCamera = new Camera();
-	pCamera->setPerspective(60.0f, 1.0f * esContext->width / esContext->height, 0.1f, 1000.0f);
+	float aspect = 1.0f * esContext->m_width / esContext->m_height;
+	pCamera->SetPerspective(60.0f, aspect, 0.1f, 1000.0f);
 
 
 	// Read GLSL shader files.
@@ -66,33 +67,36 @@ void Init (ESContext * esContext) {
 	char * pixels;
 	int width, height, ch;
 	TextureOpts opts;
+	GLuint mipmaps;
 
 	// Diffuse texture.
 	pixels = Truevision::ImportTGA("Data/Textures/sarah_color.tga", &width, &height, &ch);
-
+	mipmaps = (GLuint) ceil(log2((float) max(width, height))) + 1;
+	
 	opts.format     = DW_RGB8;
 	opts.filter     = DW_TRILINEAR;
 	opts.wrap       = DW_REPEAT;
 	opts.usage      = DW_DIFFUSE;
-	opts.mipmaps    = 10;
+	opts.mipmaps    = mipmaps;
 	opts.compressed = false;
 
 	DiffuseTex = new Texture("");
-	DiffuseTex->generate2D(pixels, width, height, opts);
+	DiffuseTex->Generate2D(pixels, width, height, opts);
 
 
 	// Normal map.
 	pixels = Truevision::ImportTGA("Data/Textures/sarah_normal.tga", &width, &height, &ch);
+	mipmaps = (GLuint) ceil(log2((float) max(width, height))) + 1;
 
 	opts.format     = DW_RGB8;
 	opts.filter     = DW_TRILINEAR;
 	opts.wrap       = DW_REPEAT;
 	opts.usage      = DW_BUMP;
-	opts.mipmaps    = 10;
+	opts.mipmaps    = mipmaps;
 	opts.compressed = false;
 
 	NormalTex = new Texture("");
-	NormalTex->generate2D(pixels, width, height, opts);
+	NormalTex->Generate2D(pixels, width, height, opts);
 
 }
 
@@ -104,7 +108,7 @@ void DisplayFunc (ESContext * esContext) {
 
 
 	// Set the viewport
-	glViewport(0, 0, esContext->width, esContext->height);
+	glViewport(0, 0, esContext->m_width, esContext->m_height);
 
 	// Bind a texture.
 	glUseProgram(programObject);
@@ -113,14 +117,14 @@ void DisplayFunc (ESContext * esContext) {
 		loc = glGetUniformLocation(programObject, "uColorMap");
 		if (loc != -1) {
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, DiffuseTex->handle);
+			glBindTexture(GL_TEXTURE_2D, DiffuseTex->m_hTexture);
 			glUniform1i(loc, 0);
 		}
 
 		loc = glGetUniformLocation(programObject, "uNormalMap");
 		if (loc != -1) {
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, NormalTex->handle);
+			glBindTexture(GL_TEXTURE_2D, NormalTex->m_hTexture);
 			glUniform1i(loc, 1);
 		}
 
@@ -170,42 +174,42 @@ void DisplayFunc (ESContext * esContext) {
 		}
 	}
 
-	
 
-	Matrix4 M = Matrix4::identity();
+
+	Matrix4 M = Matrix4::Identity();
 	M[3][0] = tx; M[3][1] = ty; M[3][2] = tz;
 
 	// Set a model view projection matrix.
-	pMesh->MV = M * pCamera->viewMatrix();
-	pMesh->MVP = pMesh->MV * pCamera->projectionMatrix();
+	pMesh->m_ModelView = M * pCamera->ViewMatrix();
+	pMesh->m_ModelViewProjection = pMesh->m_ModelView * pCamera->ProjectionMatrix();
 
 	// Draw.
-	pMesh->draw(programObject);
+	pMesh->Draw(programObject);
 
 	// Swap buffers.
-	esContext->esSwapBuffers();
+	esContext->SwapBuffers();
 }
 
 void IdleFunc (ESContext * esContext, float t) {
 
 	// Check key presses.
 	if (keyPressed[W]) {
-		pCamera->translateForward(0.05f);
+		pCamera->TranslateForward(0.05f);
 	}
 	if (keyPressed[S]) {
-		pCamera->translateForward(-0.05f);
+		pCamera->TranslateForward(-0.05f);
 	}
 	if (keyPressed[D]) {
-		pCamera->translateRight(0.05f);
+		pCamera->TranslateRight(0.05f);
 	}
 	if (keyPressed[A]) {
-		pCamera->translateRight(-0.05f);
+		pCamera->TranslateRight(-0.05f);
 	}
 	if (keyPressed[SPACE]) {
-		pCamera->translateUp(0.05f);
+		pCamera->TranslateUp(0.05f);
 	}
 	if (keyPressed[C]) {
-		pCamera->translateUp(-0.05f);
+		pCamera->TranslateUp(-0.05f);
 	}
 
 	t += 0.1f;
@@ -273,11 +277,11 @@ GLint prevX = 0;
 GLint prevY = 0;
 void MotionFunc (ESContext * esContext, int x, int y) {
 
-	float dX = (x - prevX) * M_PI / 180.0f;
-	float dY = (y - prevY) * M_PI / 180.0f;
+	float dX = (x - prevX) * float(M_PI) / 180.0f;
+	float dY = (y - prevY) * float(M_PI) / 180.0f;
 
-	pCamera->rotateUp(dY);
-	pCamera->rotateRight(dX);
+	pCamera->RotateUp(dY);
+	pCamera->RotateRight(dX);
 
 	prevX = x;
 	prevY = y;
@@ -293,7 +297,7 @@ int main (int argc, char * argv[]) {
 
 	ESContext * esContext = new ESContext();
 
-	esContext->esInitDisplayMode(
+	esContext->InitDisplayMode(
 		ES_RGB | 
 		ES_ALPHA | 
 		ES_DEPTH | 
@@ -301,24 +305,24 @@ int main (int argc, char * argv[]) {
 		ES_SAMPLES_16
 		);
 
-	esContext->esInitWindowPosition(100, 100);
-	esContext->esInitWindowSize(1024, 600);
+	esContext->InitDisplayPosition(100, 100);
+	esContext->InitDisplaySize(1024, 600);
 
-	esContext->esCreateWindow("Darwin");
+	esContext->CreateDisplay("Darwin");
 
 	Init(esContext);
 
-	esContext->esDisplayFunc(DisplayFunc);
-	esContext->esIdleFunc(IdleFunc);
+	esContext->DisplayFunc(DisplayFunc);
+	esContext->IdleFunc(IdleFunc);
 
-	esContext->esKeyboardFunc(KeyboardFunc);
-	esContext->esKeyboardUpFunc(KeyboardUpFunc);
+	esContext->KeyboardFunc(KeyboardFunc);
+	esContext->KeyboardUpFunc(KeyboardUpFunc);
 
-	esContext->esMouseFunc(MouseFunc);
-	esContext->esMotionFunc(MotionFunc);
-	esContext->esPassiveMotionFunc(PassiveMotionFunc);
+	esContext->MouseFunc(MouseFunc);
+	esContext->MotionFunc(MotionFunc);
+	esContext->PassiveMotionFunc(PassiveMotionFunc);
 
-	esContext->esMainLoop();
+	esContext->MainLoop();
 
 	return 0;
 }

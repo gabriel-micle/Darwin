@@ -1,7 +1,7 @@
 
-#ifndef _MATH_H_
-#define _MATH_H_
+#pragma once
 
+#define _USE_MATH_DEFINES
 
 #include <cmath>
 #include <cassert>
@@ -9,8 +9,9 @@
 #include "Vector.h"
 #include "Matrix.h"
 
-#define M_PI	3.1415926535897932384626433f
-#define M_PI_2	1.5707963267948966192313216f
 
+inline double log2 (const double x) { return log(x) / M_LN2; }
 
-#endif
+inline float log2f (const float x) { return (float) (log2((double) x)); }
+
+inline float log2 (const float x) { return log2f(x); }

@@ -12,8 +12,7 @@
  */
 
 
-#ifndef _ESUTIL_WIN_H_
-#define _ESUTIL_WIN_H_
+#pragma once
 
 
 // Create Win32 instance and window
@@ -24,6 +23,3 @@ void WinLoop (ESContext * esContext);
 
 // TGA loader win32 implementation
 int WinTGALoad (const char * fileName, char ** buffer, int * width, int * height);
-
-
-#endif

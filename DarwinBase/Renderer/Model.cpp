@@ -3,66 +3,66 @@
 
 Model::Model () {
 
-	cVertices = INIT_ARRAY_SIZE;
-	nVertices = 0;
-	vVertices = NULL;
+	m_cVertices = INIT_ARRAY_SIZE;
+	m_nVertices = 0;
+	m_vVertices = NULL;
 
-	cIndices = INIT_ARRAY_SIZE * 3;
-	nIndices = 0;
-	vIndices = NULL;
+	m_cIndices = INIT_ARRAY_SIZE * 3;
+	m_nIndices = 0;
+	m_vIndices = NULL;
 }
 
 // Push back an index.
-void Model::addIndex (int & idx) {
+void Model::AddIndex (int & idx) {
 
-	if (nIndices == 0) {
+	if (m_nIndices == 0) {
 
 		// If these are the first elements, initialize the arrays.
-		vIndices = (int *) malloc(cIndices * sizeof(int));
+		m_vIndices = (int *) malloc(m_cIndices * sizeof(int));
 
-	} else if (nIndices >= cIndices) {
+	} else if (m_nIndices >= m_cIndices) {
 
 		// If the capacity is exceeded, increase it.
-		cIndices <<= 1;
-		vIndices = (int *) realloc(vIndices, cIndices * sizeof(int));
+		m_cIndices <<= 1;
+		m_vIndices = (int *) realloc(m_vIndices, m_cIndices * sizeof(int));
 	}
 
-	vIndices[nIndices++] = idx;
+	m_vIndices[m_nIndices++] = idx;
 }
 
 
 // Push back a vertex.
-void Model::addVertex (Vertex & vertex) {
+void Model::AddVertex (Vertex & vertex) {
 
-	if (nVertices == 0) {
+	if (m_nVertices == 0) {
 
 		// If this is the first element, initialize the array.
-		vVertices = (Vertex *) malloc(cVertices * sizeof(Vertex));
+		m_vVertices = (Vertex *) malloc(m_cVertices * sizeof(Vertex));
 
-	} else if (nVertices >= cVertices) {
+	} else if (m_nVertices >= m_cVertices) {
 
 		// If the capacity is exceeded, increase it.
-		cVertices <<= 1;
-		vVertices = (Vertex *) realloc(vVertices, cVertices * sizeof(Vertex));
+		m_cVertices <<= 1;
+		m_vVertices = (Vertex *) realloc(m_vVertices, m_cVertices * sizeof(Vertex));
 	}
 
-	vVertices[nVertices++] = vertex;
+	m_vVertices[m_nVertices++] = vertex;
 }
 
 
-void Model::finalize () {
+void Model::Finalize () {
 
-	if (!vIndices) {
-		vIndices = (int *) realloc(vIndices, nIndices * sizeof(int));
+	if (!m_vIndices) {
+		m_vIndices = (int *) realloc(m_vIndices, m_nIndices * sizeof(int));
 	}
 
-	if (vVertices) {
-		vVertices = (Vertex *) realloc(vVertices, nVertices * sizeof(Vertex));
+	if (m_vVertices) {
+		m_vVertices = (Vertex *) realloc(m_vVertices, m_nVertices * sizeof(Vertex));
 	}
 }
 
 
-void Model::computeTangentBitangent (Vertex & v0, Vertex & v1, Vertex & v2) {
+void Model::ComputeTangentBitangent (Vertex & v0, Vertex & v1, Vertex & v2) {
 
 	Vector3 deltaPos1 = v1.Position - v0.Position;
 	Vector3 deltaPos2 = v2.Position - v0.Position;
@@ -92,35 +92,35 @@ void Model::computeTangentBitangent (Vertex & v0, Vertex & v1, Vertex & v2) {
 
 
 
-void Model::draw (GLuint programObject) {
+void Model::Draw (GLuint programObject) {
 
 	GLuint loc;
 
 	// Create vertex data buffer if it was not created.
-	if (!glIsBuffer(vertexVBO)) {
+	if (!glIsBuffer(m_vertexVBO)) {
 
-		glGenBuffers(1, &vertexVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
-		glBufferData(GL_ARRAY_BUFFER, nVertices * sizeof(Vertex), vVertices, GL_STATIC_DRAW);
+		glGenBuffers(1, &m_vertexVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vertexVBO);
+		glBufferData(GL_ARRAY_BUFFER, m_nVertices * sizeof(Vertex), m_vVertices, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
 	// Create index buffer of it was not created.
-	if (!glIsBuffer(indexVBO)) {
+	if (!glIsBuffer(m_indexVBO)) {
 
-		glGenBuffers(1, &indexVBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, nIndices * sizeof(int), vIndices, GL_STATIC_DRAW);
+		glGenBuffers(1, &m_indexVBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_nIndices * sizeof(int), m_vIndices, GL_STATIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
 	// Initialize vertex array.
-	if (!glIsVertexArray(vertexVAO)) {
+	if (!glIsVertexArray(m_vertexVAO)) {
 
-		glGenVertexArrays(1, &vertexVAO);
-		glBindVertexArray(vertexVAO);
+		glGenVertexArrays(1, &m_vertexVAO);
+		glBindVertexArray(m_vertexVAO);
 
-		glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vertexVBO);
 
 		loc = glGetAttribLocation(programObject, "inPosition");
 		if (loc != -1) {
@@ -150,7 +150,7 @@ void Model::draw (GLuint programObject) {
 
 
 	// Enable vertex arrays.
-	glBindVertexArray(vertexVAO);
+	glBindVertexArray(m_vertexVAO);
 	loc = glGetAttribLocation(programObject, "inPosition");
 	if (loc != -1) {
 		glEnableVertexAttribArray(loc);
@@ -174,19 +174,19 @@ void Model::draw (GLuint programObject) {
 
 	// Set uniforms (program must be bound before).
 	loc = glGetUniformLocation(programObject, "ModelViewProjectionMatrix");
-	glUniformMatrix4fv(loc, 1, GL_FALSE, MVP);
+	glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelViewProjection);
 
 	loc = glGetUniformLocation(programObject, "ModelViewMatrix");
-	glUniformMatrix4fv(loc, 1, GL_FALSE, MV);
+	glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelView);
 
 	// Draw indexed.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);
-	glDrawElementsInstanced(GL_TRIANGLES, nIndices, GL_UNSIGNED_INT, 0, 1);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVBO);
+	glDrawElementsInstanced(GL_TRIANGLES, m_nIndices, GL_UNSIGNED_INT, 0, 1);
 
 
 	// Disable vertex arrays.
 	// Enable vertex arrays.
-	glBindVertexArray(vertexVAO);
+	glBindVertexArray(m_vertexVAO);
 	loc = glGetAttribLocation(programObject, "inPosition");
 	if (loc != -1) {
 		glDisableVertexAttribArray(loc);
