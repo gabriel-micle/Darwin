@@ -5,8 +5,7 @@
 /*
  *	Constructor
  */
-Matrix4::Matrix4 () {
-}
+Matrix4::Matrix4 () {}
 
 
 /*

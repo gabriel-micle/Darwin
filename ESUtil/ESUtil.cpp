@@ -134,7 +134,7 @@ GLboolean ESUTIL_API ESContext::CreateDisplay (const char * title) {
 		EGL_DEPTH_SIZE,     (m_flags & ES_DEPTH) ? 24 : EGL_DONT_CARE,
 		EGL_STENCIL_SIZE,   (m_flags & ES_STENCIL) ? 8 : EGL_DONT_CARE,
 		EGL_SAMPLE_BUFFERS, sampleBuffers,
-		EGL_SAMPLES,		numSamples,
+		EGL_SAMPLES,		16,
 		EGL_NONE
 	};
 

@@ -19,40 +19,40 @@
 class Matrix4 {
 
 private:
-	Vector4		m_M[4];
+	Vector4			m_M[4];
 
 public:
 	
-				Matrix4 ();
+					Matrix4 ();
 
-	Vector4 &	operator [] (const int i);
-	Vector4		operator [] (const int i) const;
+	Vector4 &		operator [] (const int i);
+	Vector4			operator [] (const int i) const;
 
-	bool		operator == (const Matrix4 & N) const;
+	bool			operator == (const Matrix4 & N) const;
 
-	Matrix4		operator + (const Matrix4 & N) const;
-	void		operator += (const Matrix4 & N);
+	Matrix4			operator + (const Matrix4 & N) const;
+	void			operator += (const Matrix4 & N);
 
-	Matrix4		operator - (const Matrix4 & N) const;
-	void		operator -= (const Matrix4 & N);
+	Matrix4			operator - (const Matrix4 & N) const;
+	void			operator -= (const Matrix4 & N);
 
-	Matrix4		operator - () const;
+	Matrix4			operator - () const;
 
-	Matrix4		operator * (const float s) const;
-	void		operator *= (const float s);
+	Matrix4			operator * (const float s) const;
+	void			operator *= (const float s);
 
-	Matrix4		operator / (const float s) const;
-	void		operator /= (const float s);
+	Matrix4			operator / (const float s) const;
+	void			operator /= (const float s);
 
-	Vector4		operator * (const Vector4 & v) const;
+	Vector4			operator * (const Vector4 & v) const;
 
-	Matrix4		operator * (const Matrix4 & N) const;
-	void		operator *= (const Matrix4 & N);
+	Matrix4			operator * (const Matrix4 & N) const;
+	void			operator *= (const Matrix4 & N);
 
-	Matrix4		Transpose () const;
-	Matrix4		Inverse () const;
+	Matrix4			Transpose () const;
+	Matrix4			Inverse () const;
 
-				operator float * ();
+					operator float * ();
 
 	static Matrix4	Identity ();
 	static Matrix4	Zeroes ();

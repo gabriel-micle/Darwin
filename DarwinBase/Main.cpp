@@ -28,8 +28,7 @@ float tz = -2.0f;
 
 float t = 0.0f;
 
-Texture * DiffuseTex;
-Texture * NormalTex;
+Texture * Tex[2];
 
 Vector4 GlobalAmbient(0.2f, 0.2f, 0.2f, 1.0f);
 
@@ -54,22 +53,26 @@ void Init (ESContext * esContext) {
 	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
 
 
-	// Enable depth test.
-	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-
 	// Set up camera and frustum.
+	// --------------------------
 	pCamera = new Camera();
 	float aspect = 1.0f * esContext->m_width / esContext->m_height;
 	pCamera->SetPerspective(60.0f, aspect, 0.1f, 1000.0f);
 
 
+
+	// Init models.
+	// ------------
+
 	// Import mesh from Wavefront OBJ file.
 	pModel = Wavefront::ImportOBJ("Data/Models/Woman1.obj");
 
 	pQuad = Wavefront::ImportOBJ("Data/Models/Quad.obj");
+
+
+
+	// Init textures.
+	// --------------
 
 	// Test texture.
 	char * pixels;
@@ -88,8 +91,8 @@ void Init (ESContext * esContext) {
 	opts.mipmaps    = mipmaps;
 	opts.compressed = false;
 
-	DiffuseTex = new Texture("Data/Textures/sarah_color.tga");
-	DiffuseTex->Generate2D(pixels, width, height, opts);
+	Tex[0] = new Texture("Data/Textures/sarah_color.tga");
+	Tex[0]->Generate2D(pixels, width, height, opts);
 
 
 	// Normal map.
@@ -103,8 +106,8 @@ void Init (ESContext * esContext) {
 	opts.mipmaps    = mipmaps;
 	opts.compressed = false;
 
-	NormalTex = new Texture("Data/Textures/sarah_normal.tga");
-	NormalTex->Generate2D(pixels, width, height, opts);
+	Tex[1] = new Texture("Data/Textures/sarah_normal.tga");
+	Tex[1]->Generate2D(pixels, width, height, opts);
 
 
 
@@ -113,7 +116,8 @@ void Init (ESContext * esContext) {
 	char * fShaderStr;
 
 
-	// ----------- Initialize forward rendering -------------
+	// Parse, compile and link shader files for FORWARD rendering.
+	// -----------------------------------------------------------
 
 	// Read GLSL shader files.
 	vShaderStr = ReadFile("Data/Shaders/ForwardPhong.vert.glsl");
@@ -126,7 +130,9 @@ void Init (ESContext * esContext) {
 
 
 
-	// ------------ Initialize deferred rendering ------------
+
+	// Parse, compile and link shader files for DEFERRED rendering.
+	// ------------------------------------------------------------
 
 	// Read GLSL shader file.
 	vShaderStr = ReadFile("Data/Shaders/DeferredGeometryPass.vert.glsl");
@@ -149,24 +155,49 @@ void Init (ESContext * esContext) {
 
 
 
-	//Init framebuffer for geometry pass.
+	// Init MSAA'd framebuffer for geometry pass.
+	// ------------------------------------------
+
 	glGenFramebuffers(1, &msaaFBO);
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, msaaFBO);
 
 	glGenRenderbuffers(3, msaaRBO);
 
+
 	for (unsigned int i = 0; i < 3; i++) {
 		glBindRenderbuffer(GL_RENDERBUFFER, msaaRBO[i]);
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 16, GL_RGB32F, esContext->m_width, esContext->m_height);
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 16, GL_RGBA32F, esContext->m_width, esContext->m_height);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_RENDERBUFFER, msaaRBO[i]);
 	}
+
+	glGenRenderbuffers(1, &depthRBO);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 16, GL_DEPTH_COMPONENT32F, esContext->m_width, esContext->m_height);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRBO);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (status != GL_FRAMEBUFFER_COMPLETE) {
-		printf("Framebuffer error: 0x%x\n", status);
+	switch (status) {
+	case GL_FRAMEBUFFER_UNDEFINED:
+		printf("Framebuffer undefined!\n");
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+		printf("Framebuffer incomplete attachment!\n");
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+		printf("Framebuffer incomplete/missing attachemtn!\n");
+		break;
+	case GL_FRAMEBUFFER_UNSUPPORTED:
+		printf("Framebuffer unsupported!\n");
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+		printf("Framebuffer incomplete multisample!\n");
+		break;
 	}
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -174,7 +205,9 @@ void Init (ESContext * esContext) {
 
 
 
-	// Init final framebuffer.
+	// Init final framebuffer from which we sample the screen space textures.
+	// ----------------------------------------------------------------------
+
 	glGenFramebuffers(1, &finalFBO);
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, finalFBO);
@@ -183,29 +216,29 @@ void Init (ESContext * esContext) {
 
 	for (unsigned int i = 0; i < 3; i++) {
 		glBindTexture(GL_TEXTURE_2D, finalTex[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, esContext->m_width, esContext->m_height, 0, GL_RGBA, GL_FLOAT, NULL);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, esContext->m_width, esContext->m_height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, finalTex[i], 0);
 	}
 
-	glGenRenderbuffers(1, &depthRBO);
-
-	glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, esContext->m_width, esContext->m_height);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRBO);
-
-
-	//glGenTextures(1, &depthTex);
-	//glBindTexture(GL_TEXTURE_2D, depthTex);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, esContext->m_width,esContext->m_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	//glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0); 
-
 	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (status != GL_FRAMEBUFFER_COMPLETE) {
-		printf("Framebuffer error: 0x%x\n", status);
+	switch (status) {
+	case GL_FRAMEBUFFER_UNDEFINED:
+		printf("Framebuffer undefined!\n");
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+		printf("Framebuffer incomplete attachment!\n");
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+		printf("Framebuffer incomplete/missing attachemtn!\n");
+		break;
+	case GL_FRAMEBUFFER_UNSUPPORTED:
+		printf("Framebuffer unsupported!\n");
+		break;
+	case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+		printf("Framebuffer incomplete multisample!\n");
+		break;
 	}
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -216,18 +249,20 @@ void ForwardLighting (GLuint programObject) {
 
 	glUseProgram(programObject);
 
+	glEnable(GL_DEPTH_TEST);
+
 	{
 		loc = glGetUniformLocation(programObject, "u_DiffuseMap");
 		if (loc != -1) {
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, DiffuseTex->m_hTexture);
+			glBindTexture(GL_TEXTURE_2D, Tex[0]->m_hTexture);
 			glUniform1i(loc, 0);
 		}
 
 		loc = glGetUniformLocation(programObject, "u_NormalMap");
 		if (loc != -1) {
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, NormalTex->m_hTexture);
+			glBindTexture(GL_TEXTURE_2D, Tex[1]->m_hTexture);
 			glUniform1i(loc, 1);
 		}
 
@@ -289,13 +324,13 @@ void ForwardLighting (GLuint programObject) {
 	pModel->Draw(programObject);
 }
 
-void GeometryPass (GLuint programObject) {
+void GeometryPass (ESContext * esContext, GLuint programObject) {
 
 	// Enable.
 	glUseProgram(programObject);
 
 	// Bind.
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, finalFBO);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, msaaFBO);
 
 	GLenum buffers [] = {
 		GL_COLOR_ATTACHMENT0,
@@ -313,18 +348,18 @@ void GeometryPass (GLuint programObject) {
 	glEnable(GL_DEPTH_TEST);
 
 	{
-		loc = glGetUniformLocation(programObject, "u_DiffuseMap");
-		if (loc != -1) {
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, DiffuseTex->m_hTexture);
-			glUniform1i(loc, 0);
-		}
+		const char * uniformNames [] = {
+			"u_DiffuseMap",
+			"u_NormalMap",
+		};
 
-		loc = glGetUniformLocation(programObject, "u_NormalMap");
-		if (loc != -1) {
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, NormalTex->m_hTexture);
-			glUniform1i(loc, 1);
+		for (int i = 0; i < 2; i++) {
+			loc = glGetUniformLocation(programObject, uniformNames[i]);
+			if (loc != -1) {
+				glActiveTexture(GL_TEXTURE0 + i);
+				glBindTexture(GL_TEXTURE_2D, Tex[i]->m_hTexture);
+				glUniform1i(loc, i);
+			}
 		}
 	}
 
@@ -336,10 +371,27 @@ void GeometryPass (GLuint programObject) {
 	pModel->m_ModelViewMatrix           = pModel->m_ModelMatrix * pCamera->ViewMatrix();
 	pModel->m_ModelViewProjectionMatrix = pModel->m_ModelViewMatrix * pCamera->ProjectionMatrix();
 
-	// Draw.
+	// Draw scene.
 	pModel->Draw(programObject);
 
 	glDepthMask(GL_FALSE);
+
+	// Copy data from the multisampled renderbuffers to textures.
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFBO);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, finalFBO);
+
+	for (unsigned int i = 0; i < 3; i++) {
+
+		glReadBuffer(GL_COLOR_ATTACHMENT0 + i);
+		glDrawBuffers(1, &buffers[i]);
+		glBlitFramebuffer(
+			0, 0, esContext->m_width, esContext->m_height, 
+			0, 0, esContext->m_width, esContext->m_height,
+			GL_COLOR_BUFFER_BIT,
+			GL_NEAREST
+			);
+	}
+
 }
 
 void LightingPass (GLuint programObject) {
@@ -350,6 +402,7 @@ void LightingPass (GLuint programObject) {
 	// Bind.
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
+	// Disable depth test.
 	glDisable(GL_DEPTH_TEST);
 
 	{
@@ -369,6 +422,7 @@ void LightingPass (GLuint programObject) {
 		}
 	}
 
+	// Draw screenspace QUAD.
 	pQuad->Draw(programObject);
 
 }
@@ -383,7 +437,7 @@ void DisplayFunc (ESContext * esContext) {
 	glViewport(0, 0, esContext->m_width, esContext->m_height);
 
 	//ForwardLighting (programObject0);
-	GeometryPass(programObject1);
+	GeometryPass(esContext, programObject1);
 	LightingPass(programObject2);
 
 	// Swap buffers.
@@ -500,9 +554,7 @@ int main (int argc, char * argv[]) {
 	esContext->InitDisplayMode(
 		ES_RGB | 
 		ES_ALPHA | 
-		ES_DEPTH | 
-		ES_MULTISAMPLE | 
-		ES_SAMPLES_16
+		ES_DEPTH
 		);
 
 	esContext->InitDisplayPosition(100, 100);
