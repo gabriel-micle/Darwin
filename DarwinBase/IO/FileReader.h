@@ -19,7 +19,7 @@ char * ReadFile (const char * fileName) {
 	fseek(pFile, 0, SEEK_SET);
 
 	if (size > 0) {
-		content = (char *) malloc(size + 1);
+		content = new char [size + 1];
 		fread(content, 1, size, pFile);
 		content[size] = 0;
 	}

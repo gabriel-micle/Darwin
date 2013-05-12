@@ -54,10 +54,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Build\Data\Shaders\Hello.vert.glsl">
+    <None Include="Build\Data\Shaders\ForwardPhong.vert.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Build\Data\Shaders\Hello.frag.glsl">
+    <None Include="Build\Data\Shaders\ForwardPhong.frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Build\Data\Shaders\DeferredGeometryPass.frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Build\Data\Shaders\DeferredGeometryPass.vert.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Build\Data\Shaders\DeferredLightingPass.frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Build\Data\Shaders\DeferredLightingPass.vert.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

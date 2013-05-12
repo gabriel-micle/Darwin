@@ -24,14 +24,14 @@ private:
 	GLuint			m_vertexVAO;
 	GLuint			m_indexVBO;
 
-	void			ComputeTangentBitangent ();
-
 public:
 
-					Model ();			
+					Model ();
+	virtual			~Model ();
 
-	Matrix4			m_ModelView;
-	Matrix4			m_ModelViewProjection;
+	Matrix4			m_ModelMatrix;
+	Matrix4			m_ModelViewMatrix;
+	Matrix4			m_ModelViewProjectionMatrix;
 
 	// Vertices.
 	int				m_cVertices;

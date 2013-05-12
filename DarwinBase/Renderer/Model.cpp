@@ -10,6 +10,16 @@ Model::Model () {
 	m_cIndices = INIT_ARRAY_SIZE * 3;
 	m_nIndices = 0;
 	m_vIndices = NULL;
+
+	m_ModelMatrix = Matrix4::Identity();
+	m_ModelViewMatrix = Matrix4::Identity();
+	m_ModelViewProjectionMatrix = Matrix4::Identity();
+}
+
+Model::~Model () {
+
+	delete m_vVertices;
+	delete m_vIndices;
 }
 
 // Push back an index.
@@ -122,22 +132,22 @@ void Model::Draw (GLuint programObject) {
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_vertexVBO);
 
-		loc = glGetAttribLocation(programObject, "inPosition");
+		loc = glGetAttribLocation(programObject, "in_Position");
 		if (loc != -1) {
 			glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, Position));
 		}
 
-		loc = glGetAttribLocation(programObject, "inTexCoord");
+		loc = glGetAttribLocation(programObject, "in_TexCoord");
 		if (loc != -1) {
 			glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, TexCoord));
 		}
 
-		loc = glGetAttribLocation(programObject, "inBinormal");
+		loc = glGetAttribLocation(programObject, "in_Binormal");
 		if (loc != -1) {
 			glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, Binormal));
 		}
 
-		loc = glGetAttribLocation(programObject, "inTangent");
+		loc = glGetAttribLocation(programObject, "in_Tangent");
 		if (loc != -1) {
 			glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, Tangent));
 		}
@@ -151,33 +161,36 @@ void Model::Draw (GLuint programObject) {
 
 	// Enable vertex arrays.
 	glBindVertexArray(m_vertexVAO);
-	loc = glGetAttribLocation(programObject, "inPosition");
+	loc = glGetAttribLocation(programObject, "in_Position");
 	if (loc != -1) {
 		glEnableVertexAttribArray(loc);
 	}
 
-	loc = glGetAttribLocation(programObject, "inTexCoord");
+	loc = glGetAttribLocation(programObject, "in_TexCoord");
 	if (loc != -1) {
 		glEnableVertexAttribArray(loc);
 	}
 
-	loc = glGetAttribLocation(programObject, "inBinormal");
+	loc = glGetAttribLocation(programObject, "in_Binormal");
 	if (loc != -1) {
 		glEnableVertexAttribArray(loc);
 	}
 
-	loc = glGetAttribLocation(programObject, "inTangent");
+	loc = glGetAttribLocation(programObject, "in_Tangent");
 	if (loc != -1) {
 		glEnableVertexAttribArray(loc);
 	}
 
 
 	// Set uniforms (program must be bound before).
-	loc = glGetUniformLocation(programObject, "ModelViewProjectionMatrix");
-	glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelViewProjection);
+	loc = glGetUniformLocation(programObject, "u_ModelViewProjectionMatrix");
+	glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelViewProjectionMatrix);
 
-	loc = glGetUniformLocation(programObject, "ModelViewMatrix");
-	glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelView);
+	loc = glGetUniformLocation(programObject, "u_ModelViewMatrix");
+	glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelViewMatrix);
+
+	loc = glGetUniformLocation(programObject, "u_ModelMatrix");
+	glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelMatrix);
 
 	// Draw indexed.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVBO);
@@ -187,22 +200,22 @@ void Model::Draw (GLuint programObject) {
 	// Disable vertex arrays.
 	// Enable vertex arrays.
 	glBindVertexArray(m_vertexVAO);
-	loc = glGetAttribLocation(programObject, "inPosition");
+	loc = glGetAttribLocation(programObject, "in_Position");
 	if (loc != -1) {
 		glDisableVertexAttribArray(loc);
 	}
 
-	loc = glGetAttribLocation(programObject, "inTexCoord");
+	loc = glGetAttribLocation(programObject, "in_TexCoord");
 	if (loc != -1) {
 		glDisableVertexAttribArray(loc);
 	}
 
-	loc = glGetAttribLocation(programObject, "inBinormal");
+	loc = glGetAttribLocation(programObject, "in_Binormal");
 	if (loc != -1) {
 		glDisableVertexAttribArray(loc);
 	}
 
-	loc = glGetAttribLocation(programObject, "inTangent");
+	loc = glGetAttribLocation(programObject, "in_Tangent");
 	if (loc != -1) {
 		glDisableVertexAttribArray(loc);
 	}

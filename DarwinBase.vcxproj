@@ -131,8 +131,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Build\Data\Shaders\Hello.frag.glsl" />
-    <None Include="Build\Data\Shaders\Hello.vert.glsl" />
+    <None Include="Build\Data\Shaders\DeferredGeometryPass.frag.glsl" />
+    <None Include="Build\Data\Shaders\DeferredGeometryPass.vert.glsl" />
+    <None Include="Build\Data\Shaders\DeferredLightingPass.frag.glsl" />
+    <None Include="Build\Data\Shaders\DeferredLightingPass.vert.glsl" />
+    <None Include="Build\Data\Shaders\ForwardPhong.frag.glsl" />
+    <None Include="Build\Data\Shaders\ForwardPhong.vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
