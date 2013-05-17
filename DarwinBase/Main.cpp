@@ -1,9 +1,8 @@
 
 #include "Headers.h"
 
-// Handle to a program object.
-GLuint programObject0;
 
+// Handle to a program object.
 GLuint programObject1;
 GLuint programObject2;
 
@@ -16,7 +15,8 @@ GLuint finalTex[3];
 
 GLenum status;
 
-Model  * pModel;
+Model  * pModel1;
+Model  * pModel2;
 Model  * pQuad;
 Camera * pCamera;
 
@@ -28,7 +28,8 @@ float tz = -2.0f;
 
 float t = 0.0f;
 
-Texture * Tex[2];
+Texture * Tex1[2];
+Texture * Tex2[2];
 
 Vector4 GlobalAmbient(0.2f, 0.2f, 0.2f, 1.0f);
 
@@ -65,7 +66,8 @@ void Init (ESContext * esContext) {
 	// ------------
 
 	// Import mesh from Wavefront OBJ file.
-	pModel = Wavefront::ImportOBJ("Data/Models/Woman1.obj");
+	pModel1 = Wavefront::ImportOBJ("Data/Models/Woman1.obj");
+	pModel2 = Wavefront::ImportOBJ("Data/Models/Woman2.obj");
 
 	pQuad = Wavefront::ImportOBJ("Data/Models/Quad.obj");
 
@@ -91,8 +93,8 @@ void Init (ESContext * esContext) {
 	opts.mipmaps    = mipmaps;
 	opts.compressed = false;
 
-	Tex[0] = new Texture("Data/Textures/sarah_color.tga");
-	Tex[0]->Generate2D(pixels, width, height, opts);
+	Tex1[0] = new Texture("Data/Textures/sarah_color.tga");
+	Tex1[0]->Generate2D(pixels, width, height, opts);
 
 
 	// Normal map.
@@ -106,28 +108,45 @@ void Init (ESContext * esContext) {
 	opts.mipmaps    = mipmaps;
 	opts.compressed = false;
 
-	Tex[1] = new Texture("Data/Textures/sarah_normal.tga");
-	Tex[1]->Generate2D(pixels, width, height, opts);
+	Tex1[1] = new Texture("Data/Textures/sarah_normal.tga");
+	Tex1[1]->Generate2D(pixels, width, height, opts);
+
+
+
+	// Diffuse texture.
+	pixels = Truevision::ImportTGA("Data/Textures/betty_color.tga", &width, &height, &ch);
+	mipmaps = (GLuint) ceil(log2((float) max(width, height))) + 1;
+
+	opts.format     = DW_RGB8;
+	opts.filter     = DW_TRILINEAR;
+	opts.wrap       = DW_REPEAT;
+	opts.usage      = DW_DIFFUSE;
+	opts.mipmaps    = mipmaps;
+	opts.compressed = false;
+
+	Tex2[0] = new Texture("Data/Textures/betty_color.tga");
+	Tex2[0]->Generate2D(pixels, width, height, opts);
+
+
+	// Normal map.
+	pixels = Truevision::ImportTGA("Data/Textures/betty_normal.tga", &width, &height, &ch);
+	mipmaps = (GLuint) ceil(log2((float) max(width, height))) + 1;
+
+	opts.format     = DW_RGB8;
+	opts.filter     = DW_TRILINEAR;
+	opts.wrap       = DW_REPEAT;
+	opts.usage      = DW_BUMP;
+	opts.mipmaps    = mipmaps;
+	opts.compressed = false;
+
+	Tex2[1] = new Texture("Data/Textures/betty_normal.tga");
+	Tex2[1]->Generate2D(pixels, width, height, opts);
 
 
 
 
 	char * vShaderStr;
 	char * fShaderStr;
-
-
-	// Parse, compile and link shader files for FORWARD rendering.
-	// -----------------------------------------------------------
-
-	// Read GLSL shader files.
-	vShaderStr = ReadFile("Data/Shaders/ForwardPhong.vert.glsl");
-	fShaderStr = ReadFile("Data/Shaders/ForwardPhong.frag.glsl");
-
-	// Create the program object.
-	programObject0 = esLoadProgram(vShaderStr, fShaderStr);
-
-	delete vShaderStr; delete fShaderStr;
-
 
 
 
@@ -151,7 +170,6 @@ void Init (ESContext * esContext) {
 	programObject2 = esLoadProgram(vShaderStr, fShaderStr);
 
 	delete vShaderStr; delete fShaderStr;
-
 
 
 
@@ -245,85 +263,6 @@ void Init (ESContext * esContext) {
 
 }
 
-void ForwardLighting (GLuint programObject) {
-
-	glUseProgram(programObject);
-
-	glEnable(GL_DEPTH_TEST);
-
-	{
-		loc = glGetUniformLocation(programObject, "u_DiffuseMap");
-		if (loc != -1) {
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, Tex[0]->m_hTexture);
-			glUniform1i(loc, 0);
-		}
-
-		loc = glGetUniformLocation(programObject, "u_NormalMap");
-		if (loc != -1) {
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, Tex[1]->m_hTexture);
-			glUniform1i(loc, 1);
-		}
-
-		loc = glGetUniformLocation(programObject, "u_GlobalAmbient");
-		if (loc != -1) {
-			glUniform4fv(loc, 1, GlobalAmbient);
-		}
-
-		loc = glGetUniformLocation(programObject, "u_Light.Ambient");
-		if (loc != -1) {
-			glUniform4fv(loc, 1, LightAmbient);
-		}
-
-		loc = glGetUniformLocation(programObject, "u_Light.Diffuse");
-		if (loc != -1) {
-			glUniform4fv(loc, 1, LightDiffuse);
-		}
-
-		loc = glGetUniformLocation(programObject, "u_Light.Specular");
-		if (loc != -1) {
-			glUniform4fv(loc, 1, LightSpecular);
-		}
-
-		loc = glGetUniformLocation(programObject, "u_Light.Position");
-		if (loc != -1) {
-			glUniform4fv(loc, 1, LightPosition);
-		}
-
-		loc = glGetUniformLocation(programObject, "u_Material.Diffuse");
-		if (loc != -1) {
-			glUniform4fv(loc, 1, MaterialDiffuse);
-		}
-
-		loc = glGetUniformLocation(programObject, "u_Material.Ambient");
-		if (loc != -1) {
-			glUniform4fv(loc, 1, MaterialAmbient);
-		}
-
-		loc = glGetUniformLocation(programObject, "u_Material.Specular");
-		if (loc != -1) {
-			glUniform4fv(loc, 1, MaterialSpecular);
-		}
-
-		loc = glGetUniformLocation(programObject, "u_Material.Shininess");
-		if (loc != -1) {
-			glUniform1f(loc, MaterialShininess);
-		}
-	}
-
-	Matrix4 M = Matrix4::Identity();
-	M[3][0] = tx; M[3][1] = ty; M[3][2] = tz;
-
-	// Set a model view projection matrix.
-	pModel->m_ModelMatrix               = M;
-	pModel->m_ModelViewMatrix           = pModel->m_ModelMatrix * pCamera->ViewMatrix();
-	pModel->m_ModelViewProjectionMatrix = pModel->m_ModelViewMatrix * pCamera->ProjectionMatrix();
-
-	// Draw.
-	pModel->Draw(programObject);
-}
-
 void GeometryPass (ESContext * esContext, GLuint programObject) {
 
 	// Enable.
@@ -357,22 +296,94 @@ void GeometryPass (ESContext * esContext, GLuint programObject) {
 			loc = glGetUniformLocation(programObject, uniformNames[i]);
 			if (loc != -1) {
 				glActiveTexture(GL_TEXTURE0 + i);
-				glBindTexture(GL_TEXTURE_2D, Tex[i]->m_hTexture);
+				glBindTexture(GL_TEXTURE_2D, Tex1[i]->m_hTexture);
 				glUniform1i(loc, i);
 			}
 		}
+
+
+		loc = glGetUniformLocation(programObject, "u_Material.Diffuse");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, MaterialDiffuse);
+		}
+
+		loc = glGetUniformLocation(programObject, "u_Material.Ambient");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, MaterialAmbient);
+		}
+
+		loc = glGetUniformLocation(programObject, "u_Material.Specular");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, MaterialSpecular);
+		}
+
+		loc = glGetUniformLocation(programObject, "u_Material.Shininess");
+		if (loc != -1) {
+			glUniform1f(loc, MaterialShininess);
+		}
+
+		Matrix4 M = Matrix4::Identity();
+		M[3][0] = 1; M[3][1] = ty; M[3][2] = tz;
+
+		// Set a model view projection matrix.
+		pModel1->m_ModelMatrix               = M;
+		pModel1->m_ModelViewMatrix           = pModel1->m_ModelMatrix * pCamera->ViewMatrix();
+		pModel1->m_ModelViewProjectionMatrix = pModel1->m_ModelViewMatrix * pCamera->ProjectionMatrix();
+
+		pModel1->Draw(programObject);
 	}
 
-	Matrix4 M = Matrix4::Identity();
-	M[3][0] = tx; M[3][1] = ty; M[3][2] = tz;
+	{
+		const char * uniformNames [] = {
+			"u_DiffuseMap",
+			"u_NormalMap",
+		};
 
-	// Set a model view projection matrix.
-	pModel->m_ModelMatrix               = M;
-	pModel->m_ModelViewMatrix           = pModel->m_ModelMatrix * pCamera->ViewMatrix();
-	pModel->m_ModelViewProjectionMatrix = pModel->m_ModelViewMatrix * pCamera->ProjectionMatrix();
+		for (int i = 0; i < 2; i++) {
+			loc = glGetUniformLocation(programObject, uniformNames[i]);
+			if (loc != -1) {
+				glActiveTexture(GL_TEXTURE0 + i);
+				glBindTexture(GL_TEXTURE_2D, Tex2[i]->m_hTexture);
+				glUniform1i(loc, i);
+			}
+		}
 
-	// Draw scene.
-	pModel->Draw(programObject);
+
+		loc = glGetUniformLocation(programObject, "u_Material.Diffuse");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, MaterialDiffuse);
+		}
+
+		loc = glGetUniformLocation(programObject, "u_Material.Ambient");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, MaterialAmbient);
+		}
+
+		loc = glGetUniformLocation(programObject, "u_Material.Specular");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, MaterialSpecular);
+		}
+
+		loc = glGetUniformLocation(programObject, "u_Material.Shininess");
+		if (loc != -1) {
+			glUniform1f(loc, MaterialShininess);
+		}
+
+		Matrix4 M = Matrix4::Identity();
+		M[3][0] = -1; M[3][1] = ty; M[3][2] = tz;
+
+		pModel2->m_ModelMatrix               = M;
+		pModel2->m_ModelViewMatrix           = pModel2->m_ModelMatrix * pCamera->ViewMatrix();
+		pModel2->m_ModelViewProjectionMatrix = pModel2->m_ModelViewMatrix * pCamera->ProjectionMatrix();
+
+		// Draw scene.
+		pModel2->Draw(programObject);
+		
+	}
+
+	
+		
+	
 
 	glDepthMask(GL_FALSE);
 
@@ -420,6 +431,38 @@ void LightingPass (GLuint programObject) {
 				glUniform1i(loc, i);
 			}
 		}
+
+		loc = glGetUniformLocation(programObject, "u_GlobalAmbient");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, GlobalAmbient);
+		}
+
+		loc = glGetUniformLocation(programObject, "u_EyePosition");
+		if (loc != -1) {
+			glUniform3fv(loc, 1, pCamera->EyePosition());
+		}
+
+		loc = glGetUniformLocation(programObject, "u_Light.Ambient");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, LightAmbient);
+		}
+
+		loc = glGetUniformLocation(programObject, "u_Light.Diffuse");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, LightDiffuse);
+		}
+
+		loc = glGetUniformLocation(programObject, "u_Light.Specular");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, LightSpecular);
+		}
+
+		loc = glGetUniformLocation(programObject, "u_Light.Position");
+		if (loc != -1) {
+			glUniform4fv(loc, 1, LightPosition);
+		}
+
+
 	}
 
 	// Draw screenspace QUAD.

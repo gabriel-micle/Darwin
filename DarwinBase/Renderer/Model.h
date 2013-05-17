@@ -53,6 +53,6 @@ public:
 	void			Draw (GLuint programObject);
 
 	
-	static void		ComputeTangentBitangent (Vertex &, Vertex &, Vertex &);
+	static void		ComputeTangentBitangent (Vertex *, Vertex *, Vertex *);
 
 };

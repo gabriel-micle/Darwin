@@ -142,7 +142,7 @@ namespace Wavefront {
 				vVertices[k].TexCoord = vTexCoords[vIndices[k].second - 1];
 			}
 
-			Model::ComputeTangentBitangent(vVertices[i], vVertices[i + 1], vVertices[i + 2]);
+			Model::ComputeTangentBitangent(&vVertices[i], &vVertices[i + 1], &vVertices[i + 2]);
 		}
 
 

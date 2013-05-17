@@ -11,8 +11,8 @@ Model::Model () {
 	m_nIndices = 0;
 	m_vIndices = NULL;
 
-	m_ModelMatrix = Matrix4::Identity();
-	m_ModelViewMatrix = Matrix4::Identity();
+	m_ModelMatrix               = Matrix4::Identity();
+	m_ModelViewMatrix           = Matrix4::Identity();
 	m_ModelViewProjectionMatrix = Matrix4::Identity();
 }
 
@@ -62,7 +62,7 @@ void Model::AddVertex (Vertex & vertex) {
 
 void Model::Finalize () {
 
-	if (!m_vIndices) {
+	if (m_vIndices) {
 		m_vIndices = (int *) realloc(m_vIndices, m_nIndices * sizeof(int));
 	}
 
@@ -72,13 +72,13 @@ void Model::Finalize () {
 }
 
 
-void Model::ComputeTangentBitangent (Vertex & v0, Vertex & v1, Vertex & v2) {
+void Model::ComputeTangentBitangent (Vertex * v0, Vertex * v1, Vertex * v2) {
 
-	Vector3 deltaPos1 = v1.Position - v0.Position;
-	Vector3 deltaPos2 = v2.Position - v0.Position;
+	Vector3 deltaPos1 = v1->Position - v0->Position;
+	Vector3 deltaPos2 = v2->Position - v0->Position;
 
-	Vector2 deltaUV1  = v1.TexCoord - v0.TexCoord;
-	Vector2 deltaUV2  = v2.TexCoord - v0.TexCoord;
+	Vector2 deltaUV1  = v1->TexCoord - v0->TexCoord;
+	Vector2 deltaUV2  = v2->TexCoord - v0->TexCoord;
 
 	float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
 
@@ -90,14 +90,14 @@ void Model::ComputeTangentBitangent (Vertex & v0, Vertex & v1, Vertex & v2) {
 	}
 
 	// Update the attributes.
-	v0.Tangent  = tangent;
-	v0.Binormal = binormal;
+	v0->Tangent  = tangent;
+	v0->Binormal = binormal;
 
-	v1.Tangent  = tangent;
-	v1.Binormal = binormal;
+	v1->Tangent  = tangent;
+	v1->Binormal = binormal;
 
-	v2.Tangent  = tangent;
-	v2.Binormal = binormal;
+	v2->Tangent  = tangent;
+	v2->Binormal = binormal;
 }
 
 
@@ -181,16 +181,23 @@ void Model::Draw (GLuint programObject) {
 		glEnableVertexAttribArray(loc);
 	}
 
+	glUseProgram(programObject);
 
 	// Set uniforms (program must be bound before).
 	loc = glGetUniformLocation(programObject, "u_ModelViewProjectionMatrix");
-	glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelViewProjectionMatrix);
+	if (loc != -1) {
+		glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelViewProjectionMatrix);
+	}
 
 	loc = glGetUniformLocation(programObject, "u_ModelViewMatrix");
-	glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelViewMatrix);
+	if (loc != -1) {
+		glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelViewMatrix);
+	}
 
 	loc = glGetUniformLocation(programObject, "u_ModelMatrix");
-	glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelMatrix);
+	if (loc != -1) {
+		glUniformMatrix4fv(loc, 1, GL_FALSE, m_ModelMatrix);
+	}
 
 	// Draw indexed.
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVBO);
@@ -223,6 +230,4 @@ void Model::Draw (GLuint programObject) {
 	// Restore vertex array binding.
 	glBindVertexArray(0);
 
-	// Restore program binding.
-	glUseProgram(0);
 }

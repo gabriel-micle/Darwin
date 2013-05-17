@@ -138,3 +138,8 @@ Matrix4 Camera::ProjectionMatrix () {
 
 	return m_Projection;
 }
+
+Vector3 Camera::EyePosition () {
+
+	return Vector3(m_positionX, m_positionY, m_positionZ);
+}
