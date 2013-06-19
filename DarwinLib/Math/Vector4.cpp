@@ -1,7 +1,6 @@
 
 #include "Math.h"
 
-
 /* 
  *	Constructors.
  */

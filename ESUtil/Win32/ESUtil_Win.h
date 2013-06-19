@@ -15,11 +15,8 @@
 #pragma once
 
 
-// Create Win32 instance and window
+// Create Win32 instance and window.
 GLboolean WinCreate (ESContext * esContext, const char * title);
 
-// Start main windows loop
+// Start main windows loop.
 void WinLoop (ESContext * esContext);
-
-// TGA loader win32 implementation
-int WinTGALoad (const char * fileName, char ** buffer, int * width, int * height);

@@ -21,7 +21,7 @@
 #include <cstdio>
 
 // Main window procedure.
-LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 	ESContext * esContext = (ESContext *) (LONG_PTR) GetWindowLongPtr(hWnd, GWL_USERDATA);
 	POINT		p;
@@ -29,19 +29,16 @@ LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	switch (uMsg) {
 
-	case WM_CREATE:
-		break;
-
 	case WM_PAINT:
-		if (esContext && esContext->m_pDisplayFunc) {
-			esContext->m_pDisplayFunc(esContext);
+		{
+			PAINTSTRUCT ps;
+			BeginPaint(hWnd, &ps);
+			EndPaint(hWnd, &ps);
 		}
-		ValidateRect(esContext->m_hWnd, NULL);
 		break;
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		//ExitProcess(0);
 		break;
 
 
@@ -120,34 +117,35 @@ LRESULT WINAPI ESWindowProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // Create Win32 instance and window.
 GLboolean WinCreate (ESContext * esContext, const char * title) {
 
-	WNDCLASS  wndclass = {0}; 
-	DWORD	  wStyle   = 0;
-	RECT	  windowRect;
+
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 
+	LPCSTR className = "OpenGLES3.0";
 
-	wndclass.style         = CS_OWNDC;
-	wndclass.lpfnWndProc   = (WNDPROC) ESWindowProc; 
+	WNDCLASS wndclass = {0};
+	wndclass.style         = CS_OWNDC | CS_VREDRAW | CS_HREDRAW;
+	wndclass.lpfnWndProc   = (WNDPROC) WndProc;
 	wndclass.hInstance     = hInstance; 
 	wndclass.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH); 
-	wndclass.lpszClassName = "opengles3.0"; 
+	wndclass.lpszClassName = className; 
 
 	if (!RegisterClass(&wndclass)) { 
 		return FALSE;
 	}
 
-	wStyle = WS_VISIBLE | WS_POPUP | WS_BORDER | WS_SYSMENU | WS_CAPTION;
-
 	// Adjust window rectangle so that the client area has the correct number of pixels.
+	RECT windowRect;
 	windowRect.left   = esContext->m_positionX;
 	windowRect.top    = esContext->m_positionY;
 	windowRect.right  = esContext->m_positionX + esContext->m_width;
 	windowRect.bottom = esContext->m_positionY + esContext->m_height;
 
+	DWORD wStyle = WS_POPUP | WS_BORDER | WS_VISIBLE | WS_SYSMENU | WS_CAPTION;
+
 	AdjustWindowRect(&windowRect, wStyle, FALSE);
 
 	esContext->m_hWnd = CreateWindow(
-		"opengles3.0",
+		className,
 		title,
 		wStyle,
 		esContext->m_positionX,
@@ -160,7 +158,7 @@ GLboolean WinCreate (ESContext * esContext, const char * title) {
 		NULL
 		);
 
-	// Set the ESContext* to the GWL_USERDATA so that it is available to the ESWindowProc.
+	// Set the ESContext* to the GWL_USERDATA so that it is available to the WndProc.
 	SetWindowLongPtr(esContext->m_hWnd, GWL_USERDATA, (LONG) (LONG_PTR) esContext);
 
 
@@ -174,6 +172,12 @@ GLboolean WinCreate (ESContext * esContext, const char * title) {
 }
 
 
+
+const int TICKS_PER_SECOND = 100;
+const int SKIP_TICKS       = 1000 / TICKS_PER_SECOND;
+const int MAX_FRAMESKIP    = 5;
+
+
 // Start main windows loop.
 void WinLoop (ESContext * esContext) {
 
@@ -181,29 +185,46 @@ void WinLoop (ESContext * esContext) {
 	bool  done     = false;
 	DWORD lastTime = GetTickCount();
 
+	DWORD next_game_tick = GetTickCount();
+	int loops;
+
 	while (!done) {
 
-		int   gotMsg    = (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) != 0);
-		DWORD currTime  = GetTickCount();
-		float deltaTime = (float)(currTime - lastTime) / 1000.0f;
+		if (GetActiveWindow() == esContext->m_hWnd) {
 
-		lastTime = currTime;
+			loops = 0;
+			while (GetTickCount() > next_game_tick && loops < MAX_FRAMESKIP) {
 
-		if (gotMsg) {
-			if (msg.message == WM_QUIT) {
-				done = true;
+				DWORD currTime  = GetTickCount();
+				float deltaTime = (float) (currTime - lastTime) / 1000.0f;
 
-			} else {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+				lastTime = currTime;
+
+				if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+					if (msg.message == WM_QUIT) {
+						done = true;
+
+					} else {
+						TranslateMessage(&msg);
+						DispatchMessage(&msg);
+					}
+
+				}
+
+				// Call update function if registered.
+				if (esContext && esContext->m_pIdleFunc) {
+					esContext->m_pIdleFunc(esContext, deltaTime);
+				}
+
+				next_game_tick += SKIP_TICKS;
+				loops++;
+
 			}
 
-		} else {
-			SendMessage(esContext->m_hWnd, WM_PAINT, 0, 0);
+			// Call draw function.
+			if (esContext && esContext->m_pDisplayFunc) {
+				esContext->m_pDisplayFunc(esContext);
+			}
 		}
-
-		// Call update function if registered
-		if (esContext->m_pIdleFunc != NULL)
-			esContext->m_pIdleFunc(esContext, deltaTime);
 	}
 }

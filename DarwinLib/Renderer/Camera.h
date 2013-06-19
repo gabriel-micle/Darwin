@@ -2,7 +2,7 @@
 #pragma once
 
 
-#include "Math\Math.h"
+#include "Math/Math.h"
 
 
 class Camera {
@@ -11,6 +11,7 @@ private:
 
 	Matrix4		m_Transform;
 	Matrix4		m_Projection;
+	Matrix4		m_ViewMatrix;
 
 	float		m_rotationX;
 	float		m_rotationY;
@@ -34,6 +35,8 @@ public:
 
 	void		RotateRight		 (float angle);
 	void		RotateUp		 (float angle);
+
+	void		Update			 ();
 
 	Matrix4		ViewMatrix		 ();
 	Matrix4		ProjectionMatrix ();

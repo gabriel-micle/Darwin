@@ -25,9 +25,12 @@
 
 
 // Creates an EGL rendering context and all associated elements.
-EGLBoolean CreateEGLContext (EGLNativeWindowType hWnd, EGLDisplay * eglDisplay,
-							 EGLContext * eglContext, EGLSurface * eglSurface,
-							 EGLConfig * eglConfig, EGLint attribList[])
+EGLBoolean CreateEGLContext (EGLNativeWindowType eglNativeWindow,
+							 EGLDisplay * eglDisplay,
+							 EGLContext * eglContext, 
+							 EGLSurface * eglSurface,
+							 EGLConfig * eglConfig, 
+							 EGLint attribList[])
 {
 	EGLint numConfigs;
 	EGLint majorVersion;
@@ -41,7 +44,7 @@ EGLBoolean CreateEGLContext (EGLNativeWindowType hWnd, EGLDisplay * eglDisplay,
 	EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE, EGL_NONE };
 
 	// Get Display.
-	display = eglGetDisplay(GetDC(hWnd));
+	display = eglGetDisplay(GetDC(eglNativeWindow));
 	if (display == EGL_NO_DISPLAY) {
 		return EGL_FALSE;
 	}
@@ -51,10 +54,12 @@ EGLBoolean CreateEGLContext (EGLNativeWindowType hWnd, EGLDisplay * eglDisplay,
 		return EGL_FALSE;
 	}
 
+	/*
 	// Get configs.
 	if (!eglGetConfigs(display, NULL, 0, &numConfigs)) {
 		return EGL_FALSE;
 	}
+	*/
 
 	// Choose config.
 	if (!eglChooseConfig(display, attribList, &config, 1, &numConfigs)) {
@@ -62,10 +67,11 @@ EGLBoolean CreateEGLContext (EGLNativeWindowType hWnd, EGLDisplay * eglDisplay,
 	}
 
 	// Create a surface.
-	surface = eglCreateWindowSurface(display, config, (EGLNativeWindowType) hWnd, NULL);
+	surface = eglCreateWindowSurface(display, config, eglNativeWindow, NULL);
 	if (surface == EGL_NO_SURFACE) {
 		return EGL_FALSE;
 	}
+
 
 	// Create a GL context.
 	context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
@@ -74,7 +80,7 @@ EGLBoolean CreateEGLContext (EGLNativeWindowType hWnd, EGLDisplay * eglDisplay,
 	}   
 
 	// Make the context current.
-	if (!eglMakeCurrent(display, surface, surface, context)) {
+	if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
 		return EGL_FALSE;
 	}
 
@@ -97,13 +103,13 @@ ESContext::ESContext () {
 
 	m_flags = ES_RGB;
 
-	this->m_pIdleFunc          = NULL;
-	this->m_pDisplayFunc       = NULL;
-	this->m_pKeyboardFunc      = NULL;
-	this->m_pKeyboardUpFunc    = NULL;
-	this->m_pMouseFunc         = NULL;
-	this->m_pMotionFunc        = NULL;
-	this->m_pPassiveMotionFunc = NULL;
+	m_pIdleFunc          = NULL;
+	m_pDisplayFunc       = NULL;
+	m_pKeyboardFunc      = NULL;
+	m_pKeyboardUpFunc    = NULL;
+	m_pMouseFunc         = NULL;
+	m_pMotionFunc        = NULL;
+	m_pPassiveMotionFunc = NULL;
 }
 
 
@@ -130,9 +136,9 @@ GLboolean ESUTIL_API ESContext::CreateDisplay (const char * title) {
 		EGL_RED_SIZE,       8,
 		EGL_GREEN_SIZE,     8,
 		EGL_BLUE_SIZE,      8,
-		EGL_ALPHA_SIZE,     (m_flags & ES_ALPHA) ? 8 : EGL_DONT_CARE,
-		EGL_DEPTH_SIZE,     (m_flags & ES_DEPTH) ? 24 : EGL_DONT_CARE,
-		EGL_STENCIL_SIZE,   (m_flags & ES_STENCIL) ? 8 : EGL_DONT_CARE,
+		EGL_ALPHA_SIZE,     (m_flags & ES_ALPHA)	?  8 : EGL_DONT_CARE,
+		EGL_DEPTH_SIZE,     (m_flags & ES_DEPTH)	? 24 : EGL_DONT_CARE,
+		EGL_STENCIL_SIZE,   (m_flags & ES_STENCIL)	?  1 : EGL_DONT_CARE,
 		EGL_SAMPLE_BUFFERS, sampleBuffers,
 		EGL_SAMPLES,		16,
 		EGL_NONE

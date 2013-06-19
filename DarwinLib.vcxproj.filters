@@ -11,6 +11,30 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="DarwinLib\DarwinLib.h" />
+    <ClInclude Include="DarwinLib\IO\FileReader.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\IO\Truevision.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\IO\Wavefront.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Renderer\Camera.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Renderer\Material.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Renderer\Model.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Renderer\Texture.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Renderer\Vertex.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DarwinLib\Math\Matrix4.cpp">
@@ -25,10 +49,51 @@
     <ClCompile Include="DarwinLib\Math\Vector4.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="DarwinLib\Renderer\Camera.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DarwinLib\Renderer\Material.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DarwinLib\Renderer\Model.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DarwinLib\Renderer\Texture.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
       <UniqueIdentifier>{c0291a17-5b39-414f-8d99-1e9ce26e110a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="I/O">
+      <UniqueIdentifier>{8c2f8d57-93a9-4413-b772-8a63129c8c33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{ec58bd65-6910-4dc5-8420-209a4f0b430e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{f6d0d72d-3b25-4d6b-8ae4-3908b280f6b8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Build\Data\Shaders\DeferredGeometryPass.frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Build\Data\Shaders\DeferredGeometryPass.vert.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Build\Data\Shaders\DeferredLightingPass.frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Build\Data\Shaders\DeferredLightingPass.vert.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Build\Data\Shaders\ForwardPhong.frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Build\Data\Shaders\ForwardPhong.vert.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

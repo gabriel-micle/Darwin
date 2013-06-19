@@ -1,5 +1,5 @@
 
-#include "Headers.h"
+#include "DarwinLib.h"
 
 
 // Handle to a program object.
@@ -26,7 +26,6 @@ float tx = 0.0f;
 float ty = -1.0f;
 float tz = -2.0f;
 
-float t = 0.0f;
 
 Texture * Tex1[2];
 Texture * Tex2[2];
@@ -185,14 +184,14 @@ void Init (ESContext * esContext) {
 
 	for (unsigned int i = 0; i < 3; i++) {
 		glBindRenderbuffer(GL_RENDERBUFFER, msaaRBO[i]);
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 16, GL_RGBA32F, esContext->m_width, esContext->m_height);
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGBA16F, esContext->m_width, esContext->m_height);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_RENDERBUFFER, msaaRBO[i]);
 	}
 
 	glGenRenderbuffers(1, &depthRBO);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 16, GL_DEPTH_COMPONENT32F, esContext->m_width, esContext->m_height);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT16, esContext->m_width, esContext->m_height);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRBO);
@@ -234,7 +233,7 @@ void Init (ESContext * esContext) {
 
 	for (unsigned int i = 0; i < 3; i++) {
 		glBindTexture(GL_TEXTURE_2D, finalTex[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, esContext->m_width, esContext->m_height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, esContext->m_width, esContext->m_height, 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, finalTex[i], 0);
@@ -322,14 +321,6 @@ void GeometryPass (ESContext * esContext, GLuint programObject) {
 			glUniform1f(loc, MaterialShininess);
 		}
 
-		Matrix4 M = Matrix4::Identity();
-		M[3][0] = 1; M[3][1] = ty; M[3][2] = tz;
-
-		// Set a model view projection matrix.
-		pModel1->m_ModelMatrix               = M;
-		pModel1->m_ModelViewMatrix           = pModel1->m_ModelMatrix * pCamera->ViewMatrix();
-		pModel1->m_ModelViewProjectionMatrix = pModel1->m_ModelViewMatrix * pCamera->ProjectionMatrix();
-
 		pModel1->Draw(programObject);
 	}
 
@@ -369,21 +360,14 @@ void GeometryPass (ESContext * esContext, GLuint programObject) {
 			glUniform1f(loc, MaterialShininess);
 		}
 
-		Matrix4 M = Matrix4::Identity();
-		M[3][0] = -1; M[3][1] = ty; M[3][2] = tz;
-
-		pModel2->m_ModelMatrix               = M;
-		pModel2->m_ModelViewMatrix           = pModel2->m_ModelMatrix * pCamera->ViewMatrix();
-		pModel2->m_ModelViewProjectionMatrix = pModel2->m_ModelViewMatrix * pCamera->ProjectionMatrix();
-
 		// Draw scene.
 		pModel2->Draw(programObject);
-		
+
 	}
 
-	
-		
-	
+
+
+
 
 	glDepthMask(GL_FALSE);
 
@@ -509,7 +493,22 @@ void IdleFunc (ESContext * esContext, float t) {
 		pCamera->TranslateUp(-0.05f);
 	}
 
-	t += 0.1f;
+	pCamera->Update();
+
+
+	Matrix4 M = Matrix4::Identity();
+
+	M[3][0] = 1; M[3][1] = ty; M[3][2] = tz;
+
+	pModel1->m_ModelMatrix               = M;
+	pModel1->m_ModelViewMatrix           = pModel1->m_ModelMatrix * pCamera->ViewMatrix();
+	pModel1->m_ModelViewProjectionMatrix = pModel1->m_ModelViewMatrix * pCamera->ProjectionMatrix();
+
+	M[3][0] = -1; M[3][1] = ty; M[3][2] = tz;
+
+	pModel2->m_ModelMatrix               = M;
+	pModel2->m_ModelViewMatrix           = pModel2->m_ModelMatrix * pCamera->ViewMatrix();
+	pModel2->m_ModelViewProjectionMatrix = pModel2->m_ModelViewMatrix * pCamera->ProjectionMatrix();
 }
 
 void KeyboardFunc (ESContext * esContext, unsigned char c, int x, int y) {
@@ -532,8 +531,6 @@ void KeyboardFunc (ESContext * esContext, unsigned char c, int x, int y) {
 		break;
 	case 'C': case 'c':
 		keyPressed[C] = true;
-		break;
-	default:
 		break;
 	}
 
@@ -560,8 +557,6 @@ void KeyboardUpFunc (ESContext * esContext, unsigned char c, int x, int y) {
 	case 'C': case 'c':
 		keyPressed[C] = false;
 		break;
-	default:
-		break;
 	}
 }
 
@@ -585,6 +580,12 @@ void MotionFunc (ESContext * esContext, int x, int y) {
 }
 
 void PassiveMotionFunc (ESContext * esContext, int x, int y) {
+
+	float dX = (x - prevX) * float(M_PI) / 180.0f;
+	float dY = (y - prevY) * float(M_PI) / 180.0f;
+
+	pCamera->RotateUp(dY);
+	pCamera->RotateRight(dX);
 
 	prevX = x;
 	prevY = y;

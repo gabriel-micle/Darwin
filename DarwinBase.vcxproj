@@ -58,7 +58,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>GLES;ESUtil;DarwinLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>DarwinLib;GLES;ESUtil;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/D _CRT_SECURE_NO_DEPRECATE %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>true</BrowseInformation>
     </ClCompile>
@@ -95,22 +95,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DarwinBase\Headers.h" />
-    <ClInclude Include="DarwinBase\IO\FileReader.h" />
-    <ClInclude Include="DarwinBase\IO\Truevision.h" />
-    <ClInclude Include="DarwinBase\IO\Wavefront.h" />
-    <ClInclude Include="DarwinBase\Renderer\Camera.h" />
-    <ClInclude Include="DarwinBase\Renderer\Material.h" />
-    <ClInclude Include="DarwinBase\Renderer\Model.h" />
-    <ClInclude Include="DarwinBase\Renderer\Texture.h" />
-    <ClInclude Include="DarwinBase\Renderer\Vertex.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="DarwinBase\Main.cpp" />
-    <ClCompile Include="DarwinBase\Renderer\Camera.cpp" />
-    <ClCompile Include="DarwinBase\Renderer\Material.cpp" />
-    <ClCompile Include="DarwinBase\Renderer\Model.cpp" />
-    <ClCompile Include="DarwinBase\Renderer\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="DarwinLib.vcxproj">
@@ -129,14 +114,6 @@
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Build\Data\Shaders\DeferredGeometryPass.frag.glsl" />
-    <None Include="Build\Data\Shaders\DeferredGeometryPass.vert.glsl" />
-    <None Include="Build\Data\Shaders\DeferredLightingPass.frag.glsl" />
-    <None Include="Build\Data\Shaders\DeferredLightingPass.vert.glsl" />
-    <None Include="Build\Data\Shaders\ForwardPhong.frag.glsl" />
-    <None Include="Build\Data\Shaders\ForwardPhong.vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

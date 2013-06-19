@@ -80,8 +80,8 @@ public:
 
 	// Callbacks.
 	void (ESCALLBACK * m_pDisplayFunc)			(ESContext *);
-	void (ESCALLBACK * m_pIdleFunc)			(ESContext *, float);
-	void (ESCALLBACK * m_pKeyboardFunc)		(ESContext *, unsigned char, int, int);
+	void (ESCALLBACK * m_pIdleFunc)				(ESContext *, float);
+	void (ESCALLBACK * m_pKeyboardFunc)			(ESContext *, unsigned char, int, int);
 	void (ESCALLBACK * m_pKeyboardUpFunc)		(ESContext *, unsigned char, int, int);
 	void (ESCALLBACK * m_pMouseFunc)			(ESContext *, int, int, int, int);
 	void (ESCALLBACK * m_pMotionFunc)			(ESContext *, int, int);

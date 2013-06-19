@@ -5,6 +5,8 @@ Camera::Camera () {
 
 	m_Transform  = Matrix4::Identity();
 
+	m_ViewMatrix = Matrix4::Identity();
+
 	m_rotationX = m_rotationY = m_rotationZ = 0.0f;
 
 	m_positionX = m_positionY = m_positionZ = 0.0f;
@@ -89,7 +91,7 @@ void Camera::RotateUp (float angle) {
 	}
 }
 
-Matrix4 Camera::ViewMatrix () {
+void Camera::Update () {
 
 	// Rotation on Ox axis.
 	float cos_x = cos(m_rotationX);
@@ -131,7 +133,12 @@ Matrix4 Camera::ViewMatrix () {
 	m_Transform[3][1] = m_positionY;
 	m_Transform[3][2] = m_positionZ;
 
-	return m_Transform.Inverse();
+	m_ViewMatrix = m_Transform.Inverse();
+}
+
+Matrix4 Camera::ViewMatrix () {
+
+	return m_ViewMatrix;
 }
 
 Matrix4 Camera::ProjectionMatrix () {
