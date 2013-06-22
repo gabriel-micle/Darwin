@@ -23,7 +23,12 @@ private:
 
 public:
 	
+	static const Matrix4 IDENTITY;
+
 					Matrix4 ();
+					Matrix4 (float);
+					Matrix4 (float, float, float, float);
+					Matrix4 (const Vector4 &);
 
 	Vector4 &		operator [] (const int i);
 	Vector4			operator [] (const int i) const;
@@ -54,7 +59,11 @@ public:
 
 					operator float * ();
 
-	static Matrix4	Identity ();
-	static Matrix4	Zeroes ();
-	static Matrix4	Diag (float d);
+	static Matrix4	Rotation (const Vector3 & axis, float a);
+	static Matrix4	Rotation (float x, float y, float z);
+	static Matrix4	Rotation (const Vector3 & r);
+	static Matrix4	RotationX (float x);
+	static Matrix4	RotationY (float y);
+	static Matrix4	RotationZ (float z);
+
 };

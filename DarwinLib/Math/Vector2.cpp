@@ -37,9 +37,8 @@ Vector2 Vector2::operator + (const Vector2 & u) const {
 }
 
 void Vector2::operator += (const Vector2 & u) {
-	for (int i = 0; i < 2; i++) {
-		(* this)[i] += u[i];
-	}
+	x += u.x;
+	y += u.y;
 }
 
 
@@ -51,9 +50,8 @@ Vector2 Vector2::operator - (const Vector2 & u) const {
 }
 
 void Vector2::operator -= (const Vector2 & u) {
-	for (int i = 0; i < 2; i++) {
-		(* this)[i] -= u[i];
-	}
+	x -= u.x;
+	y -= u.y;
 }
 
 Vector2 Vector2::operator - () const {
@@ -69,9 +67,13 @@ Vector2 Vector2::operator * (const float s) const {
 }
 
 void Vector2::operator *= (const float s) {
-	for (int i = 0; i < 2; i++) {
-		(* this)[i] *= s;
-	}
+	x *= s;
+	y *= s;
+}
+
+Vector2 operator * (float s, const Vector2 & v) {
+
+	return Vector2(v.x * s, v.y * s);
 }
 
 Vector2 Vector2::operator * (const Vector2 & u) const {
@@ -79,9 +81,8 @@ Vector2 Vector2::operator * (const Vector2 & u) const {
 }
 
 void Vector2::operator *= (const Vector2 & u) {
-	for (int i = 0; i < 2; i++) {
-		(* this)[i] *= u[i];
-	}
+	x *= u.x;
+	y *= u.y;
 }
 
 
@@ -93,9 +94,8 @@ Vector2 Vector2::operator / (const float s) const {
 }
 
 void Vector2::operator /= (const float s) {
-	for (int i = 0; i < 2; i++) {
-		(* this)[i] /= s;
-	}
+	x /= s;
+	y /= s;
 }
 
 Vector2 Vector2::operator / (const Vector2 & u) const {
@@ -103,9 +103,8 @@ Vector2 Vector2::operator / (const Vector2 & u) const {
 }
 
 void Vector2::operator /= (const Vector2 & u) {
-	for (int i = 0; i < 2; i++) {
-		(* this)[i] /= u[i];
-	}
+	x /= u.x;
+	y /= u.y;
 }
 
 

@@ -23,6 +23,8 @@ class Matrix4;
  */
 class Vector2 {
 
+	friend Vector2 operator * (float s, const Vector2 & v);
+
 public:
 
 	float		x, y;
@@ -78,6 +80,8 @@ public:
  *	+----+
  */
 class Vector3 {
+
+	friend Vector3 operator * (float s, const Vector3 & v);
 
 public:
 
@@ -142,6 +146,8 @@ public:
  *	+----+----+----+----+
  */
 class Vector4 {
+
+	friend Vector4 operator * (float s, const Vector4 & v);
 
 public:
 

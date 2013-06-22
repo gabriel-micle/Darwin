@@ -5,8 +5,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DarwinBase", "DarwinBase.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DarwinLib", "DarwinLib.vcxproj", "{A0D68506-5DA4-434B-9D1E-A80BDBAB34B3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ESUtil", "ESUtil.vcxproj", "{3E6DD95B-BA90-45F3-9B8B-F8B7B7D8823D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,10 +19,6 @@ Global
 		{A0D68506-5DA4-434B-9D1E-A80BDBAB34B3}.Debug|Win32.Build.0 = Debug|Win32
 		{A0D68506-5DA4-434B-9D1E-A80BDBAB34B3}.Release|Win32.ActiveCfg = Release|Win32
 		{A0D68506-5DA4-434B-9D1E-A80BDBAB34B3}.Release|Win32.Build.0 = Release|Win32
-		{3E6DD95B-BA90-45F3-9B8B-F8B7B7D8823D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{3E6DD95B-BA90-45F3-9B8B-F8B7B7D8823D}.Debug|Win32.Build.0 = Debug|Win32
-		{3E6DD95B-BA90-45F3-9B8B-F8B7B7D8823D}.Release|Win32.ActiveCfg = Release|Win32
-		{3E6DD95B-BA90-45F3-9B8B-F8B7B7D8823D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

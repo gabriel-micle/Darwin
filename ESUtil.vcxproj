@@ -10,15 +10,6 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="ESUtil\ESUtil.cpp" />
-    <ClCompile Include="ESUtil\ESUtil_shader.cpp" />
-    <ClCompile Include="ESUtil\Win32\ESUtil_Win32.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ESUtil\ESUtil.h" />
-    <ClInclude Include="ESUtil\Win32\ESUtil_Win.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3E6DD95B-BA90-45F3-9B8B-F8B7B7D8823D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

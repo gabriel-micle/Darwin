@@ -18,7 +18,7 @@
 // Includes.
 #include <GLES3/gl3.h>
 #include <EGL/egl.h>
-
+#include "../Input/Input.h"
 
 
 // Macros.
@@ -81,12 +81,9 @@ public:
 	// Callbacks.
 	void (ESCALLBACK * m_pDisplayFunc)			(ESContext *);
 	void (ESCALLBACK * m_pIdleFunc)				(ESContext *, float);
-	void (ESCALLBACK * m_pKeyboardFunc)			(ESContext *, unsigned char, int, int);
-	void (ESCALLBACK * m_pKeyboardUpFunc)		(ESContext *, unsigned char, int, int);
-	void (ESCALLBACK * m_pMouseFunc)			(ESContext *, int, int, int, int);
-	void (ESCALLBACK * m_pMotionFunc)			(ESContext *, int, int);
-	void (ESCALLBACK * m_pPassiveMotionFunc)	(ESContext *, int, int);
-	
+	void (ESCALLBACK * m_pMouseEventFunc)		(ESContext *, const MouseEvent &);
+	void (ESCALLBACK * m_pKeyboardEventFunc)	(ESContext *, const KeyboardEvent &);
+
 	// ESContext constructor.
 	ESContext ();
 
@@ -103,20 +100,11 @@ public:
 	// Register an update callback function to be used to update on each time step.
 	void ESUTIL_API IdleFunc (void (ESCALLBACK * updateFunc) (ESContext *, float));
 
-	// Register an keyboard input processing callback function.
-	void ESUTIL_API KeyboardFunc (void (ESCALLBACK * keyFunc) (ESContext *, unsigned char, int, int));
+	// Register callback function that handles all mouse events.
+	void ESUTIL_API MouseEventFunc (void (ESCALLBACK * mouseEventFunc) (ESContext *, const MouseEvent &));
 
-	// Register a keyboard release processing callback function.
-	void ESUTIL_API KeyboardUpFunc (void (ESCALLBACK * keyUpFunc) (ESContext *, unsigned char, int, int));
-
-	// Register a mouse press callback function.
-	void ESUTIL_API MouseFunc (void (ESCALLBACK * mouseFunc) (ESContext *, int, int, int, int));
-
-	// Register a mouse movement when mouse button pressed callback function.
-	void ESUTIL_API MotionFunc (void (ESCALLBACK * motionFunc) (ESContext *, int, int));
-
-	// Register a mouse movement callback function.
-	void ESUTIL_API PassiveMotionFunc (void (ESCALLBACK * passiveMotionFunc) (ESContext *, int, int));
+	// Register callback function that handles all keyboard events.
+	void ESUTIL_API KeyboardEventFunc (void (ESCALLBACK * keyboardEventFunc) (ESContext *, const KeyboardEvent &));
 
 	// Swaps buffers.
 	void ESUTIL_API SwapBuffers ();

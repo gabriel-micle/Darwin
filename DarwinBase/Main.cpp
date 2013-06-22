@@ -44,7 +44,15 @@ float	MaterialShininess(2.0f);
 
 bool keyPressed[6];
 
-enum keyID_t { W, A, S, D, SPACE, C, };
+enum keyID_t { 
+	DW_KEY_NONE = -1, 
+	DW_KEY_W, 
+	DW_KEY_A, 
+	DW_KEY_S, 
+	DW_KEY_D, 
+	DW_KEY_SP, 
+	DW_KEY_C, 
+};
 
 // Initialize the shader and program object.
 void Init (ESContext * esContext) {
@@ -55,9 +63,12 @@ void Init (ESContext * esContext) {
 
 	// Set up camera and frustum.
 	// --------------------------
-	pCamera = new Camera();
 	float aspect = 1.0f * esContext->m_width / esContext->m_height;
+	pCamera = new Camera();
 	pCamera->SetPerspective(60.0f, aspect, 0.1f, 1000.0f);
+	pCamera->SetPosition(Vector3(0.0f));
+	pCamera->SetAcceleration(Vector3(8.0f));
+	pCamera->SetVelocity(Vector3(2.0f));
 
 
 
@@ -83,7 +94,7 @@ void Init (ESContext * esContext) {
 
 	// Diffuse texture.
 	pixels = Truevision::ImportTGA("Data/Textures/sarah_color.tga", &width, &height, &ch);
-	mipmaps = (GLuint) ceil(log2((float) max(width, height))) + 1;
+	mipmaps = (GLuint) ceil(log2(static_cast<float>(max(width, height)))) + 1;
 
 	opts.format     = DW_RGB8;
 	opts.filter     = DW_TRILINEAR;
@@ -98,7 +109,7 @@ void Init (ESContext * esContext) {
 
 	// Normal map.
 	pixels = Truevision::ImportTGA("Data/Textures/sarah_normal.tga", &width, &height, &ch);
-	mipmaps = (GLuint) ceil(log2((float) max(width, height))) + 1;
+	mipmaps = (GLuint) ceil(log2(static_cast<float>(max(width, height)))) + 1;
 
 	opts.format     = DW_RGB8;
 	opts.filter     = DW_TRILINEAR;
@@ -114,7 +125,7 @@ void Init (ESContext * esContext) {
 
 	// Diffuse texture.
 	pixels = Truevision::ImportTGA("Data/Textures/betty_color.tga", &width, &height, &ch);
-	mipmaps = (GLuint) ceil(log2((float) max(width, height))) + 1;
+	mipmaps = (GLuint) ceil(log2(static_cast<float>(max(width, height)))) + 1;
 
 	opts.format     = DW_RGB8;
 	opts.filter     = DW_TRILINEAR;
@@ -129,7 +140,7 @@ void Init (ESContext * esContext) {
 
 	// Normal map.
 	pixels = Truevision::ImportTGA("Data/Textures/betty_normal.tga", &width, &height, &ch);
-	mipmaps = (GLuint) ceil(log2((float) max(width, height))) + 1;
+	mipmaps = (GLuint) ceil(log2(static_cast<float>(max(width, height)))) + 1;
 
 	opts.format     = DW_RGB8;
 	opts.filter     = DW_TRILINEAR;
@@ -423,7 +434,7 @@ void LightingPass (GLuint programObject) {
 
 		loc = glGetUniformLocation(programObject, "u_EyePosition");
 		if (loc != -1) {
-			glUniform3fv(loc, 1, pCamera->EyePosition());
+			glUniform3fv(loc, 1, pCamera->GetEyePosition());
 		}
 
 		loc = glGetUniformLocation(programObject, "u_Light.Ambient");
@@ -471,135 +482,124 @@ void DisplayFunc (ESContext * esContext) {
 	esContext->SwapBuffers();
 }
 
+float yaw   = 0.0f;
+float pitch = 0.0f;
+
 void IdleFunc (ESContext * esContext, float t) {
 
-	// Check key presses.
-	if (keyPressed[W]) {
-		pCamera->TranslateForward(0.05f);
+	Vector3 velocity = pCamera->GetCurrentVelocity();
+	Vector3 direction = Vector3(0.0f);
+
+	if (keyPressed[DW_KEY_W]) {
+		direction.z += 1.0f;
 	}
-	if (keyPressed[S]) {
-		pCamera->TranslateForward(-0.05f);
+	if (keyPressed[DW_KEY_S]) {
+		direction.z -= 1.0f;
 	}
-	if (keyPressed[D]) {
-		pCamera->TranslateRight(0.05f);
+	if (keyPressed[DW_KEY_D]) {
+		direction.x += 1.0f;
 	}
-	if (keyPressed[A]) {
-		pCamera->TranslateRight(-0.05f);
+	if (keyPressed[DW_KEY_A]) {
+		direction.x -= 1.0f;
 	}
-	if (keyPressed[SPACE]) {
-		pCamera->TranslateUp(0.05f);
+	if (keyPressed[DW_KEY_SP]) {
+		direction.y += 1.0f;
 	}
-	if (keyPressed[C]) {
-		pCamera->TranslateUp(-0.05f);
+	if (keyPressed[DW_KEY_C]) {
+		direction.y -= 1.0f;
 	}
 
-	pCamera->Update();
+	
+	pCamera->Rotate(yaw, pitch);
+	float lambda = 100.0f;
+	yaw   *= exp(-lambda * t);
+	pitch *= exp(-lambda * t);
+	pCamera->UpdatePosition(direction, t);
+	
 
-
-	Matrix4 M = Matrix4::Identity();
+	Matrix4 M = Matrix4::IDENTITY;
 
 	M[3][0] = 1; M[3][1] = ty; M[3][2] = tz;
 
 	pModel1->m_ModelMatrix               = M;
-	pModel1->m_ModelViewMatrix           = pModel1->m_ModelMatrix * pCamera->ViewMatrix();
-	pModel1->m_ModelViewProjectionMatrix = pModel1->m_ModelViewMatrix * pCamera->ProjectionMatrix();
+	pModel1->m_ModelViewMatrix           = pModel1->m_ModelMatrix * pCamera->GetViewMatrix();
+	pModel1->m_ModelViewProjectionMatrix = pModel1->m_ModelViewMatrix * pCamera->GetProjectionMatrix();
 
 	M[3][0] = -1; M[3][1] = ty; M[3][2] = tz;
 
 	pModel2->m_ModelMatrix               = M;
-	pModel2->m_ModelViewMatrix           = pModel2->m_ModelMatrix * pCamera->ViewMatrix();
-	pModel2->m_ModelViewProjectionMatrix = pModel2->m_ModelViewMatrix * pCamera->ProjectionMatrix();
+	pModel2->m_ModelViewMatrix           = pModel2->m_ModelMatrix * pCamera->GetViewMatrix();
+	pModel2->m_ModelViewProjectionMatrix = pModel2->m_ModelViewMatrix * pCamera->GetProjectionMatrix();
 }
 
-void KeyboardFunc (ESContext * esContext, unsigned char c, int x, int y) {
 
-	switch (c) {
+void KeyboardEventFunc(ESContext * esContext, const KeyboardEvent & ev) {
+
+	Vector3 velocity = pCamera->GetCurrentVelocity();
+
+	keyID_t key = DW_KEY_NONE;
+
+	switch (ev.keyCode) {
 	case 'W': case 'w':
-		keyPressed[W] = true;
+		key = DW_KEY_W;
+		velocity.z = 0.0f;
 		break;
 	case 'S': case 's':
-		keyPressed[S] = true;
+		key = DW_KEY_S;
+		velocity.z = 0.0f;
 		break;
 	case 'D': case 'd':
-		keyPressed[D] = true;
+		key = DW_KEY_D;
+		velocity.x = 0.0f;
 		break;
 	case 'A': case 'a':
-		keyPressed[A] = true;
+		key = DW_KEY_A;
+		velocity.x = 0.0f;
 		break;
 	case ' ':
-		keyPressed[SPACE] = true;
+		key = DW_KEY_SP;
+		velocity.y = 0.0f;
 		break;
 	case 'C': case 'c':
-		keyPressed[C] = true;
+		key = DW_KEY_C;
+		velocity.y = 0.0f;
 		break;
+	}
+
+
+
+	if (ev.pressed) {
+		if (!keyPressed[key]) {
+			keyPressed[key] = true;
+			pCamera->SetCurrentVelocity(velocity);
+		}
+	} else {
+		keyPressed[key] = false;
 	}
 
 }
 
-void KeyboardUpFunc (ESContext * esContext, unsigned char c, int x, int y) {
 
-	switch (c) {
-	case 'W': case 'w':
-		keyPressed[W] = false;
-		break;
-	case 'S': case 's':
-		keyPressed[S] = false;
-		break;
-	case 'D': case 'd':
-		keyPressed[D] = false;
-		break;
-	case 'A': case 'a':
-		keyPressed[A] = false;
-		break;
-	case ' ':
-		keyPressed[SPACE] = false;
-		break;
-	case 'C': case 'c':
-		keyPressed[C] = false;
-		break;
+void MouseEventFunc (ESContext * esContext, const MouseEvent & ev) {
+
+	static GLint prevX = 0;
+	static GLint prevY = 0;
+
+	if (ev.type == DW_MOUSE_MOVE && ev.left) {
+
+		yaw   = (ev.x - prevX) * static_cast<float>(M_PI) / 180.0f;
+		pitch = (ev.y - prevY) * static_cast<float>(M_PI) / 180.0f;
 	}
-}
 
-void MouseFunc (ESContext * esContext, int button, int state, int x, int y) {
-
-}
-
-
-GLint prevX = 0;
-GLint prevY = 0;
-void MotionFunc (ESContext * esContext, int x, int y) {
-
-	float dX = (x - prevX) * float(M_PI) / 180.0f;
-	float dY = (y - prevY) * float(M_PI) / 180.0f;
-
-	pCamera->RotateUp(dY);
-	pCamera->RotateRight(dX);
-
-	prevX = x;
-	prevY = y;
-}
-
-void PassiveMotionFunc (ESContext * esContext, int x, int y) {
-
-	float dX = (x - prevX) * float(M_PI) / 180.0f;
-	float dY = (y - prevY) * float(M_PI) / 180.0f;
-
-	pCamera->RotateUp(dY);
-	pCamera->RotateRight(dX);
-
-	prevX = x;
-	prevY = y;
+	prevX = ev.x;
+	prevY = ev.y;
 }
 
 int main (int argc, char * argv[]) {
 
 	ESContext * esContext = new ESContext();
 
-	esContext->InitDisplayMode(
-		ES_RGB | 
-		ES_ALPHA | 
-		ES_DEPTH
-		);
+	esContext->InitDisplayMode(ES_RGB | ES_ALPHA | ES_DEPTH);
 
 	esContext->InitDisplayPosition(100, 100);
 	esContext->InitDisplaySize(1024, 600);
@@ -611,12 +611,8 @@ int main (int argc, char * argv[]) {
 	esContext->DisplayFunc(DisplayFunc);
 	esContext->IdleFunc(IdleFunc);
 
-	esContext->KeyboardFunc(KeyboardFunc);
-	esContext->KeyboardUpFunc(KeyboardUpFunc);
-
-	esContext->MouseFunc(MouseFunc);
-	esContext->MotionFunc(MotionFunc);
-	esContext->PassiveMotionFunc(PassiveMotionFunc);
+	esContext->MouseEventFunc(MouseEventFunc);
+	esContext->KeyboardEventFunc(KeyboardEventFunc);
 
 	esContext->MainLoop();
 

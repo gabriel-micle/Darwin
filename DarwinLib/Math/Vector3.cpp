@@ -37,9 +37,9 @@ Vector3 Vector3::operator + (const Vector3 & u) const {
 }
 
 void Vector3::operator += (const Vector3 & u) {
-	for (int i = 0; i < 3; i++) {
-		(* this)[i] += u[i];
-	}
+	x += u.x;
+	y += u.y;
+	z += u.z;
 }
 
 
@@ -51,9 +51,9 @@ Vector3 Vector3::operator - (const Vector3 & u) const {
 }
 
 void Vector3::operator -= (const Vector3 & u) {
-	for (int i = 0; i < 3; i++) {
-		(* this)[i] -= u[i];
-	}
+	x -= u.x;
+	y -= u.y;
+	z -= u.z;
 }
 
 Vector3 Vector3::operator - () const {
@@ -69,9 +69,13 @@ Vector3 Vector3::operator * (const float s) const {
 }
 
 void Vector3::operator *= (const float s) {
-	for (int i = 0; i < 3; i++) {
-		(* this)[i] *= s;
-	}
+	x *= s;
+	y *= s;
+	z *= s;
+}
+
+Vector3 operator * (float s, const Vector3 & v) {
+	return Vector3(v.x * s, v.y * s, v.z * s);
 }
 
 Vector3 Vector3::operator * (const Vector3 & u) const {
@@ -79,9 +83,9 @@ Vector3 Vector3::operator * (const Vector3 & u) const {
 }
 
 void Vector3::operator *= (const Vector3 & u) {
-	for (int i = 0; i < 3; i++) {
-		(* this)[i] *= u[i];
-	}
+	x *= u.x;
+	y *= u.y;
+	z *= u.z;
 }
 
 
@@ -93,9 +97,9 @@ Vector3 Vector3::operator / (const float s) const {
 }
 
 void Vector3::operator /= (const float s) {
-	for (int i = 0; i < 3; i++) {
-		(* this)[i] /= s;
-	}
+	x /= s;
+	y /= s;
+	z /= s;
 }
 
 Vector3 Vector3::operator / (const Vector3 & u) const {
@@ -103,9 +107,9 @@ Vector3 Vector3::operator / (const Vector3 & u) const {
 }
 
 void Vector3::operator /= (const Vector3 & u) {
-	for (int i = 0; i < 3; i++) {
-		(* this)[i] /= u[i];
-	}
+	x /= u.x;
+	y /= u.y;
+	z /= u.z;
 }
 
 

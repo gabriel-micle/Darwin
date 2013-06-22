@@ -18,14 +18,70 @@
 #include <Windowsx.h>
 
 #include "../ESUtil.h"
+#include "../../Input/Input.h"
+
 #include <cstdio>
 
 // Main window procedure.
 LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 	ESContext * esContext = (ESContext *) (LONG_PTR) GetWindowLongPtr(hWnd, GWL_USERDATA);
-	POINT		p;
 
+
+	/***********************
+	 * Handle mouse events.
+	 ***********************/
+
+	MouseEvent mouseEvent;
+	memset(&mouseEvent, 0, sizeof(MouseEvent));
+
+	switch (uMsg) {
+	case WM_LBUTTONDOWN:
+		mouseEvent.type = DW_LBUTTON_DOWN;
+		break;
+	case WM_LBUTTONUP:
+		mouseEvent.type = DW_LBUTTON_UP;
+		break;
+	case WM_RBUTTONDOWN:
+		mouseEvent.type = DW_RBUTTON_DOWN;
+		break;
+	case WM_RBUTTONUP:
+		mouseEvent.type = DW_RBUTTON_UP;
+		break;
+	case WM_MBUTTONDOWN:
+		mouseEvent.type = DW_MBUTTON_DOWN;
+		break;
+	case WM_MBUTTONUP:
+		mouseEvent.type = DW_MBUTTON_UP;
+		break;
+	case WM_MOUSEMOVE:
+		mouseEvent.type = DW_MOUSE_MOVE;
+		break;
+	case WM_MOUSEWHEEL:
+		mouseEvent.type = DW_MOUSE_WHEEL;
+		break;
+	}
+
+	if (mouseEvent.type != DW_MOUSE_NONE) {
+
+		mouseEvent.x      = GET_X_LPARAM(lParam);
+		mouseEvent.y      = GET_Y_LPARAM(lParam);
+		mouseEvent.ctrl   = (LOWORD(wParam) & MK_CONTROL) != 0;
+		mouseEvent.shift  = (LOWORD(wParam) & MK_SHIFT)   != 0;
+		mouseEvent.left   = (LOWORD(wParam) & MK_LBUTTON) != 0;
+		mouseEvent.right  = (LOWORD(wParam) & MK_RBUTTON) != 0;
+		mouseEvent.middle = (LOWORD(wParam) & MK_MBUTTON) != 0;
+		mouseEvent.scroll = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA);
+
+		if (esContext && esContext->m_pMouseEventFunc) {
+			esContext->m_pMouseEventFunc(esContext, mouseEvent);
+		}
+	}
+
+
+	/***********************
+	 * Handle other events.
+	 ***********************/
 
 	switch (uMsg) {
 
@@ -41,70 +97,26 @@ LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		PostQuitMessage(0);
 		break;
 
-
 	case WM_KEYDOWN:
-		GetCursorPos(&p);
-		if (esContext && esContext->m_pKeyboardFunc) {
-			esContext->m_pKeyboardFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
-		}
-		break;
-
 	case WM_KEYUP:
-		GetCursorPos(&p);
-		if (esContext && esContext->m_pKeyboardUpFunc) {
-			esContext->m_pKeyboardUpFunc(esContext, (unsigned char) wParam, (int) p.x, (int) p.y);
-		}
-		break;
+	case WM_SYSKEYDOWN:
+	case WM_SYSKEYUP:
+		{
+			KeyboardEvent keyEvent;
+			memset(&keyEvent, 0, sizeof(KeyboardEvent));
 
-	case WM_LBUTTONDOWN:
-		if (esContext && esContext->m_pMouseFunc) {
-			esContext->m_pMouseFunc(esContext, ES_LEFT_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		}
-		break;
+			keyEvent.keyCode = static_cast<keyCode_t>(wParam);
+			keyEvent.pressed = (uMsg == WM_SYSKEYDOWN || uMsg == WM_KEYDOWN);
 
-	case WM_LBUTTONUP:
-		if (esContext && esContext->m_pMouseFunc) {
-			esContext->m_pMouseFunc(esContext, ES_LEFT_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		}
-		break;
+			keyEvent.shift = (GetKeyState(VK_SHIFT)   & 0x80) != 0;
+			keyEvent.ctrl  = (GetKeyState(VK_CONTROL) & 0x80) != 0;
 
-	case WM_RBUTTONDOWN:
-		if (esContext && esContext->m_pMouseFunc) {
-			esContext->m_pMouseFunc(esContext, ES_RIGHT_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		}
-		break;
-
-	case WM_RBUTTONUP:
-		if (esContext && esContext->m_pMouseFunc) {
-			esContext->m_pMouseFunc(esContext, ES_RIGHT_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		}
-		break;
-
-	case WM_MBUTTONDOWN:
-		if (esContext && esContext->m_pMouseFunc) {
-			esContext->m_pMouseFunc(esContext, ES_MIDDLE_BUTTON, ES_DOWN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		}
-		break;
-
-	case WM_MBUTTONUP:
-		if (esContext && esContext->m_pMouseFunc) {
-			esContext->m_pMouseFunc(esContext, ES_MIDDLE_BUTTON, ES_UP, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		}
-		break;
-
-	case WM_MOUSEMOVE:
-		if (wParam == 0) {
-			if (esContext && esContext->m_pPassiveMotionFunc) {
-				esContext->m_pPassiveMotionFunc(esContext, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-			} 
-		} else {
-			if (esContext && esContext->m_pMotionFunc) {
-				esContext->m_pMotionFunc(esContext, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			if (esContext && esContext->m_pKeyboardEventFunc) {
+				esContext->m_pKeyboardEventFunc(esContext, keyEvent);
 			}
-
 		}
 		break;
-
+	
 	default:
 		break;
 	} 
@@ -196,7 +208,7 @@ void WinLoop (ESContext * esContext) {
 			while (GetTickCount() > next_game_tick && loops < MAX_FRAMESKIP) {
 
 				DWORD currTime  = GetTickCount();
-				float deltaTime = (float) (currTime - lastTime) / 1000.0f;
+				float deltaTime = static_cast<float>(currTime - lastTime) / 1000.0f;
 
 				lastTime = currTime;
 
@@ -208,7 +220,6 @@ void WinLoop (ESContext * esContext) {
 						TranslateMessage(&msg);
 						DispatchMessage(&msg);
 					}
-
 				}
 
 				// Call update function if registered.

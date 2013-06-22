@@ -1,20 +1,21 @@
 
 #include "Model.h"
 
-Model::Model () {
+Model::Model () :
 
-	m_cVertices = INIT_ARRAY_SIZE;
-	m_nVertices = 0;
-	m_vVertices = NULL;
+	m_cVertices					(INIT_ARRAY_SIZE),
+	m_nVertices					(0),
+	m_vVertices					(NULL),
 
-	m_cIndices = INIT_ARRAY_SIZE * 3;
-	m_nIndices = 0;
-	m_vIndices = NULL;
+	m_cIndices					(INIT_ARRAY_SIZE * 3),
+	m_nIndices					(0),
+	m_vIndices					(NULL),
 
-	m_ModelMatrix               = Matrix4::Identity();
-	m_ModelViewMatrix           = Matrix4::Identity();
-	m_ModelViewProjectionMatrix = Matrix4::Identity();
-}
+	m_ModelMatrix				(Matrix4::IDENTITY),
+	m_ModelViewMatrix			(Matrix4::IDENTITY),
+	m_ModelViewProjectionMatrix	(Matrix4::IDENTITY)
+
+{}
 
 Model::~Model () {
 

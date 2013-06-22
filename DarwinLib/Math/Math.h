@@ -8,6 +8,9 @@
 
 #include "Vector.h"
 #include "Matrix.h"
+#include "Quaternion.h"
+
+#define M_EPS	1e-6f
 
 
 inline double log2 (const double x) { return log(x) / M_LN2; }

@@ -1,21 +1,2 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
-    <Filter Include="Win32">
-      <UniqueIdentifier>{9b6a147d-c38c-4b08-b457-16043f076e64}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="ESUtil\ESUtil.cpp" />
-    <ClCompile Include="ESUtil\ESUtil_shader.cpp" />
-    <ClCompile Include="ESUtil\Win32\ESUtil_Win32.cpp">
-      <Filter>Win32</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ESUtil\ESUtil.h" />
-    <ClInclude Include="ESUtil\Win32\ESUtil_Win.h">
-      <Filter>Win32</Filter>
-    </ClInclude>
-  </ItemGroup>
-</Project>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" />

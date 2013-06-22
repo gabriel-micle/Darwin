@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "ESUtil.h"
+#include "Device\ESUtil.h"
 
 #include "Renderer\Camera.h"
 #include "Renderer\Model.h"
@@ -16,3 +16,4 @@
 
 #include "Math\Math.h"
 
+#include "Input\MouseEvent.h"

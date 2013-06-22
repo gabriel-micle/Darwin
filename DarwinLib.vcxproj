@@ -56,7 +56,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;DARWINLIB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>GLES;ESUtil;DarwinLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>GLES;DarwinLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
@@ -88,11 +88,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DarwinLib\DarwinLib.h" />
+    <ClInclude Include="DarwinLib\Device\ESUtil.h" />
+    <ClInclude Include="DarwinLib\Device\Win32\ESUtil_Win.h" />
+    <ClInclude Include="DarwinLib\Input\Input.h" />
+    <ClInclude Include="DarwinLib\Input\KeyboardEvent.h" />
+    <ClInclude Include="DarwinLib\Input\MouseEvent.h" />
     <ClInclude Include="DarwinLib\IO\FileReader.h" />
     <ClInclude Include="DarwinLib\IO\Truevision.h" />
     <ClInclude Include="DarwinLib\IO\Wavefront.h" />
     <ClInclude Include="DarwinLib\Math\Math.h" />
     <ClInclude Include="DarwinLib\Math\Matrix.h" />
+    <ClInclude Include="DarwinLib\Math\Quaternion.h" />
     <ClInclude Include="DarwinLib\Math\Vector.h" />
     <ClInclude Include="DarwinLib\Renderer\Camera.h" />
     <ClInclude Include="DarwinLib\Renderer\Material.h" />
@@ -101,7 +107,11 @@
     <ClInclude Include="DarwinLib\Renderer\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DarwinLib\Device\ESUtil.cpp" />
+    <ClCompile Include="DarwinLib\Device\ESUtil_shader.cpp" />
+    <ClCompile Include="DarwinLib\Device\Win32\ESUtil_Win32.cpp" />
     <ClCompile Include="DarwinLib\Math\Matrix4.cpp" />
+    <ClCompile Include="DarwinLib\Math\Quaternion.cpp" />
     <ClCompile Include="DarwinLib\Math\Vector2.cpp" />
     <ClCompile Include="DarwinLib\Math\Vector3.cpp" />
     <ClCompile Include="DarwinLib\Math\Vector4.cpp" />

@@ -93,24 +93,21 @@ EGLBoolean CreateEGLContext (EGLNativeWindowType eglNativeWindow,
 } 
 
 
-ESContext::ESContext () {
+ESContext::ESContext () :
 
-	m_positionX = 0;
-	m_positionY = 0;
+	m_positionX			(0),
+	m_positionY			(0),
+	m_width				(640),
+	m_height			(480),
 
-	m_width  = 640;
-	m_height = 480;
+	m_flags				(ES_RGB),
 
-	m_flags = ES_RGB;
+	m_pIdleFunc			(NULL),
+	m_pDisplayFunc		(NULL),
+	m_pMouseEventFunc	(NULL),
+	m_pKeyboardEventFunc(NULL)
 
-	m_pIdleFunc          = NULL;
-	m_pDisplayFunc       = NULL;
-	m_pKeyboardFunc      = NULL;
-	m_pKeyboardUpFunc    = NULL;
-	m_pMouseFunc         = NULL;
-	m_pMotionFunc        = NULL;
-	m_pPassiveMotionFunc = NULL;
-}
+{}
 
 
 // Create a window.
@@ -206,36 +203,18 @@ void ESUTIL_API ESContext::IdleFunc (void (ESCALLBACK * idleFunc) (ESContext *, 
 	this->m_pIdleFunc = idleFunc;
 }
 
-// Set keyboard function.
-void ESUTIL_API ESContext::KeyboardFunc (void (ESCALLBACK * keyboardFunc) (ESContext *, unsigned char, int, int)) {
 
-	this->m_pKeyboardFunc = keyboardFunc;
+// Register callback function that handles all mouse events.
+void ESUTIL_API ESContext::MouseEventFunc (void (ESCALLBACK * mouseEventFunc) (ESContext *, const MouseEvent &)) {
+
+	this->m_pMouseEventFunc = mouseEventFunc;
 }
 
-// Set keyboard up function.
-void ESUTIL_API ESContext::KeyboardUpFunc (void (ESCALLBACK * keyboardUpFunc) (ESContext *, unsigned char, int, int)) {
+// Register callback function that handles all keyboard events.
+void ESUTIL_API ESContext::KeyboardEventFunc (void (ESCALLBACK * keyboardEventFunc) (ESContext *, const KeyboardEvent &)) {
 
-	this->m_pKeyboardUpFunc = keyboardUpFunc;
+	this->m_pKeyboardEventFunc = keyboardEventFunc;
 }
-
-// Set mouse button function.
-void ESUTIL_API ESContext::MouseFunc (void (ESCALLBACK * mouseFunc) (ESContext *, int, int, int, int)) {
-
-	this->m_pMouseFunc = mouseFunc;
-}
-
-// Set mouse movement when mouse button pressed function.
-void ESUTIL_API ESContext::MotionFunc (void (ESCALLBACK * motionFunc) (ESContext *, int, int)) {
-
-	this->m_pMotionFunc = motionFunc;
-}
-
-// Set mouse movement function.
-void ESUTIL_API ESContext::PassiveMotionFunc (void (ESCALLBACK * passiveMotionFunc) (ESContext *, int, int)) {
-
-	this->m_pPassiveMotionFunc = passiveMotionFunc;
-}
-
 
 
 // Log a message to the debug output for the platform.

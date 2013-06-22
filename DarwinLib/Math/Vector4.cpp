@@ -39,9 +39,10 @@ Vector4 Vector4::operator + (const Vector4 & u) const {
 }
 
 void Vector4::operator += (const Vector4 & u) {
-	for (int i = 0; i < 4; i++) {
-		(* this)[i] += u[i];
-	}
+	x += u.x;
+	y += u.y;
+	z += u.z;
+	w += u.w;
 }
 
 
@@ -53,9 +54,10 @@ Vector4 Vector4::operator - (const Vector4 & u) const {
 }
 
 void Vector4::operator -= (const Vector4 & u) {
-	for (int i = 0; i < 4; i++) {
-		(* this)[i] -= u[i];
-	}
+	x -= u.x;
+	y -= u.y;
+	z -= u.z;
+	w -= u.w;
 }
 
 Vector4 Vector4::operator - () const {
@@ -71,9 +73,15 @@ Vector4 Vector4::operator * (const float s) const {
 }
 
 void Vector4::operator *= (const float s) {
-	for (int i = 0; i < 4; i++) {
-		(* this)[i] *= s;
-	}
+	x *= s;
+	y *= s;
+	z *= s;
+	w *= s;
+}
+
+Vector4 operator * (float s, const Vector4 & v) {
+
+	return Vector4(v.x * s, v.y * s, v.z * s, v.w * s);
 }
 
 Vector4 Vector4::operator * (const Vector4 & u) const {
@@ -111,9 +119,10 @@ Vector4 Vector4::operator / (const float s) const {
 }
 
 void Vector4::operator /= (const float s) {
-	for (int i = 0; i < 4; i++) {
-		(* this)[i] /= s;
-	}
+	x /= s;
+	y /= s;
+	z /= s;
+	w /= s;
 }
 
 Vector4 Vector4::operator / (const Vector4 & u) const {
@@ -121,9 +130,10 @@ Vector4 Vector4::operator / (const Vector4 & u) const {
 }
 
 void Vector4::operator /= (const Vector4 & u) {
-	for (int i = 0; i < 4; i++) {
-		(* this)[i] /= u[i];
-	}
+	x /= u.x;
+	y /= u.y;
+	z /= u.z;
+	w /= u.w;
 }
 
 

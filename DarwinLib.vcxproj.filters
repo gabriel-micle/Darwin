@@ -35,6 +35,24 @@
     <ClInclude Include="DarwinLib\Renderer\Vertex.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="DarwinLib\Input\MouseEvent.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Input\Input.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Device\ESUtil.h">
+      <Filter>Device</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Device\Win32\ESUtil_Win.h">
+      <Filter>Device\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Input\KeyboardEvent.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Math\Quaternion.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DarwinLib\Math\Matrix4.cpp">
@@ -61,6 +79,16 @@
     <ClCompile Include="DarwinLib\Renderer\Texture.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="DarwinLib\Device\ESUtil.cpp">
+      <Filter>Device</Filter>
+    </ClCompile>
+    <ClCompile Include="DarwinLib\Device\ESUtil_shader.cpp" />
+    <ClCompile Include="DarwinLib\Device\Win32\ESUtil_Win32.cpp">
+      <Filter>Device\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="DarwinLib\Math\Quaternion.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Math">
@@ -74,6 +102,15 @@
     </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{f6d0d72d-3b25-4d6b-8ae4-3908b280f6b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{30e6c037-cd65-4678-a1b9-0182a2bd2493}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Device">
+      <UniqueIdentifier>{dc0fc652-9ac5-4112-9890-b710e901898a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Device\Win32">
+      <UniqueIdentifier>{bb1d16f8-9849-4388-aabc-c63df61f9f1f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
