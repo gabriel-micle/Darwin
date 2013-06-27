@@ -23,95 +23,8 @@
 #include "Win32/ESUtil_Win.h"
 
 
-
-// Creates an EGL rendering context and all associated elements.
-EGLBoolean CreateEGLContext (EGLNativeWindowType eglNativeWindow,
-							 EGLDisplay * eglDisplay,
-							 EGLContext * eglContext, 
-							 EGLSurface * eglSurface,
-							 EGLConfig * eglConfig, 
-							 EGLint attribList[])
-{
-	EGLint numConfigs;
-	EGLint majorVersion;
-	EGLint minorVersion;
-
-	EGLDisplay display;
-	EGLContext context;
-	EGLSurface surface;
-	EGLConfig  config;
-
-	EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE, EGL_NONE };
-
-	// Get Display.
-	display = eglGetDisplay(GetDC(eglNativeWindow));
-	if (display == EGL_NO_DISPLAY) {
-		return EGL_FALSE;
-	}
-
-	// Initialize EGL.
-	if (!eglInitialize(display, &majorVersion, &minorVersion)) {
-		return EGL_FALSE;
-	}
-
-	/*
-	// Get configs.
-	if (!eglGetConfigs(display, NULL, 0, &numConfigs)) {
-		return EGL_FALSE;
-	}
-	*/
-
-	// Choose config.
-	if (!eglChooseConfig(display, attribList, &config, 1, &numConfigs)) {
-		return EGL_FALSE;
-	}
-
-	// Create a surface.
-	surface = eglCreateWindowSurface(display, config, eglNativeWindow, NULL);
-	if (surface == EGL_NO_SURFACE) {
-		return EGL_FALSE;
-	}
-
-
-	// Create a GL context.
-	context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
-	if (context == EGL_NO_CONTEXT) {
-		return EGL_FALSE;
-	}   
-
-	// Make the context current.
-	if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-		return EGL_FALSE;
-	}
-
-	* eglDisplay = display;
-	* eglSurface = surface;
-	* eglContext = context;
-	* eglConfig  = config;
-
-	return EGL_TRUE;
-} 
-
-
-ESContext::ESContext () :
-
-	m_positionX			(0),
-	m_positionY			(0),
-	m_width				(640),
-	m_height			(480),
-
-	m_flags				(ES_RGB),
-
-	m_pIdleFunc			(NULL),
-	m_pDisplayFunc		(NULL),
-	m_pMouseEventFunc	(NULL),
-	m_pKeyboardEventFunc(NULL)
-
-{}
-
-
 // Create a window.
-GLboolean ESUTIL_API ESContext::CreateDisplay (const char * title) {
+GLboolean ESContext::CreateDisplay (const char * windowTitle) {
 
 	// Check multisampling.
 	EGLint sampleBuffers = 0;
@@ -129,7 +42,7 @@ GLboolean ESUTIL_API ESContext::CreateDisplay (const char * title) {
 		}
 	}
 
-	EGLint attribList[] = {
+	EGLint configAttribs [] = {
 		EGL_RED_SIZE,       8,
 		EGL_GREEN_SIZE,     8,
 		EGL_BLUE_SIZE,      8,
@@ -141,39 +54,45 @@ GLboolean ESUTIL_API ESContext::CreateDisplay (const char * title) {
 		EGL_NONE
 	};
 
-	if (!WinCreate (this, title)) {
-		return GL_FALSE;
+	EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE, EGL_NONE };
+
+	EGLBoolean bRet;
+
+	bRet = CreateWin32(this, windowTitle); 
+	if (!bRet) {
+		return EGL_FALSE;
 	}
 
-	if (!CreateEGLContext(m_hWnd, &m_eglDisplay, &m_eglContext, &m_eglSurface, &m_eglConfig, attribList)) {
-		return GL_FALSE;
+	bRet = CreateEGLContext(configAttribs, contextAttribs);
+	if (!bRet) {
+		return EGL_FALSE;
 	}
 
-	return GL_TRUE;
+	return bRet;
 }
 
 
 // Start the main loop for the OpenGL ES application.
-void ESUTIL_API ESContext::MainLoop () {
+void ESContext::Run () {
 
 	WinLoop(this);
 }
 
 // Swap the buffers.
-void ESUTIL_API ESContext::SwapBuffers () {
+void ESContext::SwapBuffers () {
 
 	eglSwapBuffers(m_eglDisplay, m_eglSurface);
 }
 
 // Set initial window position.
-void ESUTIL_API ESContext::InitDisplayPosition (GLint x, GLint y) {
+void ESContext::InitDisplayPosition (GLint x, GLint y) {
 
 	m_positionX = x;
 	m_positionY = y;
 }
 
 // Set initial window size.
-void ESUTIL_API ESContext::InitDisplaySize (GLint w, GLint h) {
+void ESContext::InitDisplaySize (GLint w, GLint h) {
 
 	m_width  = w;
 	m_height = h;
@@ -185,40 +104,14 @@ void ESUTIL_API ESContext::InitDisplaySize (GLint w, GLint h) {
 // - ES_WINDOW_DEPTH		- specifies that a depth buffer should be created.
 // - ES_WINDOW_STENCIL		- specifies that a stencil buffer should be created.
 // - ES_WINDOW_MULTISAMPLE	- specifies that a multi-sample buffer should be created.
-void ESUTIL_API ESContext::InitDisplayMode (GLuint mode) {
+void ESContext::InitDisplayMode (GLuint mode) {
 
 	m_flags = mode;
 }
 
 
-// Set display function.
-void ESUTIL_API ESContext::DisplayFunc (void (ESCALLBACK * displayFunc) (ESContext *)) {
-
-	this->m_pDisplayFunc = displayFunc;
-}
-
-// Set idle function.
-void ESUTIL_API ESContext::IdleFunc (void (ESCALLBACK * idleFunc) (ESContext *, float)) {
-
-	this->m_pIdleFunc = idleFunc;
-}
-
-
-// Register callback function that handles all mouse events.
-void ESUTIL_API ESContext::MouseEventFunc (void (ESCALLBACK * mouseEventFunc) (ESContext *, const MouseEvent &)) {
-
-	this->m_pMouseEventFunc = mouseEventFunc;
-}
-
-// Register callback function that handles all keyboard events.
-void ESUTIL_API ESContext::KeyboardEventFunc (void (ESCALLBACK * keyboardEventFunc) (ESContext *, const KeyboardEvent &)) {
-
-	this->m_pKeyboardEventFunc = keyboardEventFunc;
-}
-
-
 // Log a message to the debug output for the platform.
-void ESUTIL_API esLogMessage (const char * formatStr, ...) {
+void esLogMessage (const char * formatStr, ...) {
 
 	va_list params;
 	char buf[BUFSIZ];
@@ -230,3 +123,47 @@ void ESUTIL_API esLogMessage (const char * formatStr, ...) {
 
 	va_end(params);
 }
+
+
+// Creates an EGL rendering context and all associated elements.
+GLboolean ESContext::CreateEGLContext (EGLint configAttribs [], EGLint contextAttribs []) {
+
+	EGLint numConfigs;
+	EGLint majorVersion;
+	EGLint minorVersion;
+
+	// Get Display.
+	m_eglDisplay = eglGetDisplay(m_eglNativeDisplay);
+	if (m_eglDisplay == EGL_NO_DISPLAY) {
+		return GL_FALSE;
+	}
+
+	// Initialize EGL.
+	if (!eglInitialize(m_eglDisplay, &majorVersion, &minorVersion)) {
+		return GL_FALSE;
+	}
+
+	// Choose config.
+	if (!eglChooseConfig(m_eglDisplay, configAttribs, &m_eglConfig, 1, &numConfigs)) {
+		return GL_FALSE;
+	}
+
+	// Create a surface.
+	m_eglSurface = eglCreateWindowSurface(m_eglDisplay, m_eglConfig, m_eglNativeWindow, NULL);
+	if (m_eglSurface == EGL_NO_SURFACE) {
+		return GL_FALSE;
+	}
+
+	// Create a GL context.
+	m_eglContext = eglCreateContext(m_eglDisplay, m_eglConfig, EGL_NO_CONTEXT, contextAttribs);
+	if (m_eglContext == EGL_NO_CONTEXT) {
+		return GL_FALSE;
+	}   
+
+	// Make the context current.
+	if (eglMakeCurrent(m_eglDisplay, m_eglSurface, m_eglSurface, m_eglContext) == EGL_FALSE) {
+		return GL_FALSE;
+	}
+
+	return GL_TRUE;
+} 

@@ -52,7 +52,10 @@ public:
 
 	void			Draw (GLuint programObject);
 
-	
+	static void		VertexArraysPointer (GLuint programObject, int offset); 
+	static void		EnableVertexArrays  (GLuint programObject);
+	static void		DisableVertexArrays (GLuint programObject);
+
 	static void		ComputeTangentBitangent (Vertex *, Vertex *, Vertex *);
 
 };

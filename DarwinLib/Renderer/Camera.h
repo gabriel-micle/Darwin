@@ -7,12 +7,15 @@
 
 class Camera {
 
+// Public members.
 public:
 
 	static const Vector3 WORLD_X_AXIS;
 	static const Vector3 WORLD_Y_AXIS;
 	static const Vector3 WORLD_Z_AXIS;
 
+
+// Private members.
 private:
 
 	Matrix4		m_ViewMatrix;
@@ -37,6 +40,8 @@ private:
 	Vector3		m_yAxis;
 	Vector3		m_zAxis;
 
+
+// Public methods.
 public:
 
 				Camera				();

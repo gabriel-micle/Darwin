@@ -3,6 +3,7 @@
 
 
 const Matrix4 Matrix4::IDENTITY = Matrix4(1.0f);
+const Matrix4 Matrix4::ZEROES   = Matrix4();
 
 /*
  *	Constructor

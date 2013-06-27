@@ -1,6 +1,7 @@
 
 #include "Device/ESUtil.h"
 #include "Texture.h"
+#include "../../DarwinLib/Math/Math.h"
 
 #include <cstdio>
 #include <cassert>
@@ -9,14 +10,7 @@
 Texture::Texture (const char * name) : m_name(name) {}
 
 
-void Texture::Bind (int unit) {
-
-	if (!glIsTexture(m_hTexture)) {
-		printf("OK");
-	}
-}
-
-void Texture::Generate2D (const char * imageData, int width, int height, TextureOpts & opts) {
+void Texture::Generate2D (const char * imageData, int width, int height, const TextureOpts & opts) {
 
 	m_type    = DW_2D;
 	m_width   = width;
@@ -41,13 +35,13 @@ void Texture::AllocImage () {
 	// Set data format for uploading texture.
 	switch (m_opts.format) {
 	case DW_RGBA8:
-		m_internalFormat = m_opts.compressed ? GL_COMPRESSED_RGBA8_ETC2_EAC : GL_RGBA8;
+		m_internalFormat = GL_RGBA8;
 		m_dataFormat     = GL_RGBA;
 		m_dataType       = GL_UNSIGNED_BYTE;
 		m_channels	     = 4;
 		break;
 	case DW_RGB8:
-		m_internalFormat = m_opts.compressed ? GL_COMPRESSED_RGB8_ETC2 : GL_RGB8;
+		m_internalFormat = GL_RGB8;
 		m_dataFormat     = GL_RGB;
 		m_dataType       = GL_UNSIGNED_BYTE;
 		m_channels       = 3;
@@ -99,10 +93,14 @@ void Texture::AllocImage () {
 		break;
 	}
 
+	GLuint maximumMipmaps = (GLuint) ceil( log2( static_cast<float>( max(m_width, m_height) ) ) ) + 1;
+	m_opts.mipmaps = (m_opts.mipmaps > maximumMipmaps) ? maximumMipmaps : m_opts.mipmaps;
+
 	// Bind texture.
 	glBindTexture(m_target, m_hTexture);
 	glTexStorage2D(m_target, m_opts.mipmaps, m_internalFormat, m_width, m_height);
 
+	
 	// Set texture filtering.
 	switch (m_opts.filter) {
 	case DW_TRILINEAR:
@@ -141,6 +139,58 @@ void Texture::AllocImage () {
 		printf("Texture wrap mode must be REPEAT of CLAMP!\n");
 		break;
 	}
+
+	glTexParameterf(m_target, GL_TEXTURE_SWIZZLE_R, GL_BLUE);
+	glTexParameterf(m_target, GL_TEXTURE_SWIZZLE_B, GL_RED);
+	
+	
+	/*
+	if (!glIsSampler(m_sampler)) {
+
+		
+		glGenSamplers(1, &m_sampler);
+
+		// Set texture filtering.
+		switch (m_opts.filter) {
+		case DW_TRILINEAR:
+			glSamplerParameterf(m_sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glSamplerParameterf(m_sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+		case DW_BILINEAR:
+			glSamplerParameterf(m_sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+			glSamplerParameterf(m_sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+		case DW_LINEAR:
+			glSamplerParameterf(m_sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glSamplerParameterf(m_sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+		case DW_NEAREST:
+			glSamplerParameterf(m_sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glSamplerParameterf(m_sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			break;
+		default:
+			printf("Texture filtering must be NEAREST, LINEAR, BILINEAR or TRILINEAR!\n");
+			break;
+		}
+
+
+		// Set texture wrap modes.
+		switch (m_opts.wrap) {
+		case DW_REPEAT:
+			glSamplerParameterf(m_sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glSamplerParameterf(m_sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			break;
+		case DW_CLAMP:
+			glSamplerParameterf(m_sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glSamplerParameterf(m_sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			break;
+		default:
+			printf("Texture wrap mode must be REPEAT of CLAMP!\n");
+			break;
+		}
+	}
+	*/
+	
 }
 
 void Texture::UploadSubData (int x, int y, int s, const char * imageData, int width, int height) {
@@ -164,11 +214,6 @@ void Texture::UploadSubData (int x, int y, int s, const char * imageData, int wi
 	glBindTexture(m_target, m_hTexture);
 
 	// Upload data.
-	if (m_opts.compressed) {
-		// TODO
-		// glCompressedTexSubImage2D(uploadTarget, 0, x, y, m_width, m_height, m_dataFormat, m_channels * m_width * m_height, imageData);
-		glTexSubImage2D(uploadTarget, 0, x, y, width, height, m_dataFormat, m_dataType, imageData);
-	} else {
-		glTexSubImage2D(uploadTarget, 0, x, y, width, height, m_dataFormat, m_dataType, imageData);
-	}
+	glTexSubImage2D(uploadTarget, 0, x, y, width, height, m_dataFormat, m_dataType, imageData);
+
 }

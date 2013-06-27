@@ -50,8 +50,11 @@
     <ClInclude Include="DarwinLib\Input\KeyboardEvent.h">
       <Filter>Input</Filter>
     </ClInclude>
-    <ClInclude Include="DarwinLib\Math\Quaternion.h">
-      <Filter>Math</Filter>
+    <ClInclude Include="DarwinLib\Managers\ResourceManager.h">
+      <Filter>Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Managers\SceneManager.h">
+      <Filter>Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -86,8 +89,11 @@
     <ClCompile Include="DarwinLib\Device\Win32\ESUtil_Win32.cpp">
       <Filter>Device\Win32</Filter>
     </ClCompile>
-    <ClCompile Include="DarwinLib\Math\Quaternion.cpp">
-      <Filter>Math</Filter>
+    <ClCompile Include="DarwinLib\Managers\ResourceManager.cpp">
+      <Filter>Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="DarwinLib\Managers\SceneManager.cpp">
+      <Filter>Managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -111,6 +117,9 @@
     </Filter>
     <Filter Include="Device\Win32">
       <UniqueIdentifier>{bb1d16f8-9849-4388-aabc-c63df61f9f1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Managers">
+      <UniqueIdentifier>{d9b93903-0e24-4dff-9984-bfd0813fc092}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

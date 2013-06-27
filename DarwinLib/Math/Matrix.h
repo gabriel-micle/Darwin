@@ -18,12 +18,22 @@
  */
 class Matrix4 {
 
+
+// Public members.
+public:
+
+	static const Matrix4 IDENTITY;
+	static const Matrix4 ZEROES;
+
+
+// Private members.
 private:
+
 	Vector4			m_M[4];
 
+
+// Public methods.
 public:
-	
-	static const Matrix4 IDENTITY;
 
 					Matrix4 ();
 					Matrix4 (float);

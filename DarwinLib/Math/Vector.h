@@ -25,9 +25,14 @@ class Vector2 {
 
 	friend Vector2 operator * (float s, const Vector2 & v);
 
+// Public members.
 public:
 
 	float		x, y;
+
+
+// Public methods.
+public:
 
 				Vector2 ();
 				Vector2 (float xy);
@@ -83,9 +88,14 @@ class Vector3 {
 
 	friend Vector3 operator * (float s, const Vector3 & v);
 
+// Public members.
 public:
 
 	float		x, y, z;
+
+
+// Public methods.
+public:
 
 				Vector3 ();
 				Vector3 (float xyz);
@@ -149,9 +159,14 @@ class Vector4 {
 
 	friend Vector4 operator * (float s, const Vector4 & v);
 
+// Public members.
 public:
 
 	float		x, y, z, w;
+
+
+// Public methods.
+public:
 
 				Vector4 ();
 				Vector4 (float xyzw);

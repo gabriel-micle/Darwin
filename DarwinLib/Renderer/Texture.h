@@ -5,8 +5,7 @@
 enum textureUsage_t {
 	DW_DIFFUSE,
 	DW_SPECULAR,
-	DW_BUMP,
-	DW_DEPTH,
+	DW_NORMAL,
 };
 
 enum textureType_t {
@@ -41,25 +40,8 @@ struct TextureOpts {
 	textureFormat_t	format;
 	textureFilter_t	filter;
 	textureWrap_t	wrap;
+	GLuint			mipmaps;
 
-	unsigned int	mipmaps;
-	bool			compressed;
-
-	TextureOpts () {};
-
-	TextureOpts (
-		textureUsage_t	_usage, 
-		textureFormat_t _format, 
-		textureFilter_t _filter, 
-		textureWrap_t	_wrap, 
-		unsigned int	_mipmaps,
-		bool			_compressed) :
-		usage			(_usage),
-		format			(_format),
-		filter			(_filter),
-		wrap			(_wrap),
-		mipmaps			(_mipmaps),
-		compressed		(_compressed) {};
 };
 
 
@@ -71,7 +53,7 @@ private:
 
 	TextureOpts		m_opts;
 
-	int				m_channels;
+	GLint			m_channels;
 	const char *	m_name;
 
 	GLuint			m_internalFormat;
@@ -79,21 +61,22 @@ private:
 	GLuint			m_dataType;
 	GLuint			m_target;
 
+
 	void			AllocImage ();
 	void			UploadSubData (int x, int y, int z, const char * imageData, int width, int height);
 
 public:
 
 	GLuint			m_hTexture;
+	
+	GLuint			m_sampler;
 
-	int				m_width;
-	int				m_height;
+	GLint			m_width;
+	GLint			m_height;
 
 					Texture (const char * name);
 
-	void			Bind (int unit);
-
-	void			Generate2D (const char * imageData, int width, int height, TextureOpts & opts);
-	void			GenerateCube (const char * imageData[6], int size, TextureOpts & opts);
+	void			Generate2D   (const char * imageData, int width, int height, const TextureOpts & opts);
+	void			GenerateCube (const char * imageData[6], int size, const TextureOpts & opts);
 
 };

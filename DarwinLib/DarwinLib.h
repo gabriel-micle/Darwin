@@ -17,3 +17,6 @@
 #include "Math\Math.h"
 
 #include "Input\MouseEvent.h"
+
+#include "Managers\SceneManager.h"
+#include "Managers\ResourceManager.h"

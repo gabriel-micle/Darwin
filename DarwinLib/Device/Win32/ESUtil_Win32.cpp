@@ -93,7 +93,16 @@ LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		}
 		break;
 
-	case WM_DESTROY:
+
+	case WM_MOVE:
+		if (esContext) {
+			esContext->m_positionX = LOWORD(lParam);
+			esContext->m_positionY = HIWORD(lParam);
+		}
+		break;
+	
+	case WM_QUIT:
+	case WM_CLOSE:
 		PostQuitMessage(0);
 		break;
 
@@ -127,7 +136,7 @@ LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 
 // Create Win32 instance and window.
-GLboolean WinCreate (ESContext * esContext, const char * title) {
+GLboolean CreateWin32 (ESContext * esContext, const char * title) {
 
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
@@ -156,7 +165,7 @@ GLboolean WinCreate (ESContext * esContext, const char * title) {
 
 	AdjustWindowRect(&windowRect, wStyle, FALSE);
 
-	esContext->m_hWnd = CreateWindow(
+	esContext->m_eglNativeWindow = CreateWindow(
 		className,
 		title,
 		wStyle,
@@ -171,14 +180,16 @@ GLboolean WinCreate (ESContext * esContext, const char * title) {
 		);
 
 	// Set the ESContext* to the GWL_USERDATA so that it is available to the WndProc.
-	SetWindowLongPtr(esContext->m_hWnd, GWL_USERDATA, (LONG) (LONG_PTR) esContext);
+	SetWindowLongPtr(esContext->m_eglNativeWindow, GWL_USERDATA, (LONG) (LONG_PTR) esContext);
 
 
-	if (esContext->m_hWnd == NULL) {
+	if (esContext->m_eglNativeWindow == NULL) {
 		return GL_FALSE;
 	}
 
-	ShowWindow(esContext->m_hWnd, TRUE);
+	esContext->m_eglNativeDisplay = GetDC(esContext->m_eglNativeWindow);
+
+	ShowWindow(esContext->m_eglNativeWindow, TRUE);
 
 	return GL_TRUE;
 }
@@ -191,18 +202,18 @@ const int MAX_FRAMESKIP    = 5;
 
 
 // Start main windows loop.
+// Based on deWiTTERS Game Loop: Constant Game Speed with Maximum FPS.
 void WinLoop (ESContext * esContext) {
 
 	MSG   msg      = {0};
-	bool  done     = false;
 	DWORD lastTime = GetTickCount();
 
 	DWORD next_game_tick = GetTickCount();
 	int loops;
 
-	while (!done) {
+	while (true) {
 
-		if (GetActiveWindow() == esContext->m_hWnd) {
+		if (GetActiveWindow() == esContext->m_eglNativeWindow) {
 
 			loops = 0;
 			while (GetTickCount() > next_game_tick && loops < MAX_FRAMESKIP) {
@@ -214,8 +225,7 @@ void WinLoop (ESContext * esContext) {
 
 				if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 					if (msg.message == WM_QUIT) {
-						done = true;
-
+						return;
 					} else {
 						TranslateMessage(&msg);
 						DispatchMessage(&msg);
@@ -223,8 +233,8 @@ void WinLoop (ESContext * esContext) {
 				}
 
 				// Call update function if registered.
-				if (esContext && esContext->m_pIdleFunc) {
-					esContext->m_pIdleFunc(esContext, deltaTime);
+				if (esContext && esContext->m_pUpdateFunc) {
+					esContext->m_pUpdateFunc(esContext, deltaTime);
 				}
 
 				next_game_tick += SKIP_TICKS;
@@ -233,8 +243,8 @@ void WinLoop (ESContext * esContext) {
 			}
 
 			// Call draw function.
-			if (esContext && esContext->m_pDisplayFunc) {
-				esContext->m_pDisplayFunc(esContext);
+			if (esContext && esContext->m_pDrawFunc) {
+				esContext->m_pDrawFunc(esContext);
 			}
 		}
 	}

@@ -36,7 +36,7 @@ void Camera::SetFrustum (float l, float r,
 						 float b, float t,
 						 float n, float f) 
 {
-	m_ProjectionMatrix = Matrix4();
+	m_ProjectionMatrix = Matrix4::ZEROES;
 
 	float dx = r - l;
 	float dy = t - b;
@@ -56,7 +56,7 @@ void Camera::SetOrthografic (float l, float r,
 							 float b, float t,
 							 float n, float f) 
 {
-	m_ProjectionMatrix = Matrix4();
+	m_ProjectionMatrix = Matrix4::ZEROES;
 
 	float dx = r - l;
 	float dy = t - b;
@@ -73,7 +73,7 @@ void Camera::SetOrthografic (float l, float r,
 
 void Camera::SetPerspective (float fovY, float aspect, float near, float far) {
 
-	float tangent = tan(fovY * static_cast<float>(M_PI_2) / 180.0f);
+	float tangent = tan(radians(fovY) / 2.0f);
 	float height  = near * tangent;
 	float width   = height * aspect;
 

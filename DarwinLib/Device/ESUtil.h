@@ -1,15 +1,15 @@
 
 /*
- * Adapted from:
- * ------------
- * Book:      OpenGL(R) ES 2.0 Programming Guide
- * Authors:   Aaftab Munshi, Dan Ginsburg, Dave Shreiner
- * ISBN-10:   0321502795
- * ISBN-13:   9780321502797
- * Publisher: Addison-Wesley Professional
- * URLs:      http://safari.informit.com/9780321563835
- *            http://www.opengles-book.com
- */
+* Adapted from:
+* ------------
+* Book:      OpenGL(R) ES 2.0 Programming Guide
+* Authors:   Aaftab Munshi, Dan Ginsburg, Dave Shreiner
+* ISBN-10:   0321502795
+* ISBN-13:   9780321502797
+* Publisher: Addison-Wesley Professional
+* URLs:      http://safari.informit.com/9780321563835
+*            http://www.opengles-book.com
+*/
 
 
 #pragma once
@@ -22,9 +22,27 @@
 
 
 // Macros.
-#define ESUTIL_API  __cdecl
-#define ESCALLBACK  __cdecl
 
+
+struct ESContextParams {
+
+	int		esVersion;
+
+	int		windowWidth;
+	int		windowHeight;
+
+	int		windowPositionX;
+	int		windowPositionY;
+
+	int		redSize;
+	int		greenSize;
+	int		blueSize;
+	int		alphaSize;
+	int		depthSize;
+	int		samples;
+	bool	stencil;
+
+};
 
 // Buffer modes.
 #define ES_RGB				0x0000
@@ -37,15 +55,9 @@
 #define	ES_SAMPLES_8		0x0040
 #define ES_SAMPLES_16		0x0080
 
-// Input.
-#define	ES_LEFT_BUTTON		0x0000
-#define ES_MIDDLE_BUTTON	0x0001
-#define ES_RIGHT_BUTTON		0x0002
-#define ES_DOWN				0x0000
-#define ES_UP				0x0001
-
 class ESContext {
 
+// Public members.
 public:
 
 	// Window x position.
@@ -63,8 +75,11 @@ public:
 	// Buffer flags.
 	GLuint		m_flags;
 
-	// Window handle.
-	EGLNativeWindowType  m_hWnd;
+	// Native window.
+	EGLNativeWindowType  m_eglNativeWindow;
+
+	// Native display.
+	EGLNativeDisplayType m_eglNativeDisplay;
 
 	// EGL display.
 	EGLDisplay  m_eglDisplay;
@@ -79,64 +94,84 @@ public:
 	EGLConfig	m_eglConfig;
 
 	// Callbacks.
-	void (ESCALLBACK * m_pDisplayFunc)			(ESContext *);
-	void (ESCALLBACK * m_pIdleFunc)				(ESContext *, float);
-	void (ESCALLBACK * m_pMouseEventFunc)		(ESContext *, const MouseEvent &);
-	void (ESCALLBACK * m_pKeyboardEventFunc)	(ESContext *, const KeyboardEvent &);
+	void (* m_pDrawFunc)		  (ESContext *);
+	void (* m_pUpdateFunc)		  (ESContext *, float);
+	void (* m_pMouseEventFunc)	  (ESContext *, const MouseEvent &);
+	void (* m_pKeyboardEventFunc) (ESContext *, const KeyboardEvent &);
 
-	// ESContext constructor.
-	ESContext ();
+	static ESContext *	m_pInstance;	
+
+
+// Public methods.
+public:
+
+	// Constructor.
+	ESContext () {};
 
 	// Create a window with the specified title.
 	// Returns GL_TRUE if window creation is succesful, GL_FALSE otherwise.
-	GLboolean ESUTIL_API CreateDisplay (const char *);
+	GLboolean CreateDisplay (const char *);
+
+	//
+	static bool CreateDisplay (const char * windowTitle, const ESContextParams & escp); 
+
 
 	// Start the main loop for the OpenGL ES application.
-	void ESUTIL_API MainLoop ();
-
-	// Register a draw callback function to be used to render each frame.
-	void ESUTIL_API DisplayFunc (void (ESCALLBACK * drawFunc) (ESContext *));
-
-	// Register an update callback function to be used to update on each time step.
-	void ESUTIL_API IdleFunc (void (ESCALLBACK * updateFunc) (ESContext *, float));
-
-	// Register callback function that handles all mouse events.
-	void ESUTIL_API MouseEventFunc (void (ESCALLBACK * mouseEventFunc) (ESContext *, const MouseEvent &));
-
-	// Register callback function that handles all keyboard events.
-	void ESUTIL_API KeyboardEventFunc (void (ESCALLBACK * keyboardEventFunc) (ESContext *, const KeyboardEvent &));
+	void Run ();
 
 	// Swaps buffers.
-	void ESUTIL_API SwapBuffers ();
+	void SwapBuffers ();
 
 	// Set initial window size.
-	void ESUTIL_API InitDisplaySize (GLint width, GLint height);
+	void InitDisplaySize (GLint width, GLint height);
 
 	// Set initial window position.
-	void ESUTIL_API InitDisplayPosition (GLint x, GLint y);
+	void InitDisplayPosition (GLint x, GLint y);
 
-	// Specifies the buffer initialization mode:
-	// - ES_WINDOW_RGB			- specifies that the color buffer should have R, G, B channels.
-	// - ES_WINDOW_ALPHA		- specifies that the color buffer should have alpha.
-	// - ES_WINDOW_DEPTH		- specifies that a depth buffer should be created.
-	// - ES_WINDOW_STENCIL		- specifies that a stencil buffer should be created.
-	// - ES_WINDOW_MULTISAMPLE	- specifies that a multi-sample buffer should be created.
-	void ESUTIL_API InitDisplayMode (GLuint mode);
+	// Specifies the buffer initialization mode.
+	void InitDisplayMode (GLuint mode);
+
+	// Register a draw callback function to be used to render each frame.
+	void SetDrawFunc (void (* drawFunc) (ESContext *)) {
+		m_pDrawFunc = drawFunc;
+	}
+
+	// Register an update callback function to be used to update on each time step.
+	void SetUpdateFunc (void (* updateFunc) (ESContext *, float)) {
+		m_pUpdateFunc = updateFunc;
+	}
+
+	// Register callback function that handles all mouse events.
+	void SetMouseEventFunc (void (* mouseEventFunc) (ESContext *, const MouseEvent &)) {
+		m_pMouseEventFunc = mouseEventFunc;
+	}
+
+	// Register callback function that handles all keyboard events.
+	void SetKeyboardEventFunc (void (* keyboardEventFunc) (ESContext *, const KeyboardEvent &)) {
+		m_pKeyboardEventFunc = keyboardEventFunc;
+	}
+
+
+// Private methods.
+private:
+
+	// Create an EGL context.
+	GLboolean CreateEGLContext (EGLint configAttribs [], EGLint contextAttribs []);
 
 }; // ESContext.
 
 
 // Log a message to the debug output for the platform.
-void ESUTIL_API esLogMessage (const char * formatStr, ...);
+void esLogMessage (const char * formatStr, ...);
 
 
 // Load a shader, check for compile errors, print error messages to output log.
 // Type can be GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
 // Returns a new shader object on success or 0 on failure.
-GLuint ESUTIL_API esLoadShader (GLenum type, const char * shaderSrc);
+GLuint esLoadShader (GLenum type, const char * shaderSrc);
 
 
 // Load a vertex and fragment shader, create a program object, link program.
 // Errors output to log.
 // Return a new program object linked with the vertex/fragment shader pair, 0 on failure.
-GLuint ESUTIL_API esLoadProgram (const char * vertShaderSrc, const char * fragShaderSrc);
+GLuint esLoadProgram (const char * vertShaderSrc, const char * fragShaderSrc);
