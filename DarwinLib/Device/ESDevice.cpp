@@ -19,12 +19,12 @@
 #include <GLES3/gl3.h>
 #include <EGL/egl.h>
 
-#include "ESUtil.h"
-#include "Win32/ESUtil_Win.h"
+#include "ESDevice.h"
+#include "Win32/ESDevice_Win.h"
 
+ESDevice * ESDevice::m_pInstance = NULL;
 
-// Create a window.
-GLboolean ESContext::CreateDisplay (const char * windowTitle) {
+void ESDevice::CreateInstance () {
 
 	// Check multisampling.
 	EGLint sampleBuffers = 0;
@@ -42,91 +42,71 @@ GLboolean ESContext::CreateDisplay (const char * windowTitle) {
 		}
 	}
 
+void ESDevice::DestroyInstance () {
+
+	if (m_pInstance != NULL) {
+		delete m_pInstance;
+		m_pInstance = NULL;
+	}
+}
+
+// Create a window.
+GLboolean ESDevice::CreateDisplay (const char * windowTitle, const ESContextParams & escp) {
+
+	m_width     = escp.windowWidth;
+	m_height    = escp.windowHeight;
+	m_positionX = escp.windowPositionX;
+	m_positionY = escp.windowPositionY;
+
+	
 	EGLint configAttribs [] = {
-		EGL_RED_SIZE,       8,
-		EGL_GREEN_SIZE,     8,
-		EGL_BLUE_SIZE,      8,
-		EGL_ALPHA_SIZE,     (m_flags & ES_ALPHA)	?  8 : EGL_DONT_CARE,
-		EGL_DEPTH_SIZE,     (m_flags & ES_DEPTH)	? 24 : EGL_DONT_CARE,
-		EGL_STENCIL_SIZE,   (m_flags & ES_STENCIL)	?  1 : EGL_DONT_CARE,
-		EGL_SAMPLE_BUFFERS, sampleBuffers,
-		EGL_SAMPLES,		16,
+		EGL_RED_SIZE,       (escp.redSize     != -1) ? escp.redSize     : EGL_DONT_CARE,
+		EGL_GREEN_SIZE,     (escp.greenSize   != -1) ? escp.greenSize   : EGL_DONT_CARE,
+		EGL_BLUE_SIZE,      (escp.blueSize    != -1) ? escp.blueSize    : EGL_DONT_CARE,
+		EGL_ALPHA_SIZE,     (escp.alphaSize   != -1) ? escp.alphaSize   : EGL_DONT_CARE,
+		EGL_DEPTH_SIZE,     (escp.alphaSize	  != -1) ? escp.depthSize   : EGL_DONT_CARE,
+		EGL_STENCIL_SIZE,   (escp.stencilSize != -1) ? escp.stencilSize : EGL_DONT_CARE,
 		EGL_NONE
 	};
 
-	EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE, EGL_NONE };
-
+	EGLint contextAttribs[] = {
+		EGL_CONTEXT_CLIENT_VERSION, escp.esVersion,
+		EGL_NONE, EGL_NONE
+	};
+	
 	EGLBoolean bRet;
 
 	bRet = CreateWin32(this, windowTitle); 
 	if (!bRet) {
-		return EGL_FALSE;
+		return GL_FALSE;
 	}
 
 	bRet = CreateEGLContext(configAttribs, contextAttribs);
 	if (!bRet) {
-		return EGL_FALSE;
+		return GL_FALSE;
 	}
 
-	return bRet;
+	return true;
 }
 
 
 // Start the main loop for the OpenGL ES application.
-void ESContext::Run () {
+void ESDevice::Run () {
 
 	WinLoop(this);
 }
 
 // Swap the buffers.
-void ESContext::SwapBuffers () {
+void ESDevice::SwapBuffers () {
 
 	eglSwapBuffers(m_eglDisplay, m_eglSurface);
 }
 
-// Set initial window position.
-void ESContext::InitDisplayPosition (GLint x, GLint y) {
 
-	m_positionX = x;
-	m_positionY = y;
-}
-
-// Set initial window size.
-void ESContext::InitDisplaySize (GLint w, GLint h) {
-
-	m_width  = w;
-	m_height = h;
-}
-
-// Specifies the buffer initialization mode: 
-// - ES_WINDOW_RGB			- specifies that the color buffer should have R, G, B channels.
-// - ES_WINDOW_ALPHA		- specifies that the color buffer should have alpha.
-// - ES_WINDOW_DEPTH		- specifies that a depth buffer should be created.
-// - ES_WINDOW_STENCIL		- specifies that a stencil buffer should be created.
-// - ES_WINDOW_MULTISAMPLE	- specifies that a multi-sample buffer should be created.
-void ESContext::InitDisplayMode (GLuint mode) {
-
-	m_flags = mode;
-}
-
-
-// Log a message to the debug output for the platform.
-void esLogMessage (const char * formatStr, ...) {
-
-	va_list params;
-	char buf[BUFSIZ];
-
-	va_start(params, formatStr);
-	vsprintf_s(buf, sizeof(buf), formatStr, params);
-
-	printf("%s", buf);
-
-	va_end(params);
-}
 
 
 // Creates an EGL rendering context and all associated elements.
-GLboolean ESContext::CreateEGLContext (EGLint configAttribs [], EGLint contextAttribs []) {
+GLboolean ESDevice::CreateEGLContext (EGLint configAttribs [], EGLint contextAttribs []) {
 
 	EGLint numConfigs;
 	EGLint majorVersion;
@@ -167,3 +147,18 @@ GLboolean ESContext::CreateEGLContext (EGLint configAttribs [], EGLint contextAt
 
 	return GL_TRUE;
 } 
+
+
+// Log a message to the debug output for the platform.
+void esLogMessage (const char * formatStr, ...) {
+
+	va_list params;
+	char buf[BUFSIZ];
+
+	va_start(params, formatStr);
+	vsprintf_s(buf, sizeof(buf), formatStr, params);
+
+	printf("%s", buf);
+
+	va_end(params);
+}

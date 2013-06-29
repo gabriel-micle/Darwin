@@ -13,7 +13,7 @@
 
 
 // Includes.
-#include "ESUtil.h"
+#include "ESDevice.h"
 #include <stdlib.h>
 
 
@@ -21,7 +21,7 @@
 // Load a shader, check for compile errors, print error messages to output log.
 // Type can be GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
 // Returns a new shader object on success or 0 on failure.
-GLuint esLoadShader (GLenum type, const char * shaderSrc) {
+GLuint ESUTIL_API esLoadShader (GLenum type, const char * shaderSrc) {
 
 	GLuint shader;
 	GLint  compiled;
@@ -69,7 +69,7 @@ GLuint esLoadShader (GLenum type, const char * shaderSrc) {
 // Load a vertex and fragment shader, create a program object, link program.
 // Errors output to log.
 // Return a new program object linked with the vertex/fragment shader pair, 0 on failure.
-GLuint esLoadProgram (const char * vertShaderSrc, const char * fragShaderSrc) {
+GLuint ESUTIL_API esLoadProgram (const char * vertShaderSrc, const char * fragShaderSrc) {
 
 	GLuint vertexShader;
 	GLuint fragmentShader;

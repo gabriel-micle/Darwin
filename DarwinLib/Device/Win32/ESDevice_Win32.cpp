@@ -17,15 +17,14 @@
 #include <windows.h>
 #include <Windowsx.h>
 
-#include "../ESUtil.h"
+#include "../ESDevice.h"
 #include "../../Input/Input.h"
 
-#include <cstdio>
 
 // Main window procedure.
 LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
-	ESContext * esContext = (ESContext *) (LONG_PTR) GetWindowLongPtr(hWnd, GWL_USERDATA);
+	ESDevice * esContext = (ESDevice *) (LONG_PTR) GetWindowLongPtr(hWnd, GWL_USERDATA);
 
 
 	/***********************
@@ -74,7 +73,7 @@ LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		mouseEvent.scroll = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA);
 
 		if (esContext && esContext->m_pMouseEventFunc) {
-			esContext->m_pMouseEventFunc(esContext, mouseEvent);
+			esContext->m_pMouseEventFunc(mouseEvent);
 		}
 	}
 
@@ -93,16 +92,7 @@ LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		}
 		break;
 
-
-	case WM_MOVE:
-		if (esContext) {
-			esContext->m_positionX = LOWORD(lParam);
-			esContext->m_positionY = HIWORD(lParam);
-		}
-		break;
-	
-	case WM_QUIT:
-	case WM_CLOSE:
+	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 
@@ -121,7 +111,7 @@ LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			keyEvent.ctrl  = (GetKeyState(VK_CONTROL) & 0x80) != 0;
 
 			if (esContext && esContext->m_pKeyboardEventFunc) {
-				esContext->m_pKeyboardEventFunc(esContext, keyEvent);
+				esContext->m_pKeyboardEventFunc(keyEvent);
 			}
 		}
 		break;
@@ -136,7 +126,7 @@ LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 
 // Create Win32 instance and window.
-GLboolean CreateWin32 (ESContext * esContext, const char * title) {
+GLboolean CreateWin32 (ESDevice * esContext, const char * title) {
 
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
@@ -179,7 +169,7 @@ GLboolean CreateWin32 (ESContext * esContext, const char * title) {
 		NULL
 		);
 
-	// Set the ESContext* to the GWL_USERDATA so that it is available to the WndProc.
+	// Set the ESDevice* to the GWL_USERDATA so that it is available to the WndProc.
 	SetWindowLongPtr(esContext->m_eglNativeWindow, GWL_USERDATA, (LONG) (LONG_PTR) esContext);
 
 
@@ -203,7 +193,7 @@ const int MAX_FRAMESKIP    = 5;
 
 // Start main windows loop.
 // Based on deWiTTERS Game Loop: Constant Game Speed with Maximum FPS.
-void WinLoop (ESContext * esContext) {
+void WinLoop (ESDevice * esContext) {
 
 	MSG   msg      = {0};
 	DWORD lastTime = GetTickCount();
@@ -234,7 +224,7 @@ void WinLoop (ESContext * esContext) {
 
 				// Call update function if registered.
 				if (esContext && esContext->m_pUpdateFunc) {
-					esContext->m_pUpdateFunc(esContext, deltaTime);
+					esContext->m_pUpdateFunc(deltaTime);
 				}
 
 				next_game_tick += SKIP_TICKS;
@@ -244,7 +234,7 @@ void WinLoop (ESContext * esContext) {
 
 			// Call draw function.
 			if (esContext && esContext->m_pDrawFunc) {
-				esContext->m_pDrawFunc(esContext);
+				esContext->m_pDrawFunc();
 			}
 		}
 	}

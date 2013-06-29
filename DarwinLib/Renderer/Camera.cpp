@@ -17,9 +17,9 @@ Camera::Camera () :
 
 	m_absolutePitch			(0.0f),
 
-	m_acceleration			(Vector3(1.0f)),
+	m_acceleration			(Vector3(8.0f)),
 	m_currentVelocity		(Vector3(0.0f)),
-	m_velocity				(Vector3(1.0f)),
+	m_velocity				(Vector3(2.0f)),
 
 	m_zNear					(1.0f),
 	m_zFar					(1000.0f),
@@ -36,7 +36,7 @@ void Camera::SetFrustum (float l, float r,
 						 float b, float t,
 						 float n, float f) 
 {
-	m_ProjectionMatrix = Matrix4::ZEROES;
+	m_ProjectionMatrix = Matrix4();
 
 	float dx = r - l;
 	float dy = t - b;
@@ -56,7 +56,7 @@ void Camera::SetOrthografic (float l, float r,
 							 float b, float t,
 							 float n, float f) 
 {
-	m_ProjectionMatrix = Matrix4::ZEROES;
+	m_ProjectionMatrix = Matrix4();
 
 	float dx = r - l;
 	float dy = t - b;
@@ -73,7 +73,7 @@ void Camera::SetOrthografic (float l, float r,
 
 void Camera::SetPerspective (float fovY, float aspect, float near, float far) {
 
-	float tangent = tan(radians(fovY) / 2.0f);
+	float tangent = tan(fovY * static_cast<float>(M_PI_2) / 180.0f);
 	float height  = near * tangent;
 	float width   = height * aspect;
 

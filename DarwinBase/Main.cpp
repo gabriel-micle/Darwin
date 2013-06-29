@@ -20,7 +20,7 @@ GLenum status;
 Model  * pModel1;
 Model  * pModel2;
 Model  * pQuad;
-Camera * pCamera;
+//Camera * pCamera;
 
 GLint loc;
 
@@ -93,7 +93,7 @@ GLuint CreateLightParamsUniformBuffer (GLuint programObject) {
 
 
 // Initialize the shader and program object.
-void Init (ESContext * esContext) {
+void Init () {
 
 	// Specify buffer clear color.
 	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
@@ -101,17 +101,6 @@ void Init (ESContext * esContext) {
 
 	SceneManager::CreateInstance("Data/Scene/");
 	SceneManager::GetInstance()->ImportScene("test_scene.xml");
-
-
-	// Set up camera and frustum.
-	// --------------------------
-	float aspect = 1.0f * esContext->m_width / esContext->m_height;
-	pCamera = new Camera();
-	pCamera->SetPerspective(60.0f, aspect, 0.1f, 1000.0f);
-	pCamera->SetPosition(Vector3(0.0f));
-	pCamera->SetAcceleration(Vector3(8.0f));
-	pCamera->SetVelocity(Vector3(2.0f));
-
 
 
 	// Init models.
@@ -227,17 +216,27 @@ void Init (ESContext * esContext) {
 
 	glGenRenderbuffers(3, msaaRBO);
 
-
 	for (unsigned int i = 0; i < 3; i++) {
 		glBindRenderbuffer(GL_RENDERBUFFER, msaaRBO[i]);
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGBA16F, esContext->m_width, esContext->m_height);
+		glRenderbufferStorageMultisample(
+			GL_RENDERBUFFER, 
+			4, 
+			GL_RGBA16F, 
+			ESDevice::GetInstance()->GetWindowWidth(), 
+			ESDevice::GetInstance()->GetWindowHeight()
+			);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_RENDERBUFFER, msaaRBO[i]);
 	}
 
 	glGenRenderbuffers(1, &depthRBO);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT16, esContext->m_width, esContext->m_height);
+	glRenderbufferStorageMultisample(
+		GL_RENDERBUFFER, 
+		4, 
+		GL_DEPTH_COMPONENT16, 
+		ESDevice::GetInstance()->GetWindowWidth(), 
+		ESDevice::GetInstance()->GetWindowHeight());
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRBO);
@@ -279,7 +278,7 @@ void Init (ESContext * esContext) {
 
 	for (unsigned int i = 0; i < 3; i++) {
 		glBindTexture(GL_TEXTURE_2D, finalTex[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, esContext->m_width, esContext->m_height, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, ESDevice::GetInstance()->GetWindowWidth(), ESDevice::GetInstance()->GetWindowHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, finalTex[i], 0);
@@ -504,7 +503,7 @@ void DrawCombinedMeshes (Model * pM1, Model * pM2, GLuint programObject) {
 
 }
 
-void GeometryPass (ESContext * esContext, GLuint programObject) {
+void GeometryPass (GLuint programObject) {
 
 	// Enable.
 	glUseProgram(programObject);
@@ -541,11 +540,11 @@ void GeometryPass (ESContext * esContext, GLuint programObject) {
 		glDrawBuffers(1, &buffers[i]);
 		glBlitFramebuffer(
 			0, 0, 
-			esContext->m_width, 
-			esContext->m_height, 
+			ESDevice::GetInstance()->GetWindowWidth(), 
+			ESDevice::GetInstance()->GetWindowHeight(), 
 			0, 0, 
-			esContext->m_width, 
-			esContext->m_height,
+			ESDevice::GetInstance()->GetWindowWidth(), 
+			ESDevice::GetInstance()->GetWindowHeight(),
 			GL_COLOR_BUFFER_BIT,
 			GL_NEAREST
 			);
@@ -587,7 +586,7 @@ void LightingPass (GLuint programObject) {
 
 		loc = glGetUniformLocation(programObject, "u_EyePosition");
 		if (loc != -1) {
-			glUniform3fv(loc, 1, pCamera->GetEyePosition());
+			glUniform3fv(loc, 1, SceneManager::GetInstance()->GetActiveCamera()->GetEyePosition());
 		}
 
 
@@ -609,27 +608,28 @@ void LightingPass (GLuint programObject) {
 
 }
 
-void DrawFunc (ESContext * esContext) {
+void DrawFunc () {
 
 	// Clear the color buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
 	// Set the viewport
-	glViewport(0, 0, esContext->m_width, esContext->m_height);
+	glViewport(0, 0, ESDevice::GetInstance()->GetWindowWidth(), ESDevice::GetInstance()->GetWindowHeight());
 
 	//ForwardLighting (programObject0);
-	GeometryPass(esContext, programObject1);
+	GeometryPass(programObject1);
 	LightingPass(programObject2);
 
 	// Swap buffers.
-	esContext->SwapBuffers();
+	ESDevice::GetInstance()->SwapBuffers();
 }
 
 float yaw   = 0.0f;
 float pitch = 0.0f;
 
-void UpdateFunc (ESContext * esContext, float t) {
+void UpdateFunc (float t) {
+
+	Camera * pCamera = SceneManager::GetInstance()->GetActiveCamera();
 
 	Vector3 velocity = pCamera->GetCurrentVelocity();
 	Vector3 direction = Vector3(0.0f);
@@ -690,7 +690,9 @@ void UpdateFunc (ESContext * esContext, float t) {
 }
 
 
-void KeyboardEventFunc(ESContext * esContext, const KeyboardEvent & ev) {
+void KeyboardEventFunc(const KeyboardEvent & ev) {
+
+	Camera * pCamera = SceneManager::GetInstance()->GetActiveCamera();
 
 	Vector3 velocity = pCamera->GetCurrentVelocity();
 
@@ -751,7 +753,7 @@ void KeyboardEventFunc(ESContext * esContext, const KeyboardEvent & ev) {
 }
 
 
-void MouseEventFunc (ESContext * esContext, const MouseEvent & ev) {
+void MouseEventFunc (const MouseEvent & ev) {
 
 	static GLint prevX = 0;
 	static GLint prevY = 0;
@@ -768,24 +770,34 @@ void MouseEventFunc (ESContext * esContext, const MouseEvent & ev) {
 
 int main (int argc, char * argv[]) {
 
-	ESContext * esContext = new ESContext();
+	ESDevice::CreateInstance();
 
-	esContext->InitDisplayMode(ES_RGB | ES_ALPHA | ES_DEPTH);
+	ESContextParams escp;
+	escp.esVersion       = 3;
+	escp.windowWidth     = 1024;
+	escp.windowHeight    = 600;
+	escp.windowPositionX = 100;
+	escp.windowPositionY = 100;
+	escp.redSize         = 8;
+	escp.greenSize       = 8;
+	escp.blueSize        = 8;
+	escp.alphaSize       = 0;
+	escp.depthSize       = 24;
+	escp.stencilSize     = 0;
 
-	esContext->InitDisplayPosition(100, 100);
-	esContext->InitDisplaySize(1024, 600);
+	ESDevice::GetInstance()->CreateDisplay("Darwin", escp);
 
-	esContext->CreateDisplay("Darwin");
+	Init();
 
-	Init(esContext);
+	ESDevice::GetInstance()->SetDrawFunc(DrawFunc);
+	ESDevice::GetInstance()->SetUpdateFunc(UpdateFunc);
 
-	esContext->SetDrawFunc(DrawFunc);
-	esContext->SetUpdateFunc(UpdateFunc);
+	ESDevice::GetInstance()->SetMouseEventFunc(MouseEventFunc);
+	ESDevice::GetInstance()->SetKeyboardEventFunc(KeyboardEventFunc);
 
-	esContext->SetMouseEventFunc(MouseEventFunc);
-	esContext->SetKeyboardEventFunc(KeyboardEventFunc);
+	ESDevice::GetInstance()->Run();
 
-	esContext->Run();
+	ESDevice::DestroyInstance();
 
 	return EXIT_SUCCESS;
 }
