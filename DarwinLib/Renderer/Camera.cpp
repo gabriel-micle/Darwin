@@ -17,9 +17,9 @@ Camera::Camera () :
 
 	m_absolutePitch			(0.0f),
 
-	m_acceleration			(Vector3(1.0f)),
+	m_acceleration			(Vector3(8.0f)),
 	m_currentVelocity		(Vector3(0.0f)),
-	m_velocity				(Vector3(1.0f)),
+	m_velocity				(Vector3(2.0f)),
 
 	m_zNear					(1.0f),
 	m_zFar					(1000.0f),

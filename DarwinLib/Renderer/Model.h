@@ -9,7 +9,7 @@
 #include <cstring>
 #include <cstddef>
 
-#include "Device/ESUtil.h"
+#include "Device/ESDevice.h"
 
 #include "Math/Math.h"
 

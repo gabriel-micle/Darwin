@@ -88,8 +88,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DarwinLib\DarwinLib.h" />
-    <ClInclude Include="DarwinLib\Device\ESUtil.h" />
-    <ClInclude Include="DarwinLib\Device\Win32\ESUtil_Win.h" />
+    <ClInclude Include="DarwinLib\Device\ESDevice.h" />
+    <ClInclude Include="DarwinLib\Device\Win32\ESDevice_Win.h" />
     <ClInclude Include="DarwinLib\Input\Input.h" />
     <ClInclude Include="DarwinLib\Input\KeyboardEvent.h" />
     <ClInclude Include="DarwinLib\Input\MouseEvent.h" />
@@ -108,9 +108,9 @@
     <ClInclude Include="DarwinLib\Renderer\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DarwinLib\Device\ESUtil.cpp" />
+    <ClCompile Include="DarwinLib\Device\ESDevice.cpp" />
     <ClCompile Include="DarwinLib\Device\ESUtil_shader.cpp" />
-    <ClCompile Include="DarwinLib\Device\Win32\ESUtil_Win32.cpp" />
+    <ClCompile Include="DarwinLib\Device\Win32\ESDevice_Win32.cpp" />
     <ClCompile Include="DarwinLib\Managers\ResourceManager.cpp" />
     <ClCompile Include="DarwinLib\Managers\SceneManager.cpp" />
     <ClCompile Include="DarwinLib\Math\Matrix4.cpp" />

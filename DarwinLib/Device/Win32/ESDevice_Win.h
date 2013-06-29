@@ -16,7 +16,7 @@
 
 
 // Create Win32 instance and window.
-GLboolean CreateWin32 (ESContext * esContext, const char * title);
+GLboolean CreateWin32 (ESDevice * esDevice, const char * title);
 
 // Start main windows loop.
-void WinLoop (ESContext * esContext);
+void WinLoop (ESDevice * esDevice);

@@ -4,8 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "Device\ESUtil.h"
-
+#include "Device\ESDevice.h"
 #include "Renderer\Camera.h"
 #include "Renderer\Model.h"
 #include "Renderer\Texture.h"
