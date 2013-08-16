@@ -56,6 +56,24 @@
     <ClInclude Include="DarwinLib\Device\Win32\ESDevice_Win.h">
       <Filter>Device\Win32</Filter>
     </ClInclude>
+    <ClInclude Include="DarwinLib\Renderer\SceneObject.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Renderer\Renderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Managers\Managers.h">
+      <Filter>Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\IO\IO.h">
+      <Filter>I/O</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Renderer\Clock.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinLib\Renderer\Light.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DarwinLib\Math\Matrix4.cpp">
@@ -71,9 +89,6 @@
       <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="DarwinLib\Renderer\Camera.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="DarwinLib\Renderer\Material.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="DarwinLib\Renderer\Model.cpp">
@@ -94,6 +109,12 @@
     </ClCompile>
     <ClCompile Include="DarwinLib\Device\Win32\ESDevice_Win32.cpp">
       <Filter>Device\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="DarwinLib\Renderer\SceneObject.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DarwinLib\Renderer\Renderer.cpp">
+      <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,30 +1,38 @@
 
 #pragma once
 
+#include <cstdlib>
+#include <cstdio>
 
-char * ReadFile (const char * fileName) {
+class FileReader {
 
-	int size = 0;
+public:
 
-	char * content = NULL;
+	static char * ReadFile (const char * fileName) {
 
-	FILE * pFile = fopen(fileName, "rb");
+		int size = 0;
 
-	if (pFile == NULL) {
-		perror(fileName);
+		char * content = NULL;
+
+		FILE * pFile = fopen(fileName, "rb");
+
+		if (pFile == NULL) {
+			perror(fileName);
+		}
+
+		fseek(pFile, 0, SEEK_END);
+		size = ftell(pFile);
+		fseek(pFile, 0, SEEK_SET);
+
+		if (size > 0) {
+			content = new char [size + 1];
+			fread(content, 1, size, pFile);
+			content[size] = 0;
+		}
+
+		fclose(pFile);
+
+		return content;
 	}
 
-	fseek(pFile, 0, SEEK_END);
-	size = ftell(pFile);
-	fseek(pFile, 0, SEEK_SET);
-
-	if (size > 0) {
-		content = new char [size + 1];
-		fread(content, 1, size, pFile);
-		content[size] = 0;
-	}
-
-	fclose(pFile);
-
-	return content;
-}
+};

@@ -6,17 +6,11 @@
 #include <cassert>
 
 
-Texture::Texture (const char * name) : m_name(name) {}
-
-
 void Texture::Bind (int unit) {
 
-	if (!glIsTexture(m_hTexture)) {
-		printf("OK");
-	}
 }
 
-void Texture::Generate2D (const char * imageData, int width, int height, TextureOpts & opts) {
+void Texture::Generate2D (const char * imageData, int width, int height, const TextureOpts & opts) {
 
 	m_type    = DW_2D;
 	m_width   = width;
@@ -36,18 +30,41 @@ void Texture::Generate2D (const char * imageData, int width, int height, Texture
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture::GenerateCube (const char * imageData[6], int size, const TextureOpts & opts) {
+
+	m_type   = DW_CUBE;
+	m_width  = size;
+	m_height = size;
+	m_opts   = opts;
+
+	// Allocate image and set texture parameters.
+	AllocImage();
+
+	// Upload image data.
+	for (int s = 0; s < 6; s++) {
+		UploadSubData(0, 0, s, imageData[s], m_width, m_width);
+	}
+
+	// Generate mipmaps.
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+	// Restore binding.
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+}
+
 void Texture::AllocImage () {
 
 	// Set data format for uploading texture.
 	switch (m_opts.format) {
 	case DW_RGBA8:
-		m_internalFormat = m_opts.compressed ? GL_COMPRESSED_RGBA8_ETC2_EAC : GL_RGBA8;
+		m_internalFormat = GL_RGBA8;
 		m_dataFormat     = GL_RGBA;
 		m_dataType       = GL_UNSIGNED_BYTE;
 		m_channels	     = 4;
 		break;
 	case DW_RGB8:
-		m_internalFormat = m_opts.compressed ? GL_COMPRESSED_RGB8_ETC2 : GL_RGB8;
+		m_internalFormat = GL_RGB8;
 		m_dataFormat     = GL_RGB;
 		m_dataType       = GL_UNSIGNED_BYTE;
 		m_channels       = 3;
@@ -87,12 +104,18 @@ void Texture::AllocImage () {
 
 
 	// Set texture targets.
+	int numSides;
+	int uploadTarget;
 	switch (m_type) {
 	case DW_2D:
 		m_target = GL_TEXTURE_2D;
+		uploadTarget = GL_TEXTURE_2D;
+		numSides = 1;
 		break;
 	case DW_CUBE:
 		m_target = GL_TEXTURE_CUBE_MAP;
+		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+		numSides = 6;
 		break;
 	default:
 		printf("Only TEXTURE_2D and TEXTURE_CUBE are supported!\n");
@@ -101,7 +124,10 @@ void Texture::AllocImage () {
 
 	// Bind texture.
 	glBindTexture(m_target, m_hTexture);
-	glTexStorage2D(m_target, m_opts.mipmaps, m_internalFormat, m_width, m_height);
+
+	for (int s = 0; s < numSides; s++) {
+		glTexStorage2D(uploadTarget + s, m_opts.mipmaps, m_internalFormat, m_width, m_height);
+	}
 
 	// Set texture filtering.
 	switch (m_opts.filter) {
@@ -164,11 +190,5 @@ void Texture::UploadSubData (int x, int y, int s, const char * imageData, int wi
 	glBindTexture(m_target, m_hTexture);
 
 	// Upload data.
-	if (m_opts.compressed) {
-		// TODO
-		// glCompressedTexSubImage2D(uploadTarget, 0, x, y, m_width, m_height, m_dataFormat, m_channels * m_width * m_height, imageData);
-		glTexSubImage2D(uploadTarget, 0, x, y, width, height, m_dataFormat, m_dataType, imageData);
-	} else {
-		glTexSubImage2D(uploadTarget, 0, x, y, width, height, m_dataFormat, m_dataType, imageData);
-	}
+	glTexSubImage2D(uploadTarget, 0, x, y, width, height, m_dataFormat, m_dataType, imageData);
 }

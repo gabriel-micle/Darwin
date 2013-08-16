@@ -15,44 +15,28 @@
 
 #include "Vertex.h"
 
+#include <vector>
+
 
 class Model {
 
-private:
-
-	GLuint			m_vertexVBO;
-	GLuint			m_vertexVAO;
-	GLuint			m_indexVBO;
-
 public:
 
-					Model ();
-	virtual			~Model ();
-
-	Matrix4			m_ModelMatrix;
-	Matrix4			m_ModelViewMatrix;
-	Matrix4			m_ModelViewProjectionMatrix;
 
 	// Vertices.
-	int				m_cVertices;
-	int				m_nVertices;
-	Vertex *		m_vVertices;
+	int					m_vertexOffset;
+	int					m_vertexCount;
 
-	void			AddVertex (Vertex & vert);
+	int					m_indexOffset;
+	int					m_indexCount;
 
-	// Indices.
-	int				m_cIndices;
-	int				m_nIndices;
-	int *			m_vIndices;
+						Model () {};
+	virtual				~Model () {};
 
-	void			AddIndex (int & idx);
+	static void			ComputeTangentBitangent (Vertex *, Vertex *, Vertex *);
 
-
-	void			Finalize ();
-
-	void			Draw (GLuint programObject);
-
-	
-	static void		ComputeTangentBitangent (Vertex *, Vertex *, Vertex *);
+	static void			EnableVertexArrays(GLuint programObject);
+	static void			DisableVertexArrays(GLuint programObject);
+	static void			VertexArraysPointer(GLuint programObject, GLint offset);
 
 };

@@ -1,26 +1,28 @@
 
 #pragma once
 
-
-namespace Truevision {
+#include <cstdlib>
 
 #pragma pack (push, n)		// Push the current alignment.
 #pragma pack (1)			// Set new alignment.
-	struct TGAHeader {
+struct TGAHeader {
 
-		unsigned char	idSize, mapType, imageType;
+	unsigned char	idSize, mapType, imageType;
 
-		unsigned short	paletteStart, paletteSize;
-		unsigned char	paletteEntryDepth;
+	unsigned short	paletteStart, paletteSize;
+	unsigned char	paletteEntryDepth;
 
-		unsigned short	xOrigin, yOrigin, width, height;
-		unsigned char	colorDepth, descriptor;
+	unsigned short	xOrigin, yOrigin, width, height;
+	unsigned char	colorDepth, descriptor;
 
-	};
+};
 #pragma pack (pop, n)	// Restore alignment.
 
+class Truevision {
 
-	char * ImportTGA (const char * fileName, int * width, int * height, int * imageChannels) {
+public:
+
+	static char * ImportTGA (const char * fileName, int * width, int * height, int * imageChannels) {
 
 		FILE * pFile = fopen(fileName, "rb");
 		if (!pFile) {
@@ -85,4 +87,4 @@ namespace Truevision {
 		return imageData;
 	}
 
-}
+};

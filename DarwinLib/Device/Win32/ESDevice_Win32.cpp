@@ -28,8 +28,8 @@ LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 
 	/***********************
-	 * Handle mouse events.
-	 ***********************/
+	* Handle mouse events.
+	***********************/
 
 	MouseEvent mouseEvent;
 	memset(&mouseEvent, 0, sizeof(MouseEvent));
@@ -79,8 +79,8 @@ LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 
 	/***********************
-	 * Handle other events.
-	 ***********************/
+	* Handle other events.
+	***********************/
 
 	switch (uMsg) {
 
@@ -115,7 +115,7 @@ LRESULT WINAPI WndProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			}
 		}
 		break;
-	
+
 	default:
 		break;
 	} 
@@ -203,39 +203,37 @@ void WinLoop (ESDevice * esContext) {
 
 	while (true) {
 
-		if (GetActiveWindow() == esContext->m_eglNativeWindow) {
+		loops = 0;
+		while (GetTickCount() > next_game_tick && loops < MAX_FRAMESKIP) {
 
-			loops = 0;
-			while (GetTickCount() > next_game_tick && loops < MAX_FRAMESKIP) {
+			DWORD currTime  = GetTickCount();
+			float deltaTime = static_cast<float>(currTime - lastTime) / 1000.0f;
 
-				DWORD currTime  = GetTickCount();
-				float deltaTime = static_cast<float>(currTime - lastTime) / 1000.0f;
+			lastTime = currTime;
 
-				lastTime = currTime;
-
-				if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-					if (msg.message == WM_QUIT) {
-						return;
-					} else {
-						TranslateMessage(&msg);
-						DispatchMessage(&msg);
-					}
+			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				if (msg.message == WM_QUIT) {
+					return;
+				} else {
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
 				}
-
-				// Call update function if registered.
-				if (esContext && esContext->m_pUpdateFunc) {
-					esContext->m_pUpdateFunc(deltaTime);
-				}
-
-				next_game_tick += SKIP_TICKS;
-				loops++;
-
 			}
 
-			// Call draw function.
-			if (esContext && esContext->m_pDrawFunc) {
-				esContext->m_pDrawFunc();
+			// Call update function if registered.
+			if (esContext && esContext->m_pUpdateFunc) {
+				esContext->m_pUpdateFunc(deltaTime);
 			}
+
+			next_game_tick += SKIP_TICKS;
+			loops++;
+
 		}
+
+		// Call draw function.
+		if (esContext && esContext->m_pDrawFunc) {
+			esContext->m_pDrawFunc();
+		}
+
 	}
 }

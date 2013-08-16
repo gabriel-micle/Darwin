@@ -1,31 +1,22 @@
 
 #pragma once
 
-#include "Math\Math.h"
+#include "Math/Math.h"
 
-class Material {
 
-public:
+struct Material {
 
-				Material ();
+	Vector4	Ambient;
+	Vector4 Diffuse;
+	Vector4 Specular;
+	float	Shininess;
+	int		Id;
 
-private:
-
-	char *		name;		/* Material name. */
-
-	Vector3		Ka;			/* Ambient color. */
-	Vector3		Kd;			/* Diffuse color. */
-	Vector3		Ks;			/* Specular color. */
-
-	float		alpha;		/* Transparency. */
-
-	float		Ns;			/* Specular shininess. */
-
-	int			illum;		/* Illumination mode. */
-
-	char *		mapKa;		/* Name of the ambient map. */
-	char *		mapKd;		/* Name of the diffuse map. */
-	char *		mapKs;		/* Name of the specular map. */
-	char *		mapBump;	/* Name of the normal map.	*/
-
+	Material () :
+		Ambient		(1.0f, 1.0f, 1.0f, 1.0f),
+		Diffuse		(1.0f, 1.0f, 1.0f, 1.0f),
+		Specular	(1.0f, 1.0f, 1.0f, 1.0f),
+		Shininess	(1.0f),
+		Id			(0) 
+	{}
 };

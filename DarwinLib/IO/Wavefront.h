@@ -5,19 +5,21 @@
 #include <vector>
 #include <map>
 
+class Wavefront {
 
-namespace Wavefront {
+public:
+
+	static const int WAVEFRONT_BUFSIZE = 1024;
 
 
-	const int WAVEFRONT_BUFSIZE = 1024;
-
-
-	Model * ImportOBJ (const char * fileName) {
+	static void ImportOBJ (const char * fileName, 
+							  std::vector<Vertex> & out_vVertices,
+							  std::vector<int> & out_vIndices) {
 
 		FILE * pFile = fopen(fileName, "rb");
 		if (pFile == NULL) {
 			perror(fileName);
-			return NULL;
+			return;
 		}
 
 		char buffer[WAVEFRONT_BUFSIZE];
@@ -26,9 +28,6 @@ namespace Wavefront {
 		std::vector<Vector2> vTexCoords;
 
 		std::vector<std::pair<int, int> > vIndices;
-
-
-		Model * pModel = new Model();
 
 		float x, y, z;
 		int	p = 0;
@@ -161,22 +160,22 @@ namespace Wavefront {
 			if (found == indexMap.end()) {
 
 				// If index tuple was NOT encountered before, create a new unified index in the index buffer.
-				pModel->AddIndex(currentIdx);
+				out_vIndices.push_back(currentIdx);
 
 				// Map tuple to the new index.
 				indexMap[vIndices[i]] = currentIdx++;
 
 				// Add the vertex as a new mesh vertex.
-				pModel->AddVertex(v);
+				out_vVertices.push_back(v);
 
 			} else {
 
 				// If index tuple was encountered before, add its unified mapping to the index buffer.
-				pModel->AddIndex(found->second);
+				out_vIndices.push_back(found->second);
 
 				// Also interpolate the tangent and bitangent.
-				pModel->m_vVertices[found->second].Binormal += v.Binormal;
-				pModel->m_vVertices[found->second].Tangent  += v.Tangent;
+				out_vVertices[found->second].Binormal += v.Binormal;
+				out_vVertices[found->second].Tangent  += v.Tangent;
 			}
 
 		}
@@ -189,10 +188,6 @@ namespace Wavefront {
 		std::map<std::pair<int, int>, int>().swap(indexMap);
 		free(vVertices);
 
-		// Optimize storage.
-		pModel->Finalize();
-
-		return pModel;
 	}
 
-}
+};

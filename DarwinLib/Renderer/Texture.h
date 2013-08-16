@@ -1,12 +1,13 @@
 
 #pragma once
 
+#include <string>
 
 enum textureUsage_t {
 	DW_DIFFUSE,
 	DW_SPECULAR,
-	DW_BUMP,
-	DW_DEPTH,
+	DW_NORMAL,
+	DW_HEIGHT,
 };
 
 enum textureType_t {
@@ -43,7 +44,6 @@ struct TextureOpts {
 	textureWrap_t	wrap;
 
 	unsigned int	mipmaps;
-	bool			compressed;
 
 	TextureOpts () {};
 
@@ -52,48 +52,60 @@ struct TextureOpts {
 		textureFormat_t _format, 
 		textureFilter_t _filter, 
 		textureWrap_t	_wrap, 
-		unsigned int	_mipmaps,
-		bool			_compressed) :
+		unsigned int	_mipmaps) :
 		usage			(_usage),
 		format			(_format),
 		filter			(_filter),
 		wrap			(_wrap),
-		mipmaps			(_mipmaps),
-		compressed		(_compressed) {};
+		mipmaps			(_mipmaps) {};
 };
 
 
 class Texture {
 
-private:
+// Public members.
+public:
 
-	textureType_t	m_type;
-
+	GLuint			m_hTexture;
 	TextureOpts		m_opts;
 
+	int				m_width;
+	int				m_height;
 	int				m_channels;
-	const char *	m_name;
+
+
+// Private members.
+private:
+
+	std::string		m_textureName;
+
+	textureType_t	m_type;
 
 	GLuint			m_internalFormat;
 	GLuint			m_dataFormat;
 	GLuint			m_dataType;
 	GLuint			m_target;
 
-	void			AllocImage ();
-	void			UploadSubData (int x, int y, int z, const char * imageData, int width, int height);
 
+// Public methods.
 public:
-
-	GLuint			m_hTexture;
-
-	int				m_width;
-	int				m_height;
-
-					Texture (const char * name);
+					Texture () {}
+	virtual			~Texture () {}
 
 	void			Bind (int unit);
 
-	void			Generate2D (const char * imageData, int width, int height, TextureOpts & opts);
-	void			GenerateCube (const char * imageData[6], int size, TextureOpts & opts);
+	void			Generate2D (const char * imageData, int width, int height, const TextureOpts & opts);
+	void			GenerateCube (const char * imageData[6], int size, const TextureOpts & opts);
+
+
+// Private methods.
+private:
+
+	void			AllocImage ();
+	void			UploadSubData (int x, int y, int z, const char * imageData, int width, int height);
 
 };
+
+
+
+

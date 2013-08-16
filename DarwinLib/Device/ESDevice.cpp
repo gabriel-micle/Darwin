@@ -26,21 +26,10 @@ ESDevice * ESDevice::m_pInstance = NULL;
 
 void ESDevice::CreateInstance () {
 
-	// Check multisampling.
-	EGLint sampleBuffers = 0;
-	EGLint numSamples = 0;
-	if (m_flags & ES_MULTISAMPLE) {
-		sampleBuffers = 1;
-		if (m_flags & ES_SAMPLES_16) {
-			numSamples = 16;
-		} else if (m_flags & ES_SAMPLES_8) {
-			numSamples = 8;
-		} else if (m_flags & ES_SAMPLES_4) {
-			numSamples = 4;
-		} else if (m_flags & ES_SAMPLES_2) {
-			numSamples = 2;
-		}
+	if (m_pInstance == NULL) {
+		m_pInstance = new ESDevice();
 	}
+}
 
 void ESDevice::DestroyInstance () {
 
